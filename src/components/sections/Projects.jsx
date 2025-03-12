@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { FaGithub, FaExternalLinkAlt, FaCode, FaSearch } from 'react-icons/fa';
+import { getImagePath } from '../../utils/pathUtils';
 
 const Projects = () => {
   const [activeFilter, setActiveFilter] = useState('all');
@@ -12,7 +13,7 @@ const Projects = () => {
       id: 1,
       title: "SMART_MED",
       description: "A diabetes management system with family tree visualization and medical document OCR extraction, reducing patient data retrieval time by 40%.",
-      image: "/src/assets/images/project1.png", // Update path to your actual image
+      image: getImagePath('project1.png'), // Updated line
       technologies: ["React", "TypeScript", "Node.js", "Express.js", "MySQL", "Tesseract.js"],
       category: "healthcare",
       githubLink: "https://github.com/AryanBV/SMART_MED_2.0",
@@ -23,7 +24,7 @@ const Projects = () => {
       id: 2,
       title: "Weather Monitoring System",
       description: "Real-time weather monitoring system for Indian cities, showcasing data processing and visualization with API integration.",
-      image: "/src/assets/images/project2.png", // Update path to your actual image
+      image: getImagePath('project2.png'), // Updated line
       technologies: ["Python", "Flask", "MongoDB", "scikit-learn", "Pandas", "Matplotlib"],
       category: "data",
       githubLink: "https://github.com/AryanBV/weather_monitoring_system",
@@ -34,7 +35,7 @@ const Projects = () => {
       id: 3,
       title: "IEEE Paper Generator",
       description: "Full-stack web app generating IEEE-formatted research papers with AI-powered content and automatic image captioning.",
-      image: "/src/assets/images/project3.png", // Update path to your actual image
+      image: getImagePath('project3.png'), // Updated line
       technologies: ["React", "Node.js", "MySQL", "JWT", "Multer"],
       category: "ai",
       githubLink: "https://github.com/AryanBV/research-paper-assistant",
@@ -214,10 +215,10 @@ const Projects = () => {
           onClick={() => setExpandedImage(null)}
         >
           <div className="relative max-w-4xl max-h-screen">
-            <img 
-              src={projects.find(p => p.id === expandedImage)?.image} 
-              alt="Project Preview" 
-              className="max-w-full max-h-[80vh] object-contain"
+          <img 
+            src={projects.find(p => p.id === expandedImage)?.image} 
+            alt="Project Preview" 
+            className="max-w-full max-h-[80vh] object-contain"
             />
             <button 
               className="absolute top-4 right-4 text-white bg-black bg-opacity-50 rounded-full p-2"

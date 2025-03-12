@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { FaGithub, FaLinkedin, FaArrowRight, FaEnvelope } from 'react-icons/fa';
+import { getImagePath } from '../../utils/pathUtils';
 
 const Hero = () => {
   return (
@@ -111,10 +112,10 @@ const Hero = () => {
               
               {/* Image container */}
               <div className="relative rounded-xl overflow-hidden border-2 border-primary/20">
-                <img 
-                  src="/src/assets/images/image.png" 
-                  alt="Aryan B V" 
-                  className="w-full h-auto object-cover"
+              <img 
+                src={getImagePath('image.png')} 
+                alt="Aryan B V" 
+                className="w-full h-auto object-cover"
                 />
               </div>
             </div>
