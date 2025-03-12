@@ -4,6 +4,7 @@ export default {
       "./index.html",
       "./src/**/*.{js,ts,jsx,tsx}",
     ],
+    darkMode: 'class', // This is the crucial missing setting
     theme: {
       extend: {
         colors: {
@@ -11,6 +12,16 @@ export default {
           secondary: "#7c3aed",
           dark: "#111827",
         },
+        fontFamily: {
+          sans: ['Inter', 'sans-serif'],
+        },
+        boxShadow: {
+          'soft': '0 5px 15px rgba(0,0,0,0.05)',
+          'medium': '0 8px 30px rgba(0,0,0,0.12)',
+        },
+        animation: {
+          'bounce-slow': 'bounce 3s infinite',
+        }
       },
     },
     plugins: [],
