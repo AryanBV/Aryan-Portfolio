@@ -7,21 +7,22 @@ html {
 }
 
 body {
-  @apply bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100;
+  @apply bg-gray-900 text-gray-100;
 }
 
 @layer components {
   .section-container {
     @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16;
   }
+  
   .btn-primary {
     @apply bg-primary hover:bg-primary/90 text-white font-medium py-2 px-4 rounded transition duration-300;
   }
+  
   .card {
-    @apply bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-300;
+    @apply bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-300;
   }
 }
-
 
 /* Custom mobile fixes */
 @media (max-width: 640px) {

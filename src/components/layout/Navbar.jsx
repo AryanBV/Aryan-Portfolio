@@ -1,7 +1,4 @@
-// Replace the current navigation links setup in Navbar.jsx with this approach
-
 import { useState } from 'react';
-import ThemeToggle from '../ui/ThemeToggle';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -27,7 +24,7 @@ const Navbar = () => {
   ];
   
   return (
-    <nav className="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-50">
+    <nav className="bg-gray-800 shadow-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
@@ -46,14 +43,11 @@ const Navbar = () => {
                 <button
                   key={link.name}
                   onClick={() => scrollToSection(link.sectionId)}
-                  className="text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary px-3 py-2 rounded-md text-sm font-medium transition duration-300"
+                  className="text-gray-300 hover:text-primary px-3 py-2 rounded-md text-sm font-medium transition duration-300"
                 >
                   {link.name}
                 </button>
               ))}
-              <div className="ml-4">
-                <ThemeToggle />
-              </div>
             </div>
           </div>
           
@@ -61,7 +55,7 @@ const Navbar = () => {
           <div className="md:hidden">
             <button
               onClick={toggleMenu}
-              className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary focus:outline-none"
+              className="inline-flex items-center justify-center p-2 rounded-md text-gray-300 hover:text-primary focus:outline-none"
             >
               {isOpen ? (
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -85,7 +79,7 @@ const Navbar = () => {
               <button
                 key={link.name}
                 onClick={() => scrollToSection(link.sectionId)}
-                className="block w-full text-left text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary px-3 py-2 rounded-md text-base font-medium"
+                className="block w-full text-left text-gray-300 hover:text-primary px-3 py-2 rounded-md text-base font-medium"
               >
                 {link.name}
               </button>
