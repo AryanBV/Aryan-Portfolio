@@ -2,8 +2,6 @@
 
 A responsive portfolio website showcasing my professional information, skills, projects, and achievements. Built with React, Tailwind CSS, and Framer Motion.
 
-![Portfolio Screenshot](https://user-images.githubusercontent.com/your-username/your-repo/screenshot.png)
-
 ## 🔍 Live Demo
 
 [View Live Portfolio](https://aryanbv.github.io/Aryan-Portfolio/)
