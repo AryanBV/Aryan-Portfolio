@@ -26,8 +26,8 @@ const Certificates = () => {
       id: 1,
       title: "Microsoft Certified: Azure AI Fundamentals",
       issuer: "Microsoft",
-      issueDate: "December 26, 2024",
-      expiryDate: null, // No expiration
+      issueDate: "January 2025",
+      expiryDate: null,
       credentialId: "878ECBC7C3BE4794",
       certNumber: "MD46DE-2BDB32",
       description: "Validated knowledge of machine learning and AI concepts, along with related Microsoft Azure services.",
@@ -47,6 +47,30 @@ const Certificates = () => {
     },
     {
       id: 2,
+      title: "Delta (Full Stack Web Development)",
+      issuer: "Apna College",
+      issueDate: "2024",
+      expiryDate: null,
+      credentialId: "682709e11a4355b77d0558b6",
+      description: "Comprehensive full-stack web development program covering modern technologies and frameworks.",
+      longDescription: "An intensive full-stack web development course covering HTML5, CSS3, JavaScript, React, Node.js, Express.js, and MongoDB. The program emphasized hands-on project development, modern development practices, and industry-standard tools.",
+      image: getImagePath('delta-cert.png'),
+      category: "webdev",
+      status: "active",
+      skills: [
+        "HTML5 & CSS3",
+        "JavaScript ES6+",
+        "React.js",
+        "Node.js & Express.js",
+        "MongoDB",
+        "RESTful APIs",
+        "Git & GitHub"
+      ],
+      verifyLink: null,
+      featured: true
+    },
+    {
+      id: 3,
       title: "Alpha (DSA with Java)",
       issuer: "Apna College",
       issueDate: "2023",
@@ -62,10 +86,10 @@ const Certificates = () => {
         "Algorithm analysis and design",
         "Problem-solving techniques",
         "Object-Oriented Programming concepts",
-        "Optimization strategies"
+        "Time & Space complexity analysis"
       ],
       verifyLink: null,
-      featured: true
+      featured: false
     }
   ];
 

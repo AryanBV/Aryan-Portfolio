@@ -135,7 +135,7 @@ const Hero = () => {
               {[
                 { value: "550+", label: "Problems Solved", icon: "🎯" },
                 { value: "4+", label: "Live Projects", icon: "🚀" },
-                { value: "8.3/10", label: "GPA", icon: "📚" }
+                { value: "8/10", label: "GPA", icon: "📚" }
               ].map((stat, index) => (
                 <motion.div
                   key={stat.label}
@@ -154,8 +154,19 @@ const Hero = () => {
             
             {/* Enhanced CTAs with magnetic effect */}
             <div className="flex flex-wrap gap-4 mb-8">
-              <motion.a 
-                href="#projects"
+              <motion.button 
+                onClick={() => {
+                  const projectsSection = document.getElementById('projects');
+                  if (projectsSection) {
+                    const offset = 80;
+                    const elementPosition = projectsSection.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.scrollY - offset;
+                    window.scrollTo({
+                      top: offsetPosition,
+                      behavior: 'smooth'
+                    });
+                  }
+                }}
                 className="group relative bg-gradient-to-r from-primary to-blue-500 text-white font-medium py-3 px-8 rounded-full transition-all duration-300 flex items-center overflow-hidden"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -165,11 +176,12 @@ const Hero = () => {
                   <FaArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
                 </span>
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              </motion.a>
+              </motion.button>
               
               <motion.a 
-                href="/resume.pdf" 
-                download
+                href="https://drive.google.com/file/d/1kWrXGA8Np7OhIYhjaHqLZ1WfMIOy2nRl/view?usp=sharing"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="group border-2 border-primary/50 text-primary hover:bg-primary/10 font-medium py-3 px-8 rounded-full transition-all duration-300 flex items-center backdrop-blur-sm"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}

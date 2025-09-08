@@ -6,22 +6,23 @@ const Timeline = () => {
   const [activeTab, setActiveTab] = useState('all');
   
   const timelineData = [
+    
+    
     {
-      id: 1,
-      type: 'education',
-      title: 'B.Tech in AI & Machine Learning',
-      organization: 'M S Ramaiah University of Applied Sciences',
-      location: 'Bangalore, India',
-      date: '2021 - 2025',
-      current: true,
-      description: 'Pursuing comprehensive program in AI/ML with 8.3 GPA. Focus on machine learning algorithms, neural networks, and practical AI applications.',
+      id: 3,
+      type: 'project',
+      title: 'Lumina-Craft E-Commerce Platform',
+      organization: 'Personal Project',
+      date: '2025',
+      description: 'Developed full-featured e-commerce platform with Next.js 14, achieving <2s page load times.',
       achievements: [
-        'GPA: 8.3/10',
-        'Relevant Coursework: Machine Learning, Data Structures, Database Management',
-        'Active member of Tech Club'
+        'Implemented Razorpay payment gateway',
+        'Built real-time cart management',
+        'Achieved 99.9% transaction success rate'
       ],
-      icon: <FaGraduationCap />,
-      color: 'from-blue-500 to-cyan-500'
+      icon: <FaBriefcase />,
+      color: 'from-green-500 to-emerald-500',
+      link: 'https://github.com/AryanBV/lumina-craft'
     },
     {
       id: 2,
@@ -39,21 +40,21 @@ const Timeline = () => {
       color: 'from-purple-500 to-pink-500',
       link: 'https://learn.microsoft.com/credentials/878ecbc7c3be4794'
     },
+    
     {
-      id: 3,
+      id: 5,
       type: 'project',
-      title: 'Lumina-Craft E-Commerce Platform',
-      organization: 'Personal Project',
-      date: '2025',
-      description: 'Developed full-featured e-commerce platform with Next.js 14, achieving <2s page load times.',
+      title: 'SMART_MED Healthcare System',
+      organization: 'Academic Project',
+      date: '2024',
+      description: 'Diabetes management platform with OCR-based document processing.',
       achievements: [
-        'Implemented Razorpay payment gateway',
-        'Built real-time cart management',
-        'Achieved 99.9% transaction success rate'
+        'Reduced data retrieval time by 40%',
+        '90% OCR accuracy achieved',
+        'Multi-role authentication system'
       ],
       icon: <FaBriefcase />,
-      color: 'from-green-500 to-emerald-500',
-      link: 'https://github.com/AryanBV/lumina-craft'
+      color: 'from-indigo-500 to-purple-500'
     },
     {
       id: 4,
@@ -73,19 +74,21 @@ const Timeline = () => {
       color: 'from-orange-500 to-red-500'
     },
     {
-      id: 5,
-      type: 'project',
-      title: 'SMART_MED Healthcare System',
-      organization: 'Academic Project',
-      date: '2024',
-      description: 'Diabetes management platform with OCR-based document processing.',
+      id: 1,
+      type: 'education',
+      title: 'B.Tech in AI & Machine Learning',
+      organization: 'M S Ramaiah University of Applied Sciences',
+      location: 'Bangalore, India',
+      date: '2021 - 2025',
+      current: true,
+      description: 'Pursuing comprehensive program in AI/ML with 8.3 GPA. Focus on machine learning algorithms, neural networks, and practical AI applications.',
       achievements: [
-        'Reduced data retrieval time by 40%',
-        '90% OCR accuracy achieved',
-        'Multi-role authentication system'
+        'GPA: 8.3/10',
+        'Relevant Coursework: Machine Learning, Data Structures, Database Management',
+        'Active member of Tech Club'
       ],
-      icon: <FaBriefcase />,
-      color: 'from-indigo-500 to-purple-500'
+      icon: <FaGraduationCap />,
+      color: 'from-blue-500 to-cyan-500'
     }
   ];
   
@@ -277,7 +280,7 @@ const Timeline = () => {
           {[
             { label: 'Years of Learning', value: '4+', icon: '📚' },
             { label: 'Projects Completed', value: '10+', icon: '🚀' },
-            { label: 'Certifications', value: '2+', icon: '🏆' },
+            { label: 'Certifications', value: '3+', icon: '🏆' },
             { label: 'Problems Solved', value: '550+', icon: '💡' }
           ].map((stat, index) => (
             <motion.div

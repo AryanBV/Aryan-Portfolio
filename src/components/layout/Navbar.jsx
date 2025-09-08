@@ -33,30 +33,36 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
   
-  // Smooth scrolling
-  const scrollToSection = (sectionId) => {
+  // Smooth scrolling - Fixed to handle both desktop and mobile
+  const scrollToSection = (sectionId, e) => {
+    e.preventDefault(); // Prevent default anchor behavior
+    
     const element = document.getElementById(sectionId);
     if (element) {
       const offset = 80; // Navbar height
-      const elementPosition = element.offsetTop - offset;
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.scrollY - offset;
       
       window.scrollTo({
-        top: elementPosition,
+        top: offsetPosition,
         behavior: 'smooth'
       });
       
+      // Close mobile menu after clicking
       setIsOpen(false);
+      // Set active section immediately
+      setActiveSection(sectionId);
     }
   };
   
   const navLinks = [
     { name: 'Home', sectionId: 'hero', icon: '🏠' },
     { name: 'About', sectionId: 'about', icon: '👤' },
-    { name: 'Skills', sectionId: 'skills', icon: '💡' },
+    { name: 'Skills', sectionId: 'techstack', icon: '💡' },
     { name: 'Projects', sectionId: 'projects', icon: '🚀' },
     { name: 'Timeline', sectionId: 'timeline', icon: '📅' },
+    { name: 'Code Stats', sectionId: 'codestats', icon: '📊' },
     { name: 'Certificates', sectionId: 'certificates', icon: '🏆' },
-    { name: 'Achievements', sectionId: 'achievements', icon: '🎯' },
     { name: 'Contact', sectionId: 'contact', icon: '📧' },
   ];
   
@@ -77,7 +83,7 @@ const Navbar = () => {
           <div className="flex items-center justify-between h-16">
             {/* Logo/Name with animation */}
             <motion.button 
-              onClick={() => scrollToSection('hero')}
+              onClick={(e) => scrollToSection('hero', e)}
               className="relative group"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -101,7 +107,7 @@ const Navbar = () => {
                 {navLinks.map((link) => (
                   <button
                     key={link.name}
-                    onClick={() => scrollToSection(link.sectionId)}
+                    onClick={(e) => scrollToSection(link.sectionId, e)}
                     className="relative group px-4 py-2 rounded-full transition-all duration-300"
                   >
                     {/* Active indicator */}
@@ -128,7 +134,7 @@ const Navbar = () => {
                 ))}
               </div>
               
-              {/* Theme toggle */}
+              {/* Theme toggle - commented out for now
               <motion.button
                 onClick={toggleTheme}
                 className="ml-4 p-2 rounded-full bg-gray-800/30 backdrop-blur-sm border border-gray-700/30 text-gray-400 hover:text-primary transition-colors"
@@ -137,11 +143,12 @@ const Navbar = () => {
               >
                 {theme === 'dark' ? <FaSun size={18} /> : <FaMoon size={18} />}
               </motion.button>
+              */}
             </div>
             
             {/* Mobile menu button with animation */}
             <div className="md:hidden flex items-center space-x-2">
-              {/* Mobile theme toggle */}
+              {/* Mobile theme toggle - commented out
               <motion.button
                 onClick={toggleTheme}
                 className="p-2 rounded-full bg-gray-800/30 backdrop-blur-sm text-gray-400"
@@ -149,6 +156,7 @@ const Navbar = () => {
               >
                 {theme === 'dark' ? <FaSun size={18} /> : <FaMoon size={18} />}
               </motion.button>
+              */}
               
               {/* Hamburger menu */}
               <motion.button
@@ -199,7 +207,7 @@ const Navbar = () => {
                   {navLinks.map((link, index) => (
                     <motion.button
                       key={link.name}
-                      onClick={() => scrollToSection(link.sectionId)}
+                      onClick={(e) => scrollToSection(link.sectionId, e)}
                       initial={{ x: -50, opacity: 0 }}
                       animate={{ x: 0, opacity: 1 }}
                       transition={{ delay: index * 0.05 }}

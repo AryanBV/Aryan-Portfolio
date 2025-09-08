@@ -1,23 +1,26 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   FaGithub, FaExternalLinkAlt, FaCode, FaSearch, 
   FaReact, FaNodeJs, FaPython, FaDatabase, FaTimes,
-  FaStar, FaEye, FaCodeBranch
+  FaStar, FaEye, FaCodeBranch, FaSpinner
 } from 'react-icons/fa';
 import { SiTypescript, SiMongodb, SiMysql, SiNextdotjs, SiTailwindcss } from 'react-icons/si';
 import { getImagePath } from '../../utils/pathUtils';
+import { githubService } from '../../services/githubService';
 
 const Projects = () => {
   const [activeFilter, setActiveFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProject, setSelectedProject] = useState(null);
   const [hoveredProject, setHoveredProject] = useState(null);
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
   
-  // Enhanced project data
-  const projects = [
+  // Your featured projects (keep these as they have images and detailed info)
+  const featuredProjects = [
     {
-      id: 1,
+      id: 'featured-1',
       title: "Lumina-Crafts E-Commerce",
       shortDesc: "Modern e-commerce platform with real-time features",
       description: "A full-featured e-commerce platform built with Next.js 14, featuring real-time cart management, secure payment processing, and optimized performance achieving <2s page load times.",
@@ -38,10 +41,11 @@ const Projects = () => {
         "Row Level Security implementation",
         "5+ payment methods supported"
       ],
-      year: "2025"
+      year: "2025",
+      featured: true
     },
     {
-      id: 2,
+      id: 'featured-2',
       title: "SMART_MED Healthcare",
       shortDesc: "AI-powered diabetes management system",
       description: "Healthcare management system featuring family tree visualization and OCR-based medical document processing, reducing patient data retrieval time by 40%.",
@@ -61,10 +65,11 @@ const Projects = () => {
         "Multi-role authentication",
         "5+ generations family tree"
       ],
-      year: "2025"
+      year: "2025",
+      featured: true
     },
     {
-      id: 3,
+      id: 'featured-3',
       title: "Weather Monitoring System",
       shortDesc: "Real-time weather analytics for Indian cities",
       description: "Comprehensive weather monitoring system with predictive analytics, real-time data processing, and interactive visualizations for major Indian cities.",
@@ -84,10 +89,11 @@ const Projects = () => {
         "Interactive visualizations",
         "Multi-city support"
       ],
-      year: "2024"
+      year: "2024",
+      featured: true
     },
     {
-      id: 4,
+      id: 'featured-4',
       title: "IEEE Paper Generator",
       shortDesc: "AI-assisted research paper formatting tool",
       description: "Automated research paper generation tool with AI-powered content suggestions and automatic image captioning, reducing document preparation time by 60%.",
@@ -107,9 +113,89 @@ const Projects = () => {
         "Auto image captioning",
         "IEEE format compliance"
       ],
-      year: "2025"
+      year: "2025",
+      featured: true
     }
   ];
+  
+  // Fetch GitHub repositories
+  useEffect(() => {
+    const fetchGitHubProjects = async () => {
+      setLoading(true);
+      try {
+        const repos = await githubService.getRepos({ sort: 'updated', per_page: 30 });
+        
+        // Filter and map GitHub repos
+        const githubProjects = repos
+          .filter(repo => !repo.fork && repo.description) // Filter out forks and repos without description
+          .map(repo => ({
+            id: `github-${repo.id}`,
+            title: repo.name
+              .replace(/-/g, ' ')
+              .replace(/_/g, ' ')
+              .split(' ')
+              .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+              .join(' '),
+            shortDesc: repo.description,
+            description: repo.description,
+            technologies: repo.topics && repo.topics.length > 0 ? repo.topics : [repo.language].filter(Boolean),
+            category: determineCategory(repo),
+            githubLink: repo.html_url,
+            liveLink: repo.homepage,
+            stats: {
+              stars: repo.stargazers_count,
+              forks: repo.forks_count,
+              views: repo.watchers_count
+            },
+            language: repo.language,
+            updatedAt: repo.updated_at,
+            createdAt: repo.created_at,
+            year: new Date(repo.created_at).getFullYear().toString(),
+            featured: false
+          }));
+        
+        // Combine featured projects with GitHub projects
+        const allProjects = [...featuredProjects, ...githubProjects];
+        
+        // Remove duplicates based on GitHub URL
+        const uniqueProjects = allProjects.filter((project, index, self) =>
+          index === self.findIndex((p) => p.githubLink === project.githubLink)
+        );
+        
+        setProjects(uniqueProjects);
+      } catch (error) {
+        console.error('Error fetching GitHub projects:', error);
+        // Fallback to featured projects if API fails
+        setProjects(featuredProjects);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchGitHubProjects();
+  }, []);
+  
+  // Determine category based on repo info
+  const determineCategory = (repo) => {
+    const name = repo.name.toLowerCase();
+    const desc = (repo.description || '').toLowerCase();
+    const topics = (repo.topics || []).join(' ').toLowerCase();
+    const combined = `${name} ${desc} ${topics}`;
+    
+    if (combined.includes('ml') || combined.includes('ai') || combined.includes('machine') || combined.includes('learning')) {
+      return 'ai';
+    }
+    if (combined.includes('health') || combined.includes('medical') || combined.includes('patient')) {
+      return 'healthcare';
+    }
+    if (combined.includes('data') || combined.includes('analysis') || combined.includes('visualization')) {
+      return 'data';
+    }
+    if (combined.includes('web') || combined.includes('react') || combined.includes('next')) {
+      return 'webdev';
+    }
+    return 'fullstack';
+  };
   
   // Tech stack icons mapping
   const getTechIcon = (tech) => {
@@ -129,10 +215,12 @@ const Projects = () => {
   // Enhanced categories
   const categories = [
     { id: 'all', label: 'All Projects', count: projects.length },
+    { id: 'featured', label: 'Featured', count: projects.filter(p => p.featured).length },
     { id: 'fullstack', label: 'Full Stack', count: projects.filter(p => p.category === 'fullstack').length },
     { id: 'healthcare', label: 'Healthcare', count: projects.filter(p => p.category === 'healthcare').length },
     { id: 'ai', label: 'AI/ML', count: projects.filter(p => p.category === 'ai').length },
-    { id: 'data', label: 'Data Science', count: projects.filter(p => p.category === 'data').length }
+    { id: 'data', label: 'Data Science', count: projects.filter(p => p.category === 'data').length },
+    { id: 'webdev', label: 'Web Dev', count: projects.filter(p => p.category === 'webdev').length }
   ];
   
   // Filter and search logic
@@ -147,10 +235,29 @@ const Projects = () => {
       const query = searchQuery.toLowerCase();
       return (
         project.title.toLowerCase().includes(query) ||
-        project.description.toLowerCase().includes(query) ||
+        (project.description || '').toLowerCase().includes(query) ||
         project.technologies.some(tech => tech.toLowerCase().includes(query))
       );
+    })
+    .sort((a, b) => {
+      // Sort featured projects first
+      if (a.featured && !b.featured) return -1;
+      if (!a.featured && b.featured) return 1;
+      // Then by stars
+      return (b.stats?.stars || 0) - (a.stats?.stars || 0);
     });
+  
+  if (loading) {
+    return (
+      <section id="projects" className="py-20 bg-gray-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-center h-64">
+            <FaSpinner className="animate-spin text-4xl text-primary" />
+          </div>
+        </div>
+      </section>
+    );
+  }
   
   return (
     <section id="projects" className="py-20 bg-gray-900 relative overflow-hidden">
@@ -169,7 +276,9 @@ const Projects = () => {
           transition={{ duration: 0.5 }}
           className="text-center mb-12"
         >
-          
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+            Featured <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-400">Projects</span>
+          </h2>
           <p className="text-gray-400 max-w-2xl mx-auto text-lg">
             Explore my portfolio of innovative solutions, from AI-powered applications to modern web platforms.
           </p>
@@ -235,7 +344,7 @@ const Projects = () => {
             exit={{ opacity: 0 }}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
           >
-            {filteredProjects.map((project, index) => (
+            {filteredProjects.slice(0, 12).map((project, index) => (
               <motion.div
                 key={project.id}
                 initial={{ opacity: 0, y: 50 }}
@@ -251,13 +360,22 @@ const Projects = () => {
                 
                 {/* Card content */}
                 <div className="relative bg-gray-800/50 backdrop-blur-sm rounded-2xl overflow-hidden border border-gray-700/50 hover:border-gray-600/50 transition-all duration-300">
-                  {/* Project Image */}
-                  <div className="relative h-48 overflow-hidden">
-                    <img 
-                      src={project.image} 
-                      alt={project.title}
-                      className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
-                    />
+                  {/* Project Image or Placeholder */}
+                  <div className="relative h-48 overflow-hidden bg-gray-800">
+                    {project.image ? (
+                      <img 
+                        src={project.image} 
+                        alt={project.title}
+                        className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-800 to-gray-900">
+                        <div className="text-center">
+                          <FaCode className="text-4xl text-gray-600 mb-2 mx-auto" />
+                          <p className="text-gray-500 text-sm">{project.language || 'Multiple'}</p>
+                        </div>
+                      </div>
+                    )}
                     
                     {/* Overlay with quick actions */}
                     <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -293,7 +411,6 @@ const Projects = () => {
                       </div>
                     </div>
                     
-                    
                     {/* Featured badge */}
                     {project.featured && (
                       <div className="absolute top-4 left-4">
@@ -307,30 +424,39 @@ const Projects = () => {
                   
                   {/* Project Info */}
                   <div className="p-6">
-                    <h3 className="text-xl font-bold text-white mb-2">{project.title}</h3>
+                    <h3 className="text-xl font-bold text-white mb-2 line-clamp-1">{project.title}</h3>
                     <p className="text-gray-400 text-sm mb-4 line-clamp-2">{project.shortDesc}</p>
                     
-                    {/* Tech stack icons */}
-                    <div className="flex flex-wrap gap-3 mb-4">
-                      {project.techIcons.map((icon, idx) => (
-                        <span key={idx} className="text-gray-400 hover:text-primary transition-colors">
-                          {icon}
+                    {/* Technologies */}
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {project.technologies.slice(0, 3).map((tech, idx) => (
+                        <span 
+                          key={idx}
+                          className="px-2 py-1 bg-gray-700/50 text-gray-300 rounded text-xs"
+                        >
+                          {tech}
                         </span>
                       ))}
+                      {project.technologies.length > 3 && (
+                        <span className="px-2 py-1 bg-gray-700/50 text-gray-300 rounded text-xs">
+                          +{project.technologies.length - 3}
+                        </span>
+                      )}
                     </div>
                     
                     {/* Stats */}
                     <div className="flex items-center justify-between text-xs text-gray-500">
                       <div className="flex items-center gap-3">
-                        <span className="flex items-center">
-                          <FaStar className="mr-1" /> {project.stats.stars}
-                        </span>
-                        <span className="flex items-center">
-                          <FaCodeBranch className="mr-1" /> {project.stats.forks}
-                        </span>
-                        <span className="flex items-center">
-                          <FaEye className="mr-1" /> {project.stats.views}
-                        </span>
+                        {project.stats && (
+                          <>
+                            <span className="flex items-center">
+                              <FaStar className="mr-1" /> {project.stats.stars}
+                            </span>
+                            <span className="flex items-center">
+                              <FaCodeBranch className="mr-1" /> {project.stats.forks}
+                            </span>
+                          </>
+                        )}
                       </div>
                       <span>{project.year}</span>
                     </div>
@@ -369,7 +495,7 @@ const Projects = () => {
             className="inline-flex items-center gap-3 px-8 py-3 bg-gradient-to-r from-primary to-blue-500 text-white rounded-full font-medium hover:shadow-lg hover:shadow-primary/30 transition-all duration-300 group"
           >
             <FaGithub size={20} />
-            <span>View All Projects on GitHub</span>
+            <span>View All {projects.length} Projects on GitHub</span>
             <FaExternalLinkAlt className="group-hover:translate-x-1 transition-transform" size={14} />
           </a>
         </motion.div>
@@ -393,12 +519,18 @@ const Projects = () => {
               onClick={(e) => e.stopPropagation()}
             >
               {/* Modal Header */}
-              <div className="relative h-64 overflow-hidden rounded-t-2xl">
-                <img 
-                  src={selectedProject.image} 
-                  alt={selectedProject.title}
-                  className="w-full h-full object-cover"
-                />
+              <div className="relative h-64 overflow-hidden rounded-t-2xl bg-gray-900">
+                {selectedProject.image ? (
+                  <img 
+                    src={selectedProject.image} 
+                    alt={selectedProject.title}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-800 to-gray-900">
+                    <FaCode className="text-6xl text-gray-600" />
+                  </div>
+                )}
                 <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/50 to-transparent" />
                 <button
                   onClick={() => setSelectedProject(null)}
@@ -421,17 +553,19 @@ const Projects = () => {
                 </div>
                 
                 {/* Key Highlights */}
-                <div className="mb-6">
-                  <h4 className="text-lg font-semibold text-white mb-3">Key Highlights</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {selectedProject.highlights.map((highlight, idx) => (
-                      <div key={idx} className="flex items-start">
-                        <span className="text-primary mr-2 mt-1">✓</span>
-                        <span className="text-gray-300">{highlight}</span>
-                      </div>
-                    ))}
+                {selectedProject.highlights && (
+                  <div className="mb-6">
+                    <h4 className="text-lg font-semibold text-white mb-3">Key Highlights</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {selectedProject.highlights.map((highlight, idx) => (
+                        <div key={idx} className="flex items-start">
+                          <span className="text-primary mr-2 mt-1">✓</span>
+                          <span className="text-gray-300">{highlight}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
                 
                 {/* Technologies */}
                 <div className="mb-6">
@@ -447,6 +581,29 @@ const Projects = () => {
                     ))}
                   </div>
                 </div>
+                
+                {/* Stats */}
+                {selectedProject.stats && (
+                  <div className="mb-6">
+                    <h4 className="text-lg font-semibold text-white mb-3">Repository Stats</h4>
+                    <div className="flex gap-6">
+                      <div className="flex items-center text-gray-300">
+                        <FaStar className="mr-2 text-yellow-400" />
+                        {selectedProject.stats.stars} Stars
+                      </div>
+                      <div className="flex items-center text-gray-300">
+                        <FaCodeBranch className="mr-2 text-blue-400" />
+                        {selectedProject.stats.forks} Forks
+                      </div>
+                      {selectedProject.stats.views && (
+                        <div className="flex items-center text-gray-300">
+                          <FaEye className="mr-2 text-green-400" />
+                          {selectedProject.stats.views} Watchers
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
                 
                 {/* Actions */}
                 <div className="flex gap-4">

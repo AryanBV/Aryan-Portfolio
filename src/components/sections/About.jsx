@@ -9,41 +9,41 @@ const About = () => {
   const tabs = [
     { id: 'profile', label: 'Background', icon: <FaUserTie /> },
     { id: 'education', label: 'Education', icon: <FaGraduationCap /> },
-    { id: 'skills', label: 'Expertise', icon: <FaLaptopCode /> },
+    { id: 'expertise', label: 'Expertise', icon: <FaLaptopCode /> },
     { id: 'goals', label: 'Aspirations', icon: <FaLightbulb /> }
   ];
   
   // Expertise areas
   const expertise = [
     { 
-      title: "AI/ML Development", 
-      description: "Experience in implementing machine learning models and AI solutions for real-world applications.",
-      icon: <FaCode />
-    },
-    { 
       title: "Full-Stack Development", 
-      description: "Building end-to-end web applications with modern frontend frameworks and scalable backend systems.",
+      description: "Building end-to-end web applications with modern frameworks like React, Next.js, and Node.js with focus on scalability and performance.",
       icon: <FaLaptopCode />
     },
     { 
-      title: "Data Analysis & Visualization", 
-      description: "Transforming raw data into meaningful insights through analytical techniques and visualization.",
-      icon: <FaLightbulb />
+      title: "AI/ML Engineering", 
+      description: "Implementing machine learning models and AI solutions for real-world applications using TensorFlow, scikit-learn, and Python.",
+      icon: <FaCode />
     },
     { 
-      title: "Algorithmic Problem Solving", 
-      description: "Applying efficient algorithms to solve complex computational problems with optimal solutions.",
+      title: "E-Commerce Solutions", 
+      description: "Developing secure payment integrations, real-time cart management, and optimized user experiences for online platforms.",
       icon: <FaTrophy />
+    },
+    { 
+      title: "Healthcare Technology", 
+      description: "Creating healthcare management systems with OCR capabilities, family tree visualization, and secure patient data handling.",
+      icon: <FaLightbulb />
     }
   ];
   
   // Career goals
   const goals = [
-    "Become a skilled full-stack developer with expertise in AI/ML integration",
-    "Contribute to innovative healthcare technology solutions",
-    "Build scalable applications that solve real-world problems",
-    "Master cloud-based architectures and microservices",
-    "Develop expertise in emerging technologies like blockchain and edge computing"
+    "Master full-stack development with expertise in microservices architecture",
+    "Contribute to innovative AI/ML solutions that solve real-world problems",
+    "Build scalable applications that impact millions of users",
+    "Develop expertise in cloud-native technologies and DevOps practices",
+    "Create open-source tools that help the developer community"
   ];
   
   return (
@@ -93,34 +93,34 @@ const About = () => {
                 <h3 className="text-xl font-semibold text-white mb-6">Professional Background</h3>
                 <div className="text-gray-300 space-y-4">
                   <p>
-                    I'm a dedicated Software Developer currently pursuing a B.Tech in Artificial Intelligence and Machine Learning at M S Ramaiah University of Applied Sciences, Bangalore with a GPA of 8.3/10.
+                    I'm a Full-Stack Software Developer and AI/ML Engineer, recently graduated with a B.Tech in Artificial Intelligence and Machine Learning from M S Ramaiah University of Applied Sciences, Bangalore with a GPA of 8/10.
                   </p>
                   <p>
-                    With a strong foundation in full-stack development and data-driven solutions, I've successfully developed multiple production-ready applications including a diabetes management system, a weather monitoring platform, and an IEEE paper generator.
+                    With expertise in building scalable web applications and AI-powered solutions, I've developed 4+ production-ready applications including e-commerce platforms and healthcare management systems. My technical proficiency spans across React, Next.js, Node.js, and Python.
                   </p>
                   <p>
-                    My passion for problem-solving is reflected in the 350+ coding challenges I've conquered on competitive platforms, bringing algorithmic efficiency to real-world applications. I'm particularly interested in creating applications that blend responsive web design with machine learning techniques.
+                    My passion for problem-solving is demonstrated through 550+ algorithmic challenges solved across competitive programming platforms. I specialize in creating applications that seamlessly blend responsive design with modern technologies, focusing on performance, security, and user experience.
                   </p>
                   <p>
-                    I believe in continuous learning and challenging myself to stay at the forefront of technology trends. When I'm not coding, I enjoy diving into research papers about emerging technologies and exploring new tools that can enhance my development workflow.
+                    Currently based in Bangalore, I'm actively seeking opportunities to contribute to innovative projects where I can apply my skills in full-stack development, cloud technologies, and AI/ML to create impactful solutions.
                   </p>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-10">
                   <div className="bg-gray-800/70 p-4 rounded-lg text-center border border-gray-700/30">
-                    <div className="text-3xl font-bold text-primary">350+</div>
-                    <div className="text-gray-400 text-sm">Coding Problems</div>
+                    <div className="text-3xl font-bold text-primary">550+</div>
+                    <div className="text-gray-400 text-sm">Problems Solved</div>
                   </div>
                   <div className="bg-gray-800/70 p-4 rounded-lg text-center border border-gray-700/30">
-                    <div className="text-3xl font-bold text-primary">10+</div>
-                    <div className="text-gray-400 text-sm">Projects Completed</div>
+                    <div className="text-3xl font-bold text-primary">4+</div>
+                    <div className="text-gray-400 text-sm">Production Apps</div>
                   </div>
                   <div className="bg-gray-800/70 p-4 rounded-lg text-center border border-gray-700/30">
-                    <div className="text-3xl font-bold text-primary">8.3/10</div>
+                    <div className="text-3xl font-bold text-primary">8/10</div>
                     <div className="text-gray-400 text-sm">GPA</div>
                   </div>
                   <div className="bg-gray-800/70 p-4 rounded-lg text-center border border-gray-700/30">
-                    <div className="text-3xl font-bold text-primary">5+</div>
+                    <div className="text-3xl font-bold text-primary">3</div>
                     <div className="text-gray-400 text-sm">Certifications</div>
                   </div>
                 </div>
@@ -146,19 +146,21 @@ const About = () => {
                       <div className="text-white font-semibold text-lg">B.Tech in Artificial Intelligence and Machine Learning</div>
                       <div className="text-primary">M S Ramaiah University of Applied Sciences, Bangalore</div>
                       <div className="flex justify-between mt-2 mb-4">
-                        <span className="text-gray-400 text-sm">2021 - Present</span>
-                        <span className="text-white bg-primary/20 px-2 py-1 rounded text-xs">GPA: 8.3/10</span>
+                        <span className="text-gray-400 text-sm">2021 - 2025</span>
+                        <span className="text-white bg-primary/20 px-2 py-1 rounded text-xs">GPA: 8/10</span>
                       </div>
-                      <p className="text-gray-300 text-sm mb-4">Pursuing a comprehensive program focusing on machine learning algorithms, neural networks, and AI application development.</p>
+                      <p className="text-gray-300 text-sm mb-4">
+                        Completed a comprehensive program focusing on machine learning algorithms, neural networks, data structures, and AI application development.
+                      </p>
                       
                       <div className="mt-4">
                         <h4 className="text-white text-sm font-medium mb-2">Key Coursework:</h4>
                         <div className="flex flex-wrap gap-2">
                           {[
-                            "Advanced Machine Learning",
+                            "Machine Learning",
                             "Data Structures",
-                            "Computer Networks",
                             "Database Management",
+                            "Computer Networks",
                             "Software Engineering",
                             "Web Technologies",
                             "AI Ethics",
@@ -177,14 +179,14 @@ const About = () => {
                   </div>
                   
                   <div className="text-center text-gray-400 text-sm">
-                    <span className="bg-gray-800 px-4 py-1 rounded-full">Educational Journey</span>
+                    <span className="bg-gray-800 px-4 py-1 rounded-full">Fresher - Graduated 2025</span>
                   </div>
                 </div>
               </motion.div>
             )}
             
             {/* Expertise Tab */}
-            {activeTab === 'skills' && (
+            {activeTab === 'expertise' && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -220,7 +222,7 @@ const About = () => {
               >
                 <h3 className="text-xl font-semibold text-white mb-6">Professional Aspirations</h3>
                 <p className="text-gray-300 mb-8">
-                  As a developer committed to growth and innovation, I've set clear career goals that drive my professional journey:
+                  As a fresh graduate passionate about technology and innovation, I've set clear career goals that drive my professional journey:
                 </p>
                 
                 <div className="space-y-4">
@@ -246,7 +248,7 @@ const About = () => {
                 
                 <div className="mt-10 p-5 bg-gray-800/60 border border-gray-700/30 rounded-lg">
                   <blockquote className="text-gray-300 italic">
-                    "My ultimate aim is to become a versatile developer who can bridge the gap between cutting-edge AI technologies and practical software solutions that make a positive impact."
+                    "As a fresher entering the tech industry, I'm eager to contribute to innovative projects and continuously learn from experienced professionals while bringing fresh perspectives and enthusiasm to every challenge."
                   </blockquote>
                 </div>
               </motion.div>
