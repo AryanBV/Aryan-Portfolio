@@ -1,10 +1,14 @@
+import Hero from '@/components/sections/Hero'
+import About from '@/components/sections/About'
+
 export default function Home() {
   return (
     <>
-      <section id="about"    className="min-h-screen flex items-center justify-center" style={{ color: 'var(--text-muted)' }}>About</section>
-      <section id="projects" className="min-h-screen flex items-center justify-center" style={{ color: 'var(--text-muted)' }}>Projects</section>
-      <section id="skills"   className="min-h-screen flex items-center justify-center" style={{ color: 'var(--text-muted)' }}>Skills</section>
-      <section id="contact"  className="min-h-screen flex items-center justify-center" style={{ color: 'var(--text-muted)' }}>Contact</section>
+      <Hero />
+      <About />
+      <section id="projects" className="min-h-screen flex items-center justify-center" style={{ color: 'var(--text-muted)' }}>Projects — coming in M4</section>
+      <section id="skills"   className="min-h-screen flex items-center justify-center" style={{ color: 'var(--text-muted)' }}>Skills — coming in M5</section>
+      <section id="contact"  className="min-h-screen flex items-center justify-center" style={{ color: 'var(--text-muted)' }}>Contact — coming in M6</section>
     </>
   )
 }
