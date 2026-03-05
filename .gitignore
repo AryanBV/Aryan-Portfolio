@@ -1,20 +1,23 @@
-# Dependencies
+# ─── Dependencies ────────────────────────────────────────────────
 node_modules
 /.pnp
 .pnp.js
 
-# Build outputs
+# ─── Build Outputs ───────────────────────────────────────────────
 dist
 dist-ssr
 build
+out
+.next
+.nuxt
 
-# Environment files
+# ─── Environment Files ───────────────────────────────────────────
 *.local
 .env
 .env.*
 !.env.example
 
-# Logs
+# ─── Logs ────────────────────────────────────────────────────────
 logs
 *.log
 npm-debug.log*
@@ -23,30 +26,43 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Testing
+# ─── Testing ─────────────────────────────────────────────────────
 /coverage
 .nyc_output
 
-# Editor directories and files
+# ─── Editor ──────────────────────────────────────────────────────
 .vscode/*
 !.vscode/extensions.json
 !.vscode/settings.json
 .idea
-.DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
 
-# Cache
+# ─── OS ──────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ─── Cache ───────────────────────────────────────────────────────
 .eslintcache
 .cache
 .parcel-cache
 .npm
+.turbo
+.swc
 
-# Misc
-Thumbs.db
+# ─── Vercel ──────────────────────────────────────────────────────
+.vercel
+
+# ─── Claude Code ─────────────────────────────────────────────────
+# CLAUDE.md is intentionally NOT ignored — commit it
+.claude/settings.local.json
+.claude/projects/
+
+# ─── Misc ────────────────────────────────────────────────────────
 *.tgz
 *.zip
 *.tar.gz
