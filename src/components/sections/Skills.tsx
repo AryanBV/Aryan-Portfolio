@@ -70,6 +70,7 @@ const CATEGORIES: Category[] = [
       { name: "GitHub", icon: SiGithub },
       { name: "Vercel", icon: SiVercel },
       { name: "Docker", icon: SiDocker },
+      { name: "Railway" },
     ],
   },
 ];

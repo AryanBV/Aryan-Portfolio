@@ -14,7 +14,7 @@ const CERTIFICATES = [
     issuer: "Microsoft",
     issued: "2024",
     verifyUrl:
-      "https://learn.microsoft.com/en-us/credentials/certifications/azure-ai-fundamentals/",
+      "https://learn.microsoft.com/api/credentials/share/en-us/AryanSalian-4114/878ECBC7C3BE4794?sharingId=D3203799C3E8D012",
     description:
       "Core AI and machine learning concepts on Microsoft Azure — covering ML workloads, computer vision, NLP, and generative AI fundamentals.",
   },
