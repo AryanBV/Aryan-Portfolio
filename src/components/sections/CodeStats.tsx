@@ -11,6 +11,7 @@ import {
 
 type GitHubData = {
   publicRepos: number;
+  totalStars: number;
   totalContributions: number;
   topLanguages: Array<{ name: string; count: number }>;
 };
@@ -36,15 +37,22 @@ export default function CodeStats() {
 
   const [data, setData] = useState<GitHubData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     fetch("/api/github")
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error(`status ${r.status}`);
+        return r.json();
+      })
       .then((d: GitHubData) => {
         setData(d);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch(() => {
+        setError(true);
+        setLoading(false);
+      });
   }, []);
 
   const maxLangCount = data
@@ -73,7 +81,7 @@ export default function CodeStats() {
             {[1, 2, 3].map((i) => (
               <div
                 key={i}
-                className="h-24 animate-pulse"
+                className="min-h-[180px] animate-pulse"
                 style={{
                   backgroundColor: "var(--bg-surface)",
                   border: "1px solid var(--border)",
@@ -81,6 +89,16 @@ export default function CodeStats() {
               />
             ))}
           </div>
+        ) : error ? (
+          <p
+            className="text-sm"
+            style={{
+              color: "var(--text-muted)",
+              fontFamily: "var(--font-mono)",
+            }}
+          >
+            Could not load GitHub data.
+          </p>
         ) : data ? (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -88,32 +106,60 @@ export default function CodeStats() {
             transition={{ duration: 0.6, ease: EASING }}
             className="grid grid-cols-1 md:grid-cols-3 gap-6"
           >
-            {/* Public Repos */}
+            {/* Repos + Stars */}
             <div
-              className="p-6 flex flex-col gap-2"
+              className="p-6 flex flex-col gap-4"
               style={{
                 backgroundColor: "var(--bg-surface)",
                 border: "1px solid var(--border)",
               }}
             >
-              <p
-                className="text-3xl font-bold"
+              <div className="flex flex-col gap-1">
+                <p
+                  className="text-3xl font-bold"
+                  style={{
+                    color: "var(--text-primary)",
+                    fontFamily: "var(--font-mono)",
+                  }}
+                >
+                  <AnimatedNumber value={data.publicRepos} inView={inView} />
+                </p>
+                <p
+                  className="text-xs uppercase tracking-widest"
+                  style={{
+                    color: "var(--text-muted)",
+                    fontFamily: "var(--font-mono)",
+                  }}
+                >
+                  Public Repos
+                </p>
+              </div>
+              <div
+                className="flex flex-col gap-1"
                 style={{
-                  color: "var(--text-primary)",
-                  fontFamily: "var(--font-mono)",
+                  borderTop: "1px solid var(--border)",
+                  paddingTop: "1rem",
                 }}
               >
-                <AnimatedNumber value={data.publicRepos} inView={inView} />
-              </p>
-              <p
-                className="text-xs uppercase tracking-widest"
-                style={{
-                  color: "var(--text-muted)",
-                  fontFamily: "var(--font-mono)",
-                }}
-              >
-                Public Repos
-              </p>
+                <p
+                  className="text-3xl font-bold"
+                  style={{
+                    color: "var(--text-primary)",
+                    fontFamily: "var(--font-mono)",
+                  }}
+                >
+                  <AnimatedNumber value={data.totalStars} inView={inView} />
+                </p>
+                <p
+                  className="text-xs uppercase tracking-widest"
+                  style={{
+                    color: "var(--text-muted)",
+                    fontFamily: "var(--font-mono)",
+                  }}
+                >
+                  Total Stars
+                </p>
+              </div>
             </div>
 
             {/* Contributions */}
@@ -184,15 +230,15 @@ export default function CodeStats() {
                         fontFamily: "var(--font-mono)",
                       }}
                     >
-                      {count}
+                      {Math.round((count / maxLangCount) * 100)}%
                     </span>
                   </div>
                   <div
-                    className="w-full h-px"
+                    className="w-full h-0.5"
                     style={{ backgroundColor: "var(--border)" }}
                   >
                     <motion.div
-                      className="h-px"
+                      className="h-0.5"
                       style={{ backgroundColor: "var(--accent)" }}
                       initial={{ width: 0 }}
                       animate={
