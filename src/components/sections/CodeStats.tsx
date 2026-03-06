@@ -13,6 +13,7 @@ type GitHubData = {
   publicRepos: number;
   totalStars: number;
   totalContributions: number;
+  totalLangRepos: number;
   topLanguages: Array<{ name: string; count: number }>;
 };
 
@@ -54,10 +55,6 @@ export default function CodeStats() {
         setLoading(false);
       });
   }, []);
-
-  const maxLangCount = data
-    ? Math.max(...data.topLanguages.map((l) => l.count))
-    : 1;
 
   return (
     <section
@@ -211,7 +208,7 @@ export default function CodeStats() {
               >
                 Top Languages
               </p>
-              {data.topLanguages.map(({ name, count }) => (
+              {data.topLanguages.map(({ name, count }, i) => (
                 <div key={name} className="flex flex-col gap-1">
                   <div className="flex justify-between">
                     <span
@@ -230,7 +227,7 @@ export default function CodeStats() {
                         fontFamily: "var(--font-mono)",
                       }}
                     >
-                      {Math.round((count / maxLangCount) * 100)}%
+                      {Math.round((count / data.totalLangRepos) * 100)}%
                     </span>
                   </div>
                   <div
@@ -243,10 +240,14 @@ export default function CodeStats() {
                       initial={{ width: 0 }}
                       animate={
                         inView
-                          ? { width: `${(count / maxLangCount) * 100}%` }
+                          ? { width: `${(count / data.totalLangRepos) * 100}%` }
                           : { width: 0 }
                       }
-                      transition={{ duration: 1, delay: 0.3, ease: EASING }}
+                      transition={{
+                        duration: 1,
+                        delay: 0.3 + i * 0.08,
+                        ease: EASING,
+                      }}
                     />
                   </div>
                 </div>

@@ -31,6 +31,7 @@ export async function GET() {
       langMap[repo.language] = (langMap[repo.language] ?? 0) + 1;
     }
   }
+  const totalLangRepos = Object.values(langMap).reduce((a, b) => a + b, 0);
   const topLanguages = Object.entries(langMap)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5)
@@ -58,5 +59,6 @@ export async function GET() {
     totalStars,
     totalContributions,
     topLanguages,
+    totalLangRepos,
   });
 }
