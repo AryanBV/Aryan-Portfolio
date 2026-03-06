@@ -37,12 +37,14 @@ src/components/
 ## Data Sources
 
 **Static (hard-coded in components):**
+
 - Certificates array → `Certificates.jsx`
 - Tech stack categories → `TechStack.jsx`
 - Featured projects → `Projects.jsx`
 - About/bio content → `About.jsx`
 
 **Dynamic (GitHub public API — no auth):**
+
 - `src/services/githubService.js` fetches repos, language stats, and contributions
 - `Projects.jsx` merges featured projects with GitHub API results; falls back to featured-only if API fails
 - `TechStack.jsx` uses GitHub language data to calculate proficiency percentages
