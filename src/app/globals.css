@@ -5,7 +5,7 @@
   --bg-surface: #111111;
   --bg-surface-hover: #161616;
   --border: #1f1f1f;
-  --border-hover: #2a2a2a;
+  --border-hover: rgba(255, 255, 255, 0.2);
   --accent: #00d4ff;
   --accent-dim: rgba(0, 212, 255, 0.12);
   --text-primary: #f5f5f5;
@@ -28,7 +28,7 @@ body {
 
 /* Noise grain texture overlay */
 body::before {
-  content: '';
+  content: "";
   position: fixed;
   inset: 0;
   z-index: 0;
