@@ -137,7 +137,7 @@ export default function Contact() {
           style={{ color: "var(--text-secondary)" }}
         >
           Open to full-time roles, contract projects, and interesting
-          collaborations. I read every message.
+          collaborations. Available now — I respond within 24 hours.
         </motion.p>
 
         {/* Two-column layout: form left, social right */}
