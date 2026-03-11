@@ -199,30 +199,6 @@ export default function About() {
                 ))}
               </div>
             </div>
-
-            {/* Currently building card */}
-            <div
-              className="p-6"
-              style={{
-                backgroundColor: "var(--accent-dim)",
-                border: "1px solid var(--accent)",
-                borderLeftWidth: "3px",
-              }}
-            >
-              <p
-                className="text-xs tracking-widest uppercase mb-2"
-                style={{
-                  color: "var(--accent)",
-                  fontFamily: "var(--font-mono)",
-                }}
-              >
-                Currently Building
-              </p>
-              <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-                An export platform for Indian SME exporters — starting with an
-                AI-powered ITC-HS code classifier.
-              </p>
-            </div>
           </motion.div>
         </motion.div>
       </div>
