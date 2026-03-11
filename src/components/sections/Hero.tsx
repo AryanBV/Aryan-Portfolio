@@ -57,7 +57,7 @@ function StatCounter({
 }
 
 export default function Hero() {
-  const [contributions, setContributions] = useState(0);
+  const [contributions, setContributions] = useState(544);
 
   useEffect(() => {
     fetch("/api/github")
@@ -69,7 +69,7 @@ export default function Hero() {
   }, []);
 
   const STATS = [
-    { value: 4, suffix: "", label: "Live Production\nSystems", static: false },
+    { value: 2, suffix: "", label: "Live Production\nSystems", static: false },
     {
       value: contributions,
       suffix: "+",
