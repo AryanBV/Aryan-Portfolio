@@ -28,11 +28,6 @@ const STRENGTHS = [
     detail:
       "I combine end-to-end engineering with practical AI/ML integration.",
   },
-  {
-    label: "SME domain expertise",
-    detail:
-      "Deep understanding of Indian SME operations and export processes — rare for a 2025 grad.",
-  },
 ];
 
 export default function About() {
@@ -89,9 +84,7 @@ export default function About() {
               className="text-base leading-relaxed"
               style={{ color: "var(--text-secondary)" }}
             >
-              I bring domain expertise in SME operations and Indian export
-              processes, which shapes how I think about the software I build. My
-              stack centers on Next.js, NestJS, Supabase, and the OpenAI and
+              My stack centers on Next.js, NestJS, Supabase, and the OpenAI and
               Claude APIs.
             </motion.p>
 
