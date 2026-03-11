@@ -3,7 +3,7 @@
 import { FiGithub, FiLinkedin } from "react-icons/fi";
 
 const SOCIAL_LINKS = {
-  github: "https://github.com/aryanbv",
+  github: "https://github.com/AryanBV",
   linkedin: "https://www.linkedin.com/in/aryan-b-v-78aa63246/",
 };
 
