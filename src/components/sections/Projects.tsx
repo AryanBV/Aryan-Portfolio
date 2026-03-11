@@ -36,7 +36,7 @@ const PROJECTS: Project[] = [
       "Client-commissioned full-stack business management system running daily at an automotive spare parts retailer in Karnataka. Handles inventory tracking, billing, supplier management, and daily operations — replacing a manual paper-based workflow.",
     status: "Live",
     featured: true,
-    tech: ["Next.js", "NestJS", "Supabase", "PostgreSQL", "TypeScript"],
+    tech: ["Next.js", "NestJS", "Supabase", "PostgreSQL", "TypeScript", "PWA"],
     links: {
       github: "https://github.com/AryanBV/ajsp-manager",
     },
@@ -52,18 +52,18 @@ const PROJECTS: Project[] = [
     tech: ["Next.js", "Supabase", "TypeScript", "Razorpay"],
     links: {
       github: "https://github.com/AryanBV/lumina-crafts",
-      live: "https://lumina-crafts-aryan-b-vs-projects.vercel.app/",
+      live: "https://lumina-crafts.vercel.app/",
     },
     image: "/images/Lumina-Craft.png",
   },
   {
     id: "smart-med",
     title: "SMART_MED",
-    tagline: "AI-powered family health PWA",
+    tagline: "AI-powered family health management app",
     description:
       "Progressive web app for family health management. Uses OCR to digitize paper prescriptions, checks for drug interactions, and stores health records — built on a multi-agent AI architecture.",
     status: "Built",
-    tech: ["Next.js", "OpenAI API", "TypeScript", "PWA"],
+    tech: ["Next.js", "OpenAI API", "TypeScript"],
     links: {
       github: "https://github.com/AryanBV/smart-med",
     },
