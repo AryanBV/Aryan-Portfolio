@@ -80,9 +80,12 @@ const EASING = [0.22, 1, 0.36, 1] as const;
 // ─── Status badge ──────────────────────────────────────────────────────────────
 
 const STATUS_COLORS: Record<ProjectStatus, { color: string; bg: string }> = {
-  Live: { color: "#4ade80", bg: "rgba(74, 222, 128, 0.1)" },
-  Built: { color: "var(--text-muted)", bg: "var(--accent-dim)" },
-  "In Development": { color: "#facc15", bg: "rgba(250, 204, 21, 0.1)" },
+  Live: { color: "var(--status-live)", bg: "rgba(74, 222, 128, 0.1)" },
+  Built: { color: "var(--status-built)", bg: "var(--accent-dim)" },
+  "In Development": {
+    color: "var(--status-dev)",
+    bg: "rgba(250, 204, 21, 0.1)",
+  },
 };
 
 function StatusBadge({ status }: { status: ProjectStatus }) {

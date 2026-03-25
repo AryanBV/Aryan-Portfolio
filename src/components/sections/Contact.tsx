@@ -38,12 +38,10 @@ const INITIAL_FORM: FormState = { name: "", email: "", message: "" };
 const INPUT_STYLE: React.CSSProperties = {
   width: "100%",
   backgroundColor: "var(--bg-surface)",
-  border: "1px solid var(--border)",
   color: "var(--text-primary)",
   fontSize: "0.875rem",
   padding: "0.75rem 1rem",
   outline: "none",
-  transition: "border-color 0.2s",
 };
 
 // ─── Inline validation ────────────────────────────────────────────────────────
@@ -209,10 +207,8 @@ export default function Contact() {
                 value={form.name}
                 onChange={handleChange}
                 placeholder="Your name"
-                className="focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
+                className="border border-[var(--border)] focus:border-[var(--accent)] transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
                 style={INPUT_STYLE}
-                onFocus={(e) => (e.target.style.borderColor = "var(--accent)")}
-                onBlur={(e) => (e.target.style.borderColor = "var(--border)")}
               />
             </div>
 
@@ -237,10 +233,8 @@ export default function Contact() {
                 value={form.email}
                 onChange={handleChange}
                 placeholder="you@example.com"
-                className="focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
+                className="border border-[var(--border)] focus:border-[var(--accent)] transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
                 style={INPUT_STYLE}
-                onFocus={(e) => (e.target.style.borderColor = "var(--accent)")}
-                onBlur={(e) => (e.target.style.borderColor = "var(--border)")}
               />
             </div>
 
@@ -264,14 +258,12 @@ export default function Contact() {
                 value={form.message}
                 onChange={handleChange}
                 placeholder="Tell me about the project or role..."
-                className="focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
+                className="border border-[var(--border)] focus:border-[var(--accent)] transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
                 style={{
                   ...INPUT_STYLE,
                   resize: "vertical",
                   minHeight: "140px",
                 }}
-                onFocus={(e) => (e.target.style.borderColor = "var(--accent)")}
-                onBlur={(e) => (e.target.style.borderColor = "var(--border)")}
               />
             </div>
 
@@ -311,7 +303,7 @@ export default function Contact() {
 
             {/* Success / error feedback */}
             {status === "success" && (
-              <p className="text-xs" style={{ color: "#4ade80" }}>
+              <p className="text-xs" style={{ color: "var(--success)" }}>
                 Got it &mdash; I&apos;ll get back to you soon.
               </p>
             )}

@@ -21,6 +21,9 @@
   --shadow-card-hover:
     0 0 0 1px var(--border-hover), 0 8px 32px rgba(0, 0, 0, 0.5),
     0 0 20px var(--accent-subtle);
+  --status-live: #4ade80;
+  --status-built: var(--accent);
+  --status-dev: #facc15;
 }
 
 html {
