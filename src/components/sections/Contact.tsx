@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { motion, useInView } from "framer-motion";
+import { motion, useInView, useReducedMotion } from "framer-motion";
 import emailjs from "@emailjs/browser";
 import { FiGithub, FiLinkedin, FiSend } from "react-icons/fi";
 
@@ -63,6 +63,7 @@ function validate(form: FormState): string | null {
 export default function Contact() {
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
+  const prefersReducedMotion = useReducedMotion();
 
   const [form, setForm] = useState<FormState>(INITIAL_FORM);
   const [status, setStatus] = useState<SubmitStatus>("idle");
@@ -110,9 +111,16 @@ export default function Contact() {
       <div className="max-w-6xl mx-auto">
         {/* Eyebrow + heading */}
         <motion.p
-          initial={{ opacity: 0, y: 12 }}
-          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
-          transition={{ duration: 0.5, ease: EASING }}
+          initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 12 }}
+          animate={
+            inView
+              ? { opacity: 1, y: 0 }
+              : { opacity: 0, y: prefersReducedMotion ? 0 : 12 }
+          }
+          transition={{
+            duration: prefersReducedMotion ? 0.3 : 0.5,
+            ease: EASING,
+          }}
           className="text-xs tracking-[0.2em] uppercase mb-4"
           style={{ color: "var(--accent)", fontFamily: "var(--font-mono)" }}
         >
@@ -120,9 +128,17 @@ export default function Contact() {
         </motion.p>
 
         <motion.h2
-          initial={{ opacity: 0, y: 16 }}
-          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
-          transition={{ duration: 0.6, delay: 0.05, ease: EASING }}
+          initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 16 }}
+          animate={
+            inView
+              ? { opacity: 1, y: 0 }
+              : { opacity: 0, y: prefersReducedMotion ? 0 : 16 }
+          }
+          transition={{
+            duration: prefersReducedMotion ? 0.3 : 0.6,
+            delay: prefersReducedMotion ? 0 : 0.05,
+            ease: EASING,
+          }}
           className="text-3xl sm:text-4xl font-bold mb-4"
           style={{ color: "var(--text-primary)" }}
         >
@@ -130,9 +146,17 @@ export default function Contact() {
         </motion.h2>
 
         <motion.p
-          initial={{ opacity: 0, y: 12 }}
-          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
-          transition={{ duration: 0.5, delay: 0.1, ease: EASING }}
+          initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 12 }}
+          animate={
+            inView
+              ? { opacity: 1, y: 0 }
+              : { opacity: 0, y: prefersReducedMotion ? 0 : 12 }
+          }
+          transition={{
+            duration: prefersReducedMotion ? 0.3 : 0.5,
+            delay: prefersReducedMotion ? 0 : 0.1,
+            ease: EASING,
+          }}
           className="text-sm mb-16 max-w-md"
           style={{ color: "var(--text-secondary)" }}
         >
@@ -142,9 +166,17 @@ export default function Contact() {
 
         {/* Two-column layout: form left, social right */}
         <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
-          transition={{ duration: 0.6, delay: 0.15, ease: EASING }}
+          initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 24 }}
+          animate={
+            inView
+              ? { opacity: 1, y: 0 }
+              : { opacity: 0, y: prefersReducedMotion ? 0 : 24 }
+          }
+          transition={{
+            duration: prefersReducedMotion ? 0.3 : 0.6,
+            delay: prefersReducedMotion ? 0 : 0.15,
+            ease: EASING,
+          }}
           className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-12"
         >
           {/* Form */}
@@ -170,9 +202,12 @@ export default function Contact() {
                 name="name"
                 type="text"
                 autoComplete="name"
+                required
+                aria-required="true"
                 value={form.name}
                 onChange={handleChange}
                 placeholder="Your name"
+                className="focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
                 style={INPUT_STYLE}
                 onFocus={(e) => (e.target.style.borderColor = "var(--accent)")}
                 onBlur={(e) => (e.target.style.borderColor = "var(--border)")}
@@ -196,9 +231,12 @@ export default function Contact() {
                 name="email"
                 type="email"
                 autoComplete="email"
+                required
+                aria-required="true"
                 value={form.email}
                 onChange={handleChange}
                 placeholder="you@example.com"
+                className="focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
                 style={INPUT_STYLE}
                 onFocus={(e) => (e.target.style.borderColor = "var(--accent)")}
                 onBlur={(e) => (e.target.style.borderColor = "var(--border)")}
@@ -221,9 +259,12 @@ export default function Contact() {
                 id="message"
                 name="message"
                 rows={6}
+                required
+                aria-required="true"
                 value={form.message}
                 onChange={handleChange}
                 placeholder="Tell me about the project or role..."
+                className="focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
                 style={{
                   ...INPUT_STYLE,
                   resize: "vertical",
@@ -248,7 +289,7 @@ export default function Contact() {
             <button
               type="submit"
               disabled={status === "sending" || status === "success"}
-              className="inline-flex items-center gap-2 px-6 py-3 text-sm font-medium transition-all duration-200 self-start"
+              className="inline-flex items-center gap-2 px-6 py-3 text-sm font-medium transition-all duration-200 self-start focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
               style={{
                 backgroundColor:
                   status === "success" ? "transparent" : "var(--accent)",
@@ -313,7 +354,7 @@ export default function Contact() {
                 href={href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-3 text-sm transition-colors duration-200"
+                className="inline-flex items-center gap-3 text-sm transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
                 style={{
                   color: "var(--text-secondary)",
                   fontFamily: "var(--font-mono)",

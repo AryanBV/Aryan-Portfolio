@@ -1,21 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { motion, useInView } from "framer-motion";
-
-const sectionVariants = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.1 } },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as const },
-  },
-};
+import { motion, useInView, useReducedMotion } from "framer-motion";
 
 const STRENGTHS = [
   {
@@ -33,15 +19,38 @@ const STRENGTHS = [
 export default function About() {
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
+  const prefersReducedMotion = useReducedMotion();
+
+  const sectionVariants = prefersReducedMotion
+    ? { hidden: {}, visible: {} }
+    : { hidden: {}, visible: { transition: { staggerChildren: 0.1 } } };
+
+  const itemVariants = prefersReducedMotion
+    ? {
+        hidden: { opacity: 0 },
+        visible: { opacity: 1, transition: { duration: 0.3 } },
+      }
+    : {
+        hidden: { opacity: 0, y: 20 },
+        visible: {
+          opacity: 1,
+          y: 0,
+          transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as const },
+        },
+      };
 
   return (
     <section ref={ref} id="about" className="py-32 px-6">
       <div className="max-w-6xl mx-auto">
         {/* Section label */}
         <motion.p
-          initial={{ opacity: 0, y: 12 }}
-          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
-          transition={{ duration: 0.5 }}
+          initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 12 }}
+          animate={
+            inView
+              ? { opacity: 1, y: 0 }
+              : { opacity: 0, y: prefersReducedMotion ? 0 : 12 }
+          }
+          transition={{ duration: prefersReducedMotion ? 0.3 : 0.5 }}
           className="text-xs tracking-[0.2em] uppercase mb-12"
           style={{ color: "var(--accent)", fontFamily: "var(--font-mono)" }}
         >

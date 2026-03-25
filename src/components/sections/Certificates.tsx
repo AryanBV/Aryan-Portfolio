@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { motion, useInView } from "framer-motion";
+import { motion, useInView, useReducedMotion } from "framer-motion";
 import { FiExternalLink } from "react-icons/fi";
 import Image from "next/image";
 
@@ -47,6 +47,7 @@ const CERTIFICATES = [
 export default function Certificates() {
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
+  const prefersReducedMotion = useReducedMotion();
 
   return (
     <section
@@ -56,9 +57,16 @@ export default function Certificates() {
     >
       <div className="max-w-6xl mx-auto">
         <motion.p
-          initial={{ opacity: 0, y: 12 }}
-          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
-          transition={{ duration: 0.5, ease: EASING }}
+          initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 12 }}
+          animate={
+            inView
+              ? { opacity: 1, y: 0 }
+              : { opacity: 0, y: prefersReducedMotion ? 0 : 12 }
+          }
+          transition={{
+            duration: prefersReducedMotion ? 0.3 : 0.5,
+            ease: EASING,
+          }}
           className="text-xs tracking-[0.2em] uppercase mb-10"
           style={{ color: "var(--accent)", fontFamily: "var(--font-mono)" }}
         >
@@ -66,9 +74,17 @@ export default function Certificates() {
         </motion.p>
 
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          transition={{ duration: 0.6, delay: 0.05, ease: EASING }}
+          initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 20 }}
+          animate={
+            inView
+              ? { opacity: 1, y: 0 }
+              : { opacity: 0, y: prefersReducedMotion ? 0 : 20 }
+          }
+          transition={{
+            duration: prefersReducedMotion ? 0.3 : 0.6,
+            delay: prefersReducedMotion ? 0 : 0.05,
+            ease: EASING,
+          }}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
           {CERTIFICATES.map((cert) => (
@@ -87,6 +103,7 @@ export default function Certificates() {
                     src={cert.image}
                     alt={`${cert.name} certificate`}
                     fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
                     className="object-cover object-top"
                   />
                 </div>
@@ -128,7 +145,7 @@ export default function Certificates() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="Verify certificate"
-                    className="shrink-0 transition-colors duration-200"
+                    className="shrink-0 transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
                     style={{ color: "var(--text-muted)" }}
                     onMouseEnter={(e) =>
                       (e.currentTarget.style.color = "var(--accent)")

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { motion, useInView } from "framer-motion";
+import { motion, useInView, useReducedMotion } from "framer-motion";
 import {
   SiNextdotjs,
   SiReact,
@@ -77,16 +77,6 @@ const CATEGORIES: Category[] = [
 
 const EASING = [0.22, 1, 0.36, 1] as const;
 
-const containerVariants = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.08 } },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 16 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: EASING } },
-};
-
 function SkillChip({ skill }: { skill: Skill }) {
   const Icon = skill.icon;
   return (
@@ -116,14 +106,40 @@ function SkillChip({ skill }: { skill: Skill }) {
 export default function Skills() {
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
+  const prefersReducedMotion = useReducedMotion();
+
+  const containerVariants = prefersReducedMotion
+    ? { hidden: {}, visible: {} }
+    : { hidden: {}, visible: { transition: { staggerChildren: 0.08 } } };
+
+  const itemVariants = prefersReducedMotion
+    ? {
+        hidden: { opacity: 0 },
+        visible: { opacity: 1, transition: { duration: 0.3 } },
+      }
+    : {
+        hidden: { opacity: 0, y: 16 },
+        visible: {
+          opacity: 1,
+          y: 0,
+          transition: { duration: 0.5, ease: EASING },
+        },
+      };
 
   return (
     <section ref={ref} className="py-32 px-6">
       <div className="max-w-6xl mx-auto">
         <motion.p
-          initial={{ opacity: 0, y: 12 }}
-          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
-          transition={{ duration: 0.5, ease: EASING }}
+          initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 12 }}
+          animate={
+            inView
+              ? { opacity: 1, y: 0 }
+              : { opacity: 0, y: prefersReducedMotion ? 0 : 12 }
+          }
+          transition={{
+            duration: prefersReducedMotion ? 0.3 : 0.5,
+            ease: EASING,
+          }}
           className="text-xs tracking-[0.2em] uppercase mb-4"
           style={{ color: "var(--accent)", fontFamily: "var(--font-mono)" }}
         >
@@ -131,9 +147,17 @@ export default function Skills() {
         </motion.p>
 
         <motion.h2
-          initial={{ opacity: 0, y: 16 }}
-          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
-          transition={{ duration: 0.6, delay: 0.05, ease: EASING }}
+          initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 16 }}
+          animate={
+            inView
+              ? { opacity: 1, y: 0 }
+              : { opacity: 0, y: prefersReducedMotion ? 0 : 16 }
+          }
+          transition={{
+            duration: prefersReducedMotion ? 0.3 : 0.6,
+            delay: prefersReducedMotion ? 0 : 0.05,
+            ease: EASING,
+          }}
           className="text-3xl sm:text-4xl font-bold mb-16"
           style={{ color: "var(--text-primary)" }}
         >

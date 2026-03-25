@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { motion, useInView } from "framer-motion";
+import { motion, useInView, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import { FiGithub, FiExternalLink } from "react-icons/fi";
 
@@ -75,15 +75,7 @@ const PROJECTS: Project[] = [
 
 const EASING = [0.22, 1, 0.36, 1] as const;
 
-const containerVariants = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.1 } },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 24 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: EASING } },
-};
+// Variants are defined inside the component to access useReducedMotion
 
 // ─── Status badge ──────────────────────────────────────────────────────────────
 
@@ -149,6 +141,7 @@ function ProjectLinks({ links }: { links: Project["links"] }) {
           target="_blank"
           rel="noopener noreferrer"
           aria-label="GitHub repository"
+          className="focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
           style={linkStyle}
           onMouseEnter={(e) =>
             (e.currentTarget.style.color = "var(--text-primary)")
@@ -166,6 +159,7 @@ function ProjectLinks({ links }: { links: Project["links"] }) {
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Live site"
+          className="focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
           style={linkStyle}
           onMouseEnter={(e) => (e.currentTarget.style.color = "var(--accent)")}
           onMouseLeave={(e) =>
@@ -181,7 +175,13 @@ function ProjectLinks({ links }: { links: Project["links"] }) {
 
 // ─── Featured project card ─────────────────────────────────────────────────────
 
-function FeaturedCard({ project }: { project: Project }) {
+function FeaturedCard({
+  project,
+  itemVariants,
+}: {
+  project: Project;
+  itemVariants: import("framer-motion").Variants;
+}) {
   return (
     <motion.div
       variants={itemVariants}
@@ -203,6 +203,7 @@ function FeaturedCard({ project }: { project: Project }) {
           src={project.image}
           alt={project.title}
           fill
+          sizes="(max-width: 768px) 100vw, 50vw"
           className="object-cover object-top"
         />
         {/* Featured label overlay */}
@@ -264,7 +265,13 @@ function FeaturedCard({ project }: { project: Project }) {
 
 // ─── Regular project card ──────────────────────────────────────────────────────
 
-function ProjectCard({ project }: { project: Project }) {
+function ProjectCard({
+  project,
+  itemVariants,
+}: {
+  project: Project;
+  itemVariants: import("framer-motion").Variants;
+}) {
   return (
     <motion.div
       variants={itemVariants}
@@ -286,6 +293,7 @@ function ProjectCard({ project }: { project: Project }) {
           src={project.image}
           alt={project.title}
           fill
+          sizes="(max-width: 768px) 100vw, 50vw"
           className="object-cover object-top"
         />
       </div>
@@ -338,6 +346,25 @@ function ProjectCard({ project }: { project: Project }) {
 export default function Projects() {
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
+  const prefersReducedMotion = useReducedMotion();
+
+  const containerVariants = prefersReducedMotion
+    ? { hidden: {}, visible: {} }
+    : { hidden: {}, visible: { transition: { staggerChildren: 0.1 } } };
+
+  const itemVariants = prefersReducedMotion
+    ? {
+        hidden: { opacity: 0 },
+        visible: { opacity: 1, transition: { duration: 0.3 } },
+      }
+    : {
+        hidden: { opacity: 0, y: 24 },
+        visible: {
+          opacity: 1,
+          y: 0,
+          transition: { duration: 0.6, ease: EASING },
+        },
+      };
 
   const featured = PROJECTS.find((p) => p.featured);
   const rest = PROJECTS.filter((p) => !p.featured);
@@ -347,9 +374,16 @@ export default function Projects() {
       <div className="max-w-6xl mx-auto">
         {/* Eyebrow */}
         <motion.p
-          initial={{ opacity: 0, y: 12 }}
-          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
-          transition={{ duration: 0.5, ease: EASING }}
+          initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 12 }}
+          animate={
+            inView
+              ? { opacity: 1, y: 0 }
+              : { opacity: 0, y: prefersReducedMotion ? 0 : 12 }
+          }
+          transition={{
+            duration: prefersReducedMotion ? 0.3 : 0.5,
+            ease: EASING,
+          }}
           className="text-xs tracking-[0.2em] uppercase mb-4"
           style={{ color: "var(--accent)", fontFamily: "var(--font-mono)" }}
         >
@@ -358,9 +392,17 @@ export default function Projects() {
 
         {/* Heading */}
         <motion.h2
-          initial={{ opacity: 0, y: 16 }}
-          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
-          transition={{ duration: 0.6, delay: 0.05, ease: EASING }}
+          initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 16 }}
+          animate={
+            inView
+              ? { opacity: 1, y: 0 }
+              : { opacity: 0, y: prefersReducedMotion ? 0 : 16 }
+          }
+          transition={{
+            duration: prefersReducedMotion ? 0.3 : 0.6,
+            delay: prefersReducedMotion ? 0 : 0.05,
+            ease: EASING,
+          }}
           className="text-3xl sm:text-4xl font-bold mb-16"
           style={{ color: "var(--text-primary)" }}
         >
@@ -378,7 +420,9 @@ export default function Projects() {
           className="flex flex-col gap-6"
         >
           {/* Featured card — full width */}
-          {featured && <FeaturedCard project={featured} />}
+          {featured && (
+            <FeaturedCard project={featured} itemVariants={itemVariants} />
+          )}
 
           {/* Remaining cards — 2-column grid, own stagger context */}
           {rest.length > 0 && (
@@ -387,7 +431,11 @@ export default function Projects() {
               className="grid grid-cols-1 md:grid-cols-2 gap-6"
             >
               {rest.map((project) => (
-                <ProjectCard key={project.id} project={project} />
+                <ProjectCard
+                  key={project.id}
+                  project={project}
+                  itemVariants={itemVariants}
+                />
               ))}
             </motion.div>
           )}

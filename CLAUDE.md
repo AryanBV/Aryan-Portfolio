@@ -1,69 +1,78 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+## Stack
+
+- **Framework:** Next.js 16.1.6 (App Router)
+- **UI:** React 19.2.3, Tailwind CSS 4, Framer Motion 12.35
+- **Language:** TypeScript 5
+- **Package manager:** npm
+- **Deployment:** Vercel → aryanbv.com
 
 ## Commands
 
 ```bash
-npm run dev        # Start local dev server (Vite, hot reload)
-npm run build      # Production build → dist/
-npm run preview    # Preview the production build locally
-npm run lint       # Run ESLint
-npm run deploy     # Build + deploy to GitHub Pages (gh-pages)
+npm run dev        # Start dev server (Turbopack)
+npm run build      # Production build
+npm run start      # Serve production build locally
+npm run lint       # ESLint
 ```
 
-## Architecture
-
-Single-page React app (Vite + React 19) deployed to GitHub Pages at `https://aryanbv.github.io/Aryan-Portfolio/`.
-
-**Entry point:** `src/main.jsx` → `src/App.jsx` → `src/pages/Home.jsx`
-
-`App.jsx` wraps everything in `HashRouter` (required for GitHub Pages static hosting) and mounts global UI (`LoadingScreen`, `CustomCursor`, `ScrollProgress`, `BackToTop`). All navigation is hash-based smooth-scroll to section IDs — there is no multi-page routing.
-
-**Section order in `Home.jsx`:** `Hero → About → TechStack → Projects → Timeline → CodeStats → Certificates → Contact`
-
-Each section has a matching `id` attribute (`hero`, `about`, `techstack`, `projects`, `timeline`, `codestats`, `certificates`, `contact`) that `Navbar.jsx` targets for scroll navigation via `document.getElementById()`.
-
-## Component Structure
+## File Structure
 
 ```
-src/components/
-  common/    # App-wide UI: BackToTop, CustomCursor, LoadingScreen, ScrollProgress
-  layout/    # Navbar, Footer, MainLayout (wraps Navbar + Footer around content)
-  sections/  # One component per portfolio section (Hero, About, TechStack, etc.)
-  UI/        # Reusable primitives: GlassCard
+src/
+├── app/
+│   ├── layout.tsx              # Root layout — Geist fonts, metadata, MainLayout wrapper
+│   ├── page.tsx                # Home — renders all sections in order
+│   ├── globals.css             # CSS custom properties (dark theme tokens), Tailwind import
+│   ├── api/github/route.ts     # GitHub stats API (repos, stars, contributions, languages)
+│   ├── robots.ts               # robots.txt generation
+│   ├── sitemap.ts              # sitemap.xml generation
+│   └── opengraph-image.tsx     # Dynamic OG image
+├── components/
+│   ├── layout/
+│   │   ├── MainLayout.tsx      # Navbar + main + Footer wrapper
+│   │   ├── Navbar.tsx          # Fixed nav, scroll spy, mobile hamburger menu
+│   │   └── Footer.tsx          # Copyright + social links
+│   └── sections/
+│       ├── Hero.tsx            # Headline, TypeAnimation, CTAs, stat counters
+│       ├── About.tsx           # Bio, strengths, education card
+│       ├── Projects.tsx        # Featured + regular project cards
+│       ├── Skills.tsx          # Categorized tech stack chips
+│       ├── CodeStats.tsx       # GitHub activity — animated counters, language bars
+│       ├── Certificates.tsx    # Certification cards with verify links
+│       └── Contact.tsx         # EmailJS contact form + social links
+└── lib/                        # (empty — reserved for utilities)
 ```
-
-## Data Sources
-
-**Static (hard-coded in components):**
-
-- Certificates array → `Certificates.jsx`
-- Tech stack categories → `TechStack.jsx`
-- Featured projects → `Projects.jsx`
-- About/bio content → `About.jsx`
-
-**Dynamic (GitHub public API — no auth):**
-
-- `src/services/githubService.js` fetches repos, language stats, and contributions
-- `Projects.jsx` merges featured projects with GitHub API results; falls back to featured-only if API fails
-- `TechStack.jsx` uses GitHub language data to calculate proficiency percentages
-- Top 10 repos only are used for language aggregation (API rate limit consideration)
 
 ## Key Patterns
 
-**Image paths:** Always use `getImagePath(filename)` from `src/utils/pathUtils.js`. This handles the base path difference: `/` in dev, `/Aryan-Portfolio/` in production.
+- **Single-page scroll:** All navigation is hash-based (`#about`, `#projects`, etc.). No multi-page routing.
+- **Section order:** Hero → About → Projects → Skills/CodeStats/Certificates → Contact
+- **Dark theme only:** Custom properties in globals.css. Accent: `--accent`.
+- **Animations:** Framer Motion `useInView` triggers, consistent `[0.22, 1, 0.36, 1]` easing.
+- **GitHub data:** Client fetches `/api/github` (same-origin). Server calls GitHub API + contributions API.
+- **Fonts:** Geist Sans + Geist Mono via `next/font/google` (self-hosted at build time).
+- **Contact form:** EmailJS (`@emailjs/browser`), client-side validation, env vars for keys.
 
-**Styling:** Tailwind CSS with dark theme only (no light mode). Custom tokens defined in `tailwind.config.js`: colors `primary` (#0284c7), `secondary` (#7c3aed), `dark` (#111827); animations `blob`, `float`, `pulse-slow`, `bounce-slow`.
+## Config Files
 
-**Animations:** Framer Motion for all transitions/enter animations. `React Intersection Observer` triggers animations when sections scroll into view.
+- `next.config.ts` — security headers, devIndicators
+- `tsconfig.json` — `@/` path alias → `src/`
+- `globals.css` — Tailwind v4 (`@import "tailwindcss"`), CSS custom properties
 
-**Custom hooks:** All in `src/hooks/useScrollSpy.js` — includes `useScrollSpy`, `useIntersectionObserver`, `useDebounce`, `useThrottle`, `useLocalStorage`, `useMediaQuery`, `useWindowSize`, `useAnimation`, `useOnClickOutside`.
+## External Services
 
-**Notifications:** `react-hot-toast` for user feedback (e.g., form submission).
+- **GitHub API** (`api.github.com`) — repo stats, called server-side only
+- **EmailJS** (`api.emailjs.com`) — contact form, called client-side
+- **Vercel** — hosting, analytics
 
-## Deployment Notes
+---
 
-- `vite.config.js` sets `base: '/Aryan-Portfolio/'` in production, `'/'` in dev — this affects all asset URLs
-- Deploy with `npm run deploy` (runs `predeploy` build first, then `gh-pages -d dist`)
-- EmailJS contact form integration is present in `Contact.jsx` but currently commented out
+## Portfolio 2.0 Rebuild
+
+This is the `portfolio-v2` branch. **Do NOT merge to main until M7.**
+
+- Warm amber `#F5A623` accent is replacing the current cyan `#00d4ff`
+- 7 milestones tracked in Linear (M1–M7)
+- Current milestone: M1 (Foundation & Critical Fixes)

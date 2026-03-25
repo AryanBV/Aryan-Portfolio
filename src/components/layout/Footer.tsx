@@ -27,7 +27,7 @@ export default function Footer() {
             target="_blank"
             rel="noopener noreferrer"
             aria-label="GitHub"
-            className="transition-colors duration-200"
+            className="transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
             style={{ color: "var(--text-muted)" }}
             onMouseEnter={(e) =>
               (e.currentTarget.style.color = "var(--text-primary)")
@@ -43,7 +43,7 @@ export default function Footer() {
             target="_blank"
             rel="noopener noreferrer"
             aria-label="LinkedIn"
-            className="transition-colors duration-200"
+            className="transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
             style={{ color: "var(--text-muted)" }}
             onMouseEnter={(e) =>
               (e.currentTarget.style.color = "var(--text-primary)")

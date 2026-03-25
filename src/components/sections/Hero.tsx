@@ -7,27 +7,13 @@ import {
   useMotionValue,
   useTransform,
   animate,
+  useReducedMotion,
 } from "framer-motion";
 import { TypeAnimation } from "react-type-animation";
 import { FiArrowDown, FiDownload } from "react-icons/fi";
 import Image from "next/image";
 
-// --- Animation variants ---
-const containerVariants = {
-  hidden: {},
-  visible: {
-    transition: { staggerChildren: 0.12, delayChildren: 0.1 },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 24 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as const },
-  },
-};
+// Variants defined inside component to access useReducedMotion
 
 // --- Animated stat counter ---
 function StatCounter({
@@ -39,14 +25,19 @@ function StatCounter({
 }) {
   const ref = useRef<HTMLSpanElement>(null);
   const inView = useInView(ref, { once: true });
+  const prefersReducedMotion = useReducedMotion();
   const count = useMotionValue(0);
   const rounded = useTransform(count, (v) => Math.round(v).toLocaleString());
 
   useEffect(() => {
     if (!inView) return;
+    if (prefersReducedMotion) {
+      count.set(value);
+      return;
+    }
     const controls = animate(count, value, { duration: 1.8, ease: "easeOut" });
     return () => controls.stop();
-  }, [inView, count, value]);
+  }, [inView, count, value, prefersReducedMotion]);
 
   return (
     <span ref={ref}>
@@ -57,6 +48,29 @@ function StatCounter({
 }
 
 export default function Hero() {
+  const prefersReducedMotion = useReducedMotion();
+
+  const containerVariants = prefersReducedMotion
+    ? { hidden: {}, visible: {} }
+    : {
+        hidden: {},
+        visible: { transition: { staggerChildren: 0.12, delayChildren: 0.1 } },
+      };
+
+  const itemVariants = prefersReducedMotion
+    ? {
+        hidden: { opacity: 0 },
+        visible: { opacity: 1, transition: { duration: 0.3 } },
+      }
+    : {
+        hidden: { opacity: 0, y: 24 },
+        visible: {
+          opacity: 1,
+          y: 0,
+          transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as const },
+        },
+      };
+
   const [contributions, setContributions] = useState(544);
 
   useEffect(() => {
@@ -152,7 +166,7 @@ export default function Hero() {
             >
               <a
                 href="#projects"
-                className="inline-flex items-center gap-2 px-6 py-3 text-sm font-medium transition-all duration-200"
+                className="inline-flex items-center gap-2 px-6 py-3 text-sm font-medium transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
                 style={{
                   backgroundColor: "var(--accent)",
                   color: "#0a0a0a",
@@ -167,7 +181,7 @@ export default function Hero() {
               <a
                 href="/Aryan_BV_Resume_2026.pdf"
                 download
-                className="inline-flex items-center gap-2 px-6 py-3 text-sm font-medium transition-all duration-200"
+                className="inline-flex items-center gap-2 px-6 py-3 text-sm font-medium transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
                 style={{
                   border: "1px solid var(--border-hover)",
                   color: "var(--text-secondary)",
@@ -223,9 +237,16 @@ export default function Hero() {
 
           {/* Right — Profile photo */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.96 }}
+            initial={{
+              opacity: prefersReducedMotion ? 1 : 0,
+              scale: prefersReducedMotion ? 1 : 0.96,
+            }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            transition={{
+              duration: prefersReducedMotion ? 0 : 0.8,
+              delay: prefersReducedMotion ? 0 : 0.3,
+              ease: [0.22, 1, 0.36, 1],
+            }}
             className="hidden lg:flex justify-center items-center"
           >
             <div
@@ -236,6 +257,7 @@ export default function Hero() {
                 src="/images/Aryan Profile Picture.jpeg"
                 alt="Aryan B V"
                 fill
+                sizes="320px"
                 className="object-cover object-top"
                 priority
               />
