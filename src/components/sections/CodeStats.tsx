@@ -66,7 +66,7 @@ export default function CodeStats() {
   return (
     <section
       ref={ref}
-      className="py-16 px-6"
+      className="py-12 md:py-16 px-4 sm:px-6 md:px-8 lg:px-16"
       style={{ borderTop: "1px solid var(--border)" }}
     >
       <div className="max-w-6xl mx-auto">
@@ -81,7 +81,7 @@ export default function CodeStats() {
             duration: prefersReducedMotion ? 0.3 : 0.5,
             ease: EASING,
           }}
-          className="text-xs tracking-[0.2em] uppercase mb-10"
+          className="text-xs tracking-[0.2em] uppercase mb-6 md:mb-10"
           style={{ color: "var(--accent)", fontFamily: "var(--font-mono)" }}
         >
           GitHub Activity

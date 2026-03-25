@@ -24,7 +24,7 @@ export default function Image() {
         style={{
           width: "48px",
           height: "2px",
-          backgroundColor: "#00d4ff",
+          backgroundColor: "#F5A623",
           marginBottom: "32px",
         }}
       />
@@ -44,7 +44,7 @@ export default function Image() {
       <div
         style={{
           fontSize: "28px",
-          color: "#00d4ff",
+          color: "#F5A623",
           marginBottom: "24px",
         }}
       >

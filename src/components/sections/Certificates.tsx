@@ -52,7 +52,7 @@ export default function Certificates() {
   return (
     <section
       ref={ref}
-      className="py-16 px-6"
+      className="py-12 md:py-16 px-4 sm:px-6 md:px-8 lg:px-16"
       style={{ borderTop: "1px solid var(--border)" }}
     >
       <div className="max-w-6xl mx-auto">
@@ -67,7 +67,7 @@ export default function Certificates() {
             duration: prefersReducedMotion ? 0.3 : 0.5,
             ease: EASING,
           }}
-          className="text-xs tracking-[0.2em] uppercase mb-10"
+          className="text-xs tracking-[0.2em] uppercase mb-6 md:mb-10"
           style={{ color: "var(--accent)", fontFamily: "var(--font-mono)" }}
         >
           Certifications
@@ -145,14 +145,7 @@ export default function Certificates() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="Verify certificate"
-                    className="shrink-0 transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
-                    style={{ color: "var(--text-muted)" }}
-                    onMouseEnter={(e) =>
-                      (e.currentTarget.style.color = "var(--accent)")
-                    }
-                    onMouseLeave={(e) =>
-                      (e.currentTarget.style.color = "var(--text-muted)")
-                    }
+                    className="shrink-0 text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
                   >
                     <FiExternalLink size={16} />
                   </a>

@@ -75,4 +75,15 @@ This is the `portfolio-v2` branch. **Do NOT merge to main until M7.**
 
 - Warm amber `#F5A623` accent is replacing the current cyan `#00d4ff`
 - 7 milestones tracked in Linear (M1–M7)
-- Current milestone: M1 (Foundation & Critical Fixes)
+- Current milestone: M2 (Design System & Polish)
+
+## Responsive Design
+
+Every component must render correctly at 375px, 768px, and 1440px:
+
+- Section padding: py-12 md:py-20 lg:py-28 (never flat values)
+- Container padding: px-4 sm:px-6 md:px-8 lg:px-16
+- Headings: responsive text sizes (text-2xl sm:text-3xl lg:text-4xl)
+- No fixed widths without max-width fallback
+- No horizontal overflow at any breakpoint
+- Test at all three breakpoints before committing

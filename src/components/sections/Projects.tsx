@@ -128,11 +128,6 @@ function TechPill({ label }: { label: string }) {
 // ─── Project links ─────────────────────────────────────────────────────────────
 
 function ProjectLinks({ links }: { links: Project["links"] }) {
-  const linkStyle = {
-    color: "var(--text-muted)",
-    transition: "color 200ms",
-  };
-
   return (
     <div className="flex items-center gap-4">
       {links.github && (
@@ -141,14 +136,7 @@ function ProjectLinks({ links }: { links: Project["links"] }) {
           target="_blank"
           rel="noopener noreferrer"
           aria-label="GitHub repository"
-          className="focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
-          style={linkStyle}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.color = "var(--text-primary)")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.color = "var(--text-muted)")
-          }
+          className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
         >
           <FiGithub size={18} />
         </a>
@@ -159,12 +147,7 @@ function ProjectLinks({ links }: { links: Project["links"] }) {
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Live site"
-          className="focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
-          style={linkStyle}
-          onMouseEnter={(e) => (e.currentTarget.style.color = "var(--accent)")}
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.color = "var(--text-muted)")
-          }
+          className="text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
         >
           <FiExternalLink size={18} />
         </a>
@@ -185,14 +168,7 @@ function FeaturedCard({
   return (
     <motion.div
       variants={itemVariants}
-      className="grid grid-cols-1 lg:grid-cols-2 gap-0"
-      style={{ border: "1px solid var(--border)" }}
-      onMouseEnter={(e) =>
-        (e.currentTarget.style.borderColor = "var(--border-hover)")
-      }
-      onMouseLeave={(e) =>
-        (e.currentTarget.style.borderColor = "var(--border)")
-      }
+      className="grid grid-cols-1 lg:grid-cols-2 gap-0 border border-[var(--border)] hover:border-[var(--border-hover)] transition-colors duration-200"
     >
       {/* Image — left on desktop */}
       <div
@@ -275,14 +251,7 @@ function ProjectCard({
   return (
     <motion.div
       variants={itemVariants}
-      className="flex flex-col"
-      style={{ border: "1px solid var(--border)" }}
-      onMouseEnter={(e) =>
-        (e.currentTarget.style.borderColor = "var(--border-hover)")
-      }
-      onMouseLeave={(e) =>
-        (e.currentTarget.style.borderColor = "var(--border)")
-      }
+      className="flex flex-col border border-[var(--border)] hover:border-[var(--border-hover)] transition-colors duration-200"
     >
       {/* Image */}
       <div
@@ -370,7 +339,11 @@ export default function Projects() {
   const rest = PROJECTS.filter((p) => !p.featured);
 
   return (
-    <section ref={ref} id="projects" className="py-32 px-6">
+    <section
+      ref={ref}
+      id="projects"
+      className="py-12 md:py-20 lg:py-28 px-4 sm:px-6 md:px-8 lg:px-16"
+    >
       <div className="max-w-6xl mx-auto">
         {/* Eyebrow */}
         <motion.p
@@ -403,7 +376,7 @@ export default function Projects() {
             delay: prefersReducedMotion ? 0 : 0.05,
             ease: EASING,
           }}
-          className="text-3xl sm:text-4xl font-bold mb-16"
+          className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-8 md:mb-12 lg:mb-16"
           style={{ color: "var(--text-primary)" }}
         >
           Production systems,{" "}
@@ -417,7 +390,7 @@ export default function Projects() {
           variants={containerVariants}
           initial="hidden"
           animate={inView ? "visible" : "hidden"}
-          className="flex flex-col gap-6"
+          className="flex flex-col gap-6 md:gap-8"
         >
           {/* Featured card — full width */}
           {featured && (

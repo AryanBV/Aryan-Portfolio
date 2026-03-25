@@ -107,7 +107,11 @@ export default function Contact() {
   }
 
   return (
-    <section ref={ref} id="contact" className="py-32 px-6">
+    <section
+      ref={ref}
+      id="contact"
+      className="py-12 md:py-20 lg:py-28 px-4 sm:px-6 md:px-8 lg:px-16"
+    >
       <div className="max-w-6xl mx-auto">
         {/* Eyebrow + heading */}
         <motion.p
@@ -139,7 +143,7 @@ export default function Contact() {
             delay: prefersReducedMotion ? 0 : 0.05,
             ease: EASING,
           }}
-          className="text-3xl sm:text-4xl font-bold mb-4"
+          className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4"
           style={{ color: "var(--text-primary)" }}
         >
           Let&apos;s work together.
@@ -157,7 +161,7 @@ export default function Contact() {
             delay: prefersReducedMotion ? 0 : 0.1,
             ease: EASING,
           }}
-          className="text-sm mb-16 max-w-md"
+          className="text-sm mb-8 md:mb-12 lg:mb-16 max-w-md"
           style={{ color: "var(--text-secondary)" }}
         >
           Open to full-time roles, contract projects, and interesting
@@ -177,7 +181,7 @@ export default function Contact() {
             delay: prefersReducedMotion ? 0 : 0.15,
             ease: EASING,
           }}
-          className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-12"
+          className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-8 lg:gap-12"
         >
           {/* Form */}
           <form
@@ -354,17 +358,10 @@ export default function Contact() {
                 href={href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-3 text-sm transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
+                className="inline-flex items-center gap-3 text-sm text-[var(--text-secondary)] hover:text-[var(--accent)] transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
                 style={{
-                  color: "var(--text-secondary)",
                   fontFamily: "var(--font-mono)",
                 }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.color = "var(--accent)")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.color = "var(--text-secondary)")
-                }
               >
                 <Icon size={16} />
                 {label}

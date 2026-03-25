@@ -105,8 +105,8 @@ export default function Hero() {
       className="relative min-h-screen flex items-center"
       style={{ paddingTop: "5rem" }}
     >
-      <div className="max-w-6xl mx-auto px-6 w-full py-20">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 lg:px-16 w-full py-16 md:py-20">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
           {/* Left — Text content */}
           <motion.div
             variants={containerVariants}
@@ -166,14 +166,12 @@ export default function Hero() {
             >
               <a
                 href="#projects"
-                className="inline-flex items-center gap-2 px-6 py-3 text-sm font-medium transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
+                className="inline-flex items-center gap-2 px-6 py-3 text-sm font-medium transition-all duration-200 hover:opacity-[0.88] focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
                 style={{
                   backgroundColor: "var(--accent)",
                   color: "#0a0a0a",
                   fontFamily: "var(--font-mono)",
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.88")}
-                onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
               >
                 View My Work
                 <FiArrowDown size={14} />
@@ -181,19 +179,9 @@ export default function Hero() {
               <a
                 href="/Aryan_BV_Resume_2026.pdf"
                 download
-                className="inline-flex items-center gap-2 px-6 py-3 text-sm font-medium transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
+                className="inline-flex items-center gap-2 px-6 py-3 text-sm font-medium border border-[var(--border-hover)] text-[var(--text-secondary)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
                 style={{
-                  border: "1px solid var(--border-hover)",
-                  color: "var(--text-secondary)",
                   fontFamily: "var(--font-mono)",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = "var(--accent)";
-                  e.currentTarget.style.color = "var(--accent)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = "var(--border-hover)";
-                  e.currentTarget.style.color = "var(--text-secondary)";
                 }}
               >
                 <FiDownload size={14} />

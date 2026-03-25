@@ -40,7 +40,11 @@ export default function About() {
       };
 
   return (
-    <section ref={ref} id="about" className="py-32 px-6">
+    <section
+      ref={ref}
+      id="about"
+      className="py-12 md:py-20 lg:py-28 px-4 sm:px-6 md:px-8 lg:px-16"
+    >
       <div className="max-w-6xl mx-auto">
         {/* Section label */}
         <motion.p
@@ -51,7 +55,7 @@ export default function About() {
               : { opacity: 0, y: prefersReducedMotion ? 0 : 12 }
           }
           transition={{ duration: prefersReducedMotion ? 0.3 : 0.5 }}
-          className="text-xs tracking-[0.2em] uppercase mb-12"
+          className="text-xs tracking-[0.2em] uppercase mb-8 md:mb-12"
           style={{ color: "var(--accent)", fontFamily: "var(--font-mono)" }}
         >
           About
@@ -61,13 +65,13 @@ export default function About() {
           variants={sectionVariants}
           initial="hidden"
           animate={inView ? "visible" : "hidden"}
-          className="grid grid-cols-1 lg:grid-cols-2 gap-16"
+          className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16"
         >
           {/* Left — Bio */}
           <div className="flex flex-col gap-8">
             <motion.h2
               variants={itemVariants}
-              className="text-3xl sm:text-4xl font-bold leading-tight"
+              className="text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight"
               style={{ color: "var(--text-primary)" }}
             >
               I engineer systems end-to-end —{" "}
