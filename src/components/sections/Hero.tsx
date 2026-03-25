@@ -118,7 +118,10 @@ export default function Hero() {
             <motion.p
               variants={itemVariants}
               className="text-xs tracking-[0.2em] uppercase"
-              style={{ color: "var(--accent)", fontFamily: "var(--font-mono)" }}
+              style={{
+                color: "var(--text-muted)",
+                fontFamily: "var(--font-mono)",
+              }}
             >
               Full-Stack Developer · AI/ML Engineer
             </motion.p>
@@ -170,7 +173,6 @@ export default function Hero() {
                 style={{
                   backgroundColor: "var(--accent)",
                   color: "#0a0a0a",
-                  fontFamily: "var(--font-mono)",
                 }}
               >
                 View My Work
@@ -180,9 +182,6 @@ export default function Hero() {
                 href="/Aryan_BV_Resume_2026.pdf"
                 download
                 className="inline-flex items-center gap-2 px-6 py-3 text-sm font-medium border border-[var(--border-hover)] text-[var(--text-secondary)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
-                style={{
-                  fontFamily: "var(--font-mono)",
-                }}
               >
                 <FiDownload size={14} />
                 Download Resume
@@ -253,16 +252,16 @@ export default function Hero() {
               <span
                 className="absolute -top-px -left-px w-8 h-8"
                 style={{
-                  borderTop: "2px solid var(--accent)",
-                  borderLeft: "2px solid var(--accent)",
+                  borderTop: "2px solid var(--border)",
+                  borderLeft: "2px solid var(--border)",
                 }}
               />
               {/* Accent corner — bottom right */}
               <span
                 className="absolute -bottom-px -right-px w-8 h-8"
                 style={{
-                  borderBottom: "2px solid var(--accent)",
-                  borderRight: "2px solid var(--accent)",
+                  borderBottom: "2px solid var(--border)",
+                  borderRight: "2px solid var(--border)",
                 }}
               />
             </div>

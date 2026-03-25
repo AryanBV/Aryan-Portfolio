@@ -112,7 +112,7 @@ export default function Navbar() {
         <a
           href="#"
           className="text-sm font-semibold tracking-widest uppercase focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
-          style={{ color: "var(--accent)", fontFamily: "var(--font-mono)" }}
+          style={{ color: "var(--text-primary)" }}
         >
           Aryan B V
         </a>
@@ -129,7 +129,6 @@ export default function Navbar() {
                     activeSection === href.slice(1)
                       ? "var(--accent)"
                       : "var(--text-secondary)",
-                  fontFamily: "var(--font-mono)",
                 }}
               >
                 {label}
@@ -205,7 +204,6 @@ export default function Navbar() {
                         activeSection === href.slice(1)
                           ? "var(--accent)"
                           : "var(--text-primary)",
-                      fontFamily: "var(--font-mono)",
                     }}
                     onClick={() => setMenuOpen(false)}
                   >

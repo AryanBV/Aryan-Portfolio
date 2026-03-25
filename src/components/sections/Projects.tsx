@@ -81,7 +81,7 @@ const EASING = [0.22, 1, 0.36, 1] as const;
 
 const STATUS_COLORS: Record<ProjectStatus, { color: string; bg: string }> = {
   Live: { color: "#4ade80", bg: "rgba(74, 222, 128, 0.1)" },
-  Built: { color: "var(--accent)", bg: "var(--accent-dim)" },
+  Built: { color: "var(--text-muted)", bg: "var(--accent-dim)" },
   "In Development": { color: "#facc15", bg: "rgba(250, 204, 21, 0.1)" },
 };
 
@@ -93,7 +93,6 @@ function StatusBadge({ status }: { status: ProjectStatus }) {
       style={{
         color,
         backgroundColor: bg,
-        fontFamily: "var(--font-mono)",
         border: `1px solid ${color}`,
         opacity: 0.9,
       }}
@@ -147,7 +146,7 @@ function ProjectLinks({ links }: { links: Project["links"] }) {
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Live site"
-          className="text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
+          className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
         >
           <FiExternalLink size={18} />
         </a>
@@ -168,7 +167,7 @@ function FeaturedCard({
   return (
     <motion.div
       variants={itemVariants}
-      className="grid grid-cols-1 lg:grid-cols-2 gap-0 border border-[var(--border)] hover:border-[var(--border-hover)] transition-colors duration-200"
+      className="grid grid-cols-1 lg:grid-cols-2 gap-0 border border-[var(--border)] hover:border-[var(--border-hover)] transition-colors duration-200 card-shadow card-shadow-hover"
     >
       {/* Image — left on desktop */}
       <div
@@ -187,9 +186,8 @@ function FeaturedCard({
           className="absolute top-4 left-4 px-2.5 py-1 text-xs font-semibold tracking-widest uppercase"
           style={{
             backgroundColor: "var(--bg-base)",
-            color: "var(--accent)",
+            color: "var(--text-muted)",
             border: "1px solid var(--border)",
-            fontFamily: "var(--font-mono)",
           }}
         >
           Featured
@@ -216,7 +214,7 @@ function FeaturedCard({
             </h3>
             <p
               className="text-sm mb-4"
-              style={{ color: "var(--accent)", fontFamily: "var(--font-mono)" }}
+              style={{ color: "var(--text-secondary)" }}
             >
               {project.tagline}
             </p>
@@ -251,7 +249,7 @@ function ProjectCard({
   return (
     <motion.div
       variants={itemVariants}
-      className="flex flex-col border border-[var(--border)] hover:border-[var(--border-hover)] transition-colors duration-200"
+      className="flex flex-col border border-[var(--border)] hover:border-[var(--border-hover)] transition-colors duration-200 card-shadow card-shadow-hover"
     >
       {/* Image */}
       <div
@@ -287,7 +285,7 @@ function ProjectCard({
             </h3>
             <p
               className="text-xs mb-3"
-              style={{ color: "var(--accent)", fontFamily: "var(--font-mono)" }}
+              style={{ color: "var(--text-secondary)" }}
             >
               {project.tagline}
             </p>
@@ -358,7 +356,7 @@ export default function Projects() {
             ease: EASING,
           }}
           className="text-xs tracking-[0.2em] uppercase mb-4"
-          style={{ color: "var(--accent)", fontFamily: "var(--font-mono)" }}
+          style={{ color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}
         >
           Projects
         </motion.p>

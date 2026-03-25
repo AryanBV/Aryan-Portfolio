@@ -82,7 +82,7 @@ export default function CodeStats() {
             ease: EASING,
           }}
           className="text-xs tracking-[0.2em] uppercase mb-6 md:mb-10"
-          style={{ color: "var(--accent)", fontFamily: "var(--font-mono)" }}
+          style={{ color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}
         >
           GitHub Activity
         </motion.p>
@@ -105,7 +105,6 @@ export default function CodeStats() {
             className="text-sm"
             style={{
               color: "var(--text-muted)",
-              fontFamily: "var(--font-mono)",
             }}
           >
             Could not load GitHub data.

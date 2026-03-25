@@ -14,10 +14,7 @@ export default function Footer() {
       style={{ borderTop: "1px solid var(--border)" }}
     >
       <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-        <p
-          className="text-sm"
-          style={{ color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}
-        >
+        <p className="text-sm" style={{ color: "var(--text-muted)" }}>
           © {new Date().getFullYear()} Aryan B V
         </p>
 

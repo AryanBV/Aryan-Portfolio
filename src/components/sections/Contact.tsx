@@ -40,7 +40,6 @@ const INPUT_STYLE: React.CSSProperties = {
   backgroundColor: "var(--bg-surface)",
   border: "1px solid var(--border)",
   color: "var(--text-primary)",
-  fontFamily: "var(--font-mono)",
   fontSize: "0.875rem",
   padding: "0.75rem 1rem",
   outline: "none",
@@ -126,7 +125,7 @@ export default function Contact() {
             ease: EASING,
           }}
           className="text-xs tracking-[0.2em] uppercase mb-4"
-          style={{ color: "var(--accent)", fontFamily: "var(--font-mono)" }}
+          style={{ color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}
         >
           Contact
         </motion.p>
@@ -196,7 +195,6 @@ export default function Contact() {
                 className="text-xs uppercase tracking-widest"
                 style={{
                   color: "var(--text-muted)",
-                  fontFamily: "var(--font-mono)",
                 }}
               >
                 Name
@@ -225,7 +223,6 @@ export default function Contact() {
                 className="text-xs uppercase tracking-widest"
                 style={{
                   color: "var(--text-muted)",
-                  fontFamily: "var(--font-mono)",
                 }}
               >
                 Email
@@ -254,7 +251,6 @@ export default function Contact() {
                 className="text-xs uppercase tracking-widest"
                 style={{
                   color: "var(--text-muted)",
-                  fontFamily: "var(--font-mono)",
                 }}
               >
                 Message
@@ -281,10 +277,7 @@ export default function Contact() {
 
             {/* Validation error */}
             {validationError && (
-              <p
-                className="text-xs"
-                style={{ color: "#f87171", fontFamily: "var(--font-mono)" }}
-              >
+              <p className="text-xs" style={{ color: "#f87171" }}>
                 {validationError}
               </p>
             )}
@@ -307,7 +300,6 @@ export default function Contact() {
                   status === "sending" || status === "success"
                     ? "not-allowed"
                     : "pointer",
-                fontFamily: "var(--font-mono)",
               }}
             >
               <FiSend size={14} />
@@ -319,20 +311,14 @@ export default function Contact() {
 
             {/* Success / error feedback */}
             {status === "success" && (
-              <p
-                className="text-xs"
-                style={{ color: "#4ade80", fontFamily: "var(--font-mono)" }}
-              >
+              <p className="text-xs" style={{ color: "#4ade80" }}>
                 Got it &mdash; I&apos;ll get back to you soon.
               </p>
             )}
             {status === "error" && (
-              <p
-                className="text-xs"
-                style={{ color: "#f87171", fontFamily: "var(--font-mono)" }}
-              >
+              <p className="text-xs" style={{ color: "#f87171" }}>
                 Something went wrong. Try emailing me at{" "}
-                <span style={{ color: "var(--accent)" }}>
+                <span style={{ color: "var(--text-secondary)" }}>
                   aryansalian5678@gmail.com
                 </span>
                 .
@@ -346,7 +332,6 @@ export default function Contact() {
               className="text-xs uppercase tracking-widest"
               style={{
                 color: "var(--text-muted)",
-                fontFamily: "var(--font-mono)",
               }}
             >
               Find me online
@@ -358,10 +343,7 @@ export default function Contact() {
                 href={href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-3 text-sm text-[var(--text-secondary)] hover:text-[var(--accent)] transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
-                style={{
-                  fontFamily: "var(--font-mono)",
-                }}
+                className="inline-flex items-center gap-3 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
               >
                 <Icon size={16} />
                 {label}
@@ -380,7 +362,6 @@ export default function Contact() {
               className="text-xs leading-relaxed"
               style={{
                 color: "var(--text-muted)",
-                fontFamily: "var(--font-mono)",
               }}
             >
               Based in Bangalore, India.

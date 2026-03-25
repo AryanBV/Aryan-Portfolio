@@ -68,7 +68,7 @@ export default function Certificates() {
             ease: EASING,
           }}
           className="text-xs tracking-[0.2em] uppercase mb-6 md:mb-10"
-          style={{ color: "var(--accent)", fontFamily: "var(--font-mono)" }}
+          style={{ color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}
         >
           Certifications
         </motion.p>
@@ -90,7 +90,7 @@ export default function Certificates() {
           {CERTIFICATES.map((cert) => (
             <div
               key={cert.id}
-              className="flex flex-col overflow-hidden"
+              className="flex flex-col overflow-hidden card-shadow card-shadow-hover"
               style={{
                 backgroundColor: "var(--bg-surface)",
                 border: "1px solid var(--border)",
@@ -117,8 +117,8 @@ export default function Certificates() {
                       className="text-xs px-2 py-0.5 self-start mb-2"
                       style={{
                         backgroundColor: "var(--accent-dim)",
-                        color: "var(--accent)",
-                        border: "1px solid var(--accent)",
+                        color: "var(--text-secondary)",
+                        border: "1px solid var(--border)",
                         fontFamily: "var(--font-mono)",
                       }}
                     >
@@ -134,7 +134,6 @@ export default function Certificates() {
                       className="text-sm"
                       style={{
                         color: "var(--text-muted)",
-                        fontFamily: "var(--font-mono)",
                       }}
                     >
                       {cert.issuer} · {cert.issued}
@@ -145,7 +144,7 @@ export default function Certificates() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="Verify certificate"
-                    className="shrink-0 text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
+                    className="shrink-0 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
                   >
                     <FiExternalLink size={16} />
                   </a>

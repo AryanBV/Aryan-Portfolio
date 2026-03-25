@@ -56,7 +56,7 @@ export default function About() {
           }
           transition={{ duration: prefersReducedMotion ? 0.3 : 0.5 }}
           className="text-xs tracking-[0.2em] uppercase mb-8 md:mb-12"
-          style={{ color: "var(--accent)", fontFamily: "var(--font-mono)" }}
+          style={{ color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}
         >
           About
         </motion.p>
@@ -111,7 +111,7 @@ export default function About() {
                   <span
                     className="mt-1 shrink-0 w-1 h-1 rounded-full self-start translate-y-2"
                     style={{
-                      backgroundColor: "var(--accent)",
+                      backgroundColor: "var(--text-muted)",
                       minWidth: "4px",
                       minHeight: "4px",
                     }}
@@ -121,7 +121,6 @@ export default function About() {
                       className="text-sm font-medium"
                       style={{
                         color: "var(--text-primary)",
-                        fontFamily: "var(--font-mono)",
                       }}
                     >
                       {label}
@@ -153,7 +152,7 @@ export default function About() {
                   <p
                     className="text-xs tracking-widest uppercase mb-2"
                     style={{
-                      color: "var(--accent)",
+                      color: "var(--text-muted)",
                       fontFamily: "var(--font-mono)",
                     }}
                   >

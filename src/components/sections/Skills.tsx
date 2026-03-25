@@ -81,7 +81,7 @@ function SkillChip({ skill }: { skill: Skill }) {
   const Icon = skill.icon;
   return (
     <span
-      className="inline-flex items-center gap-2 px-3 py-2 text-sm border border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--border-hover)] hover:text-[var(--text-primary)] transition-colors duration-200"
+      className="inline-flex items-center gap-2 px-3 py-2 text-sm border border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--border-hover)] hover:text-[var(--text-primary)] transition-colors duration-200 card-shadow"
       style={{
         backgroundColor: "var(--bg-surface)",
         fontFamily: "var(--font-mono)",
@@ -134,7 +134,7 @@ export default function Skills() {
             ease: EASING,
           }}
           className="text-xs tracking-[0.2em] uppercase mb-4"
-          style={{ color: "var(--accent)", fontFamily: "var(--font-mono)" }}
+          style={{ color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}
         >
           Skills
         </motion.p>
@@ -169,7 +169,6 @@ export default function Skills() {
                 className="text-xs uppercase tracking-widest mb-4"
                 style={{
                   color: "var(--text-muted)",
-                  fontFamily: "var(--font-mono)",
                 }}
               >
                 {label}
