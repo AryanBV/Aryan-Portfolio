@@ -72,7 +72,7 @@ export default function Certificates() {
       id="certifications"
       className="py-12 md:py-20 lg:py-28 px-4 sm:px-6 md:px-8 lg:px-16"
     >
-      <div className="max-w-3xl mx-auto">
+      <div className="max-w-6xl mx-auto">
         {/* Eyebrow */}
         <motion.p
           initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 12 }}
