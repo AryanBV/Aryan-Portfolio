@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import Image from "next/image";
 
 const NAV_LINKS = [
   { label: "Projects", href: "#projects" },
@@ -112,10 +113,19 @@ export default function Navbar() {
         {/* Logo */}
         <a
           href="#"
-          className="text-sm font-semibold tracking-widest uppercase focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
+          className="flex items-center gap-2.5 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
           style={{ color: "var(--text-primary)" }}
         >
-          Aryan B V
+          <Image
+            src="/logo/aryan-logo.svg"
+            alt=""
+            width={24}
+            height={24}
+            aria-hidden="true"
+          />
+          <span className="text-sm font-semibold tracking-widest uppercase">
+            Aryan B V
+          </span>
         </a>
 
         {/* Desktop links */}

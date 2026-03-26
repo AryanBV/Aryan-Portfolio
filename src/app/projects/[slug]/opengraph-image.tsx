@@ -34,13 +34,29 @@ export default async function OGImage({
     >
       <div
         style={{
-          color: "#F5A623",
-          fontSize: 24,
-          letterSpacing: "0.2em",
+          display: "flex",
+          alignItems: "center",
+          gap: 16,
           marginBottom: 16,
         }}
       >
-        CASE STUDY
+        <div
+          style={{
+            width: 48,
+            height: 48,
+            background: "#F5A623",
+            clipPath: "polygon(50% 0%, 100% 100%, 0% 100%)",
+          }}
+        />
+        <div
+          style={{
+            color: "#F5A623",
+            fontSize: 24,
+            letterSpacing: "0.2em",
+          }}
+        >
+          CASE STUDY
+        </div>
       </div>
       <div
         style={{
