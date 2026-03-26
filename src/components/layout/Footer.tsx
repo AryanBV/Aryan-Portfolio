@@ -10,14 +10,11 @@ const SOCIAL_LINKS = {
 export default function Footer() {
   return (
     <footer
-      className="w-full py-8 px-6"
+      className="w-full py-8 px-4 sm:px-6"
       style={{ borderTop: "1px solid var(--border)" }}
     >
       <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-        <p
-          className="text-sm"
-          style={{ color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}
-        >
+        <p className="text-sm" style={{ color: "var(--text-muted)" }}>
           © {new Date().getFullYear()} Aryan B V
         </p>
 
@@ -27,14 +24,7 @@ export default function Footer() {
             target="_blank"
             rel="noopener noreferrer"
             aria-label="GitHub"
-            className="transition-colors duration-200"
-            style={{ color: "var(--text-muted)" }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.color = "var(--text-primary)")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.color = "var(--text-muted)")
-            }
+            className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
           >
             <FiGithub size={18} />
           </a>
@@ -43,14 +33,7 @@ export default function Footer() {
             target="_blank"
             rel="noopener noreferrer"
             aria-label="LinkedIn"
-            className="transition-colors duration-200"
-            style={{ color: "var(--text-muted)" }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.color = "var(--text-primary)")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.color = "var(--text-muted)")
-            }
+            className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
           >
             <FiLinkedin size={18} />
           </a>

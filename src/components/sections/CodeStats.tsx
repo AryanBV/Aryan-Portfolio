@@ -7,6 +7,7 @@ import {
   useMotionValue,
   useTransform,
   animate,
+  useReducedMotion,
 } from "framer-motion";
 
 type GitHubData = {
@@ -20,14 +21,19 @@ type GitHubData = {
 const EASING = [0.22, 1, 0.36, 1] as const;
 
 function AnimatedNumber({ value, inView }: { value: number; inView: boolean }) {
+  const prefersReducedMotion = useReducedMotion();
   const count = useMotionValue(0);
   const rounded = useTransform(count, (v) => Math.round(v).toLocaleString());
 
   useEffect(() => {
     if (!inView) return;
+    if (prefersReducedMotion) {
+      count.set(value);
+      return;
+    }
     const controls = animate(count, value, { duration: 1.6, ease: "easeOut" });
     return () => controls.stop();
-  }, [inView, count, value]);
+  }, [inView, count, value, prefersReducedMotion]);
 
   return <motion.span>{rounded}</motion.span>;
 }
@@ -35,6 +41,7 @@ function AnimatedNumber({ value, inView }: { value: number; inView: boolean }) {
 export default function CodeStats() {
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
+  const prefersReducedMotion = useReducedMotion();
 
   const [data, setData] = useState<GitHubData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -59,16 +66,23 @@ export default function CodeStats() {
   return (
     <section
       ref={ref}
-      className="py-16 px-6"
+      className="py-12 md:py-20 lg:py-28 px-4 sm:px-6 md:px-8 lg:px-16"
       style={{ borderTop: "1px solid var(--border)" }}
     >
       <div className="max-w-6xl mx-auto">
         <motion.p
-          initial={{ opacity: 0, y: 12 }}
-          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
-          transition={{ duration: 0.5, ease: EASING }}
-          className="text-xs tracking-[0.2em] uppercase mb-10"
-          style={{ color: "var(--accent)", fontFamily: "var(--font-mono)" }}
+          initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 12 }}
+          animate={
+            inView
+              ? { opacity: 1, y: 0 }
+              : { opacity: 0, y: prefersReducedMotion ? 0 : 12 }
+          }
+          transition={{
+            duration: prefersReducedMotion ? 0.3 : 0.5,
+            ease: EASING,
+          }}
+          className="text-xs tracking-[0.2em] uppercase mb-6 md:mb-10"
+          style={{ color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}
         >
           GitHub Activity
         </motion.p>
@@ -91,16 +105,22 @@ export default function CodeStats() {
             className="text-sm"
             style={{
               color: "var(--text-muted)",
-              fontFamily: "var(--font-mono)",
             }}
           >
             Could not load GitHub data.
           </p>
         ) : data ? (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-            transition={{ duration: 0.6, ease: EASING }}
+            initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 20 }}
+            animate={
+              inView
+                ? { opacity: 1, y: 0 }
+                : { opacity: 0, y: prefersReducedMotion ? 0 : 20 }
+            }
+            transition={{
+              duration: prefersReducedMotion ? 0.3 : 0.6,
+              ease: EASING,
+            }}
             className="grid grid-cols-1 md:grid-cols-3 gap-6"
           >
             {/* Repos + Stars */}
@@ -237,15 +257,23 @@ export default function CodeStats() {
                     <motion.div
                       className="h-0.5"
                       style={{ backgroundColor: "var(--accent)" }}
-                      initial={{ width: 0 }}
+                      initial={{
+                        width: prefersReducedMotion
+                          ? `${(count / data.totalLangRepos) * 100}%`
+                          : 0,
+                      }}
                       animate={
                         inView
                           ? { width: `${(count / data.totalLangRepos) * 100}%` }
-                          : { width: 0 }
+                          : {
+                              width: prefersReducedMotion
+                                ? `${(count / data.totalLangRepos) * 100}%`
+                                : 0,
+                            }
                       }
                       transition={{
-                        duration: 1,
-                        delay: 0.3 + i * 0.08,
+                        duration: prefersReducedMotion ? 0 : 1,
+                        delay: prefersReducedMotion ? 0 : 0.3 + i * 0.08,
                         ease: EASING,
                       }}
                     />

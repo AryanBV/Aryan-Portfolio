@@ -9,7 +9,9 @@ export default function MainLayout({
   return (
     <div className="relative min-h-screen flex flex-col" style={{ zIndex: 1 }}>
       <Navbar />
-      <main className="flex-1">{children}</main>
+      <main id="main" className="flex-1">
+        {children}
+      </main>
       <Footer />
     </div>
   );

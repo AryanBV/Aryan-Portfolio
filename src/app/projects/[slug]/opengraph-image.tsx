@@ -1,10 +1,25 @@
 import { ImageResponse } from "next/og";
+import { getProjectBySlug, getProjectSlugs } from "@/lib/projects";
 
-export const alt = "Aryan B V — Full-Stack Developer & AI/ML Engineer";
+export function generateStaticParams() {
+  return getProjectSlugs().map((slug) => ({ slug }));
+}
+
+export const alt = "Project Case Study";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-export default function OGImage() {
+export default async function OGImage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const project = getProjectBySlug(slug);
+
+  const title = project?.title ?? "Project";
+  const description = project?.description ?? "";
+
   return new ImageResponse(
     <div
       style={{
@@ -25,21 +40,28 @@ export default function OGImage() {
           marginBottom: 16,
         }}
       >
-        PORTFOLIO
+        CASE STUDY
       </div>
       <div
         style={{
           color: "#f5f5f5",
-          fontSize: 64,
+          fontSize: 56,
           fontWeight: 700,
           lineHeight: 1.1,
           marginBottom: 24,
         }}
       >
-        Aryan B V
+        {title}
       </div>
-      <div style={{ color: "#a09888", fontSize: 28 }}>
-        Full-Stack Developer & AI/ML Engineer
+      <div
+        style={{
+          color: "#a09888",
+          fontSize: 24,
+          maxHeight: 60,
+          overflow: "hidden",
+        }}
+      >
+        {description}
       </div>
       <div style={{ color: "#787068", fontSize: 20, marginTop: 32 }}>
         aryanbv.com
