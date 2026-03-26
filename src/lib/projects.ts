@@ -39,7 +39,6 @@ export const projects: Project[] = [
     tech: ["Next.js", "Supabase", "PostgreSQL", "TypeScript", "PWA"],
     links: {
       caseStudy: "/projects/ajsp-manager",
-      github: "https://github.com/AryanBV/ajsp-manager",
     },
     image: "/images/AJSP-Manager.png",
     caseStudy: {
