@@ -101,6 +101,25 @@ export default function Hero() {
               </a>
             </motion.div>
 
+            {/* Resume link */}
+            <motion.div
+              variants={fadeUp}
+              initial="hidden"
+              animate="visible"
+              transition={{ delay: prefersReducedMotion ? 0 : 0.4 }}
+              className="mt-4 text-center md:text-left"
+            >
+              <a
+                href="/Aryan_BV_Resume_2026.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                download
+                className="inline-flex items-center gap-1 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
+              >
+                Download Resume &#8599;
+              </a>
+            </motion.div>
+
             {/* Tech stack line */}
             <motion.p
               variants={fadeUp}
