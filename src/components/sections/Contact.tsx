@@ -269,7 +269,7 @@ export default function Contact() {
 
             {/* Validation error */}
             {validationError && (
-              <p className="text-xs" style={{ color: "#f87171" }}>
+              <p className="text-xs" style={{ color: "var(--error)" }}>
                 {validationError}
               </p>
             )}
@@ -308,7 +308,7 @@ export default function Contact() {
               </p>
             )}
             {status === "error" && (
-              <p className="text-xs" style={{ color: "#f87171" }}>
+              <p className="text-xs" style={{ color: "var(--error)" }}>
                 Something went wrong. Try emailing me at{" "}
                 <span style={{ color: "var(--text-secondary)" }}>
                   aryansalian5678@gmail.com

@@ -1,69 +1,21 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import {
-  motion,
-  useInView,
-  useMotionValue,
-  useTransform,
-  animate,
-  useReducedMotion,
-} from "framer-motion";
-import { TypeAnimation } from "react-type-animation";
-import { FiArrowDown, FiDownload } from "react-icons/fi";
+import { useReducedMotion, motion } from "framer-motion";
+import { FiArrowDown } from "react-icons/fi";
 import Image from "next/image";
-
-// Variants defined inside component to access useReducedMotion
-
-// --- Animated stat counter ---
-function StatCounter({
-  value,
-  suffix = "",
-}: {
-  value: number;
-  suffix?: string;
-}) {
-  const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true });
-  const prefersReducedMotion = useReducedMotion();
-  const count = useMotionValue(0);
-  const rounded = useTransform(count, (v) => Math.round(v).toLocaleString());
-
-  useEffect(() => {
-    if (!inView) return;
-    if (prefersReducedMotion) {
-      count.set(value);
-      return;
-    }
-    const controls = animate(count, value, { duration: 1.8, ease: "easeOut" });
-    return () => controls.stop();
-  }, [inView, count, value, prefersReducedMotion]);
-
-  return (
-    <span ref={ref}>
-      <motion.span>{rounded}</motion.span>
-      {suffix}
-    </span>
-  );
-}
+import { Spotlight } from "@/components/ui/spotlight";
+import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 
 export default function Hero() {
   const prefersReducedMotion = useReducedMotion();
 
-  const containerVariants = prefersReducedMotion
-    ? { hidden: {}, visible: {} }
-    : {
-        hidden: {},
-        visible: { transition: { staggerChildren: 0.12, delayChildren: 0.1 } },
-      };
-
-  const itemVariants = prefersReducedMotion
+  const fadeUp = prefersReducedMotion
     ? {
         hidden: { opacity: 0 },
         visible: { opacity: 1, transition: { duration: 0.3 } },
       }
     : {
-        hidden: { opacity: 0, y: 24 },
+        hidden: { opacity: 0, y: 20 },
         visible: {
           opacity: 1,
           y: 0,
@@ -71,158 +23,97 @@ export default function Hero() {
         },
       };
 
-  const [contributions, setContributions] = useState(544);
-
-  useEffect(() => {
-    fetch("/api/github")
-      .then((r) => (r.ok ? r.json() : null))
-      .then((d: { totalContributions: number } | null) => {
-        if (d?.totalContributions) setContributions(d.totalContributions);
-      })
-      .catch(() => {}); // non-fatal — counter stays at 0
-  }, []);
-
-  const STATS = [
-    { value: 2, suffix: "", label: "Live Production\nSystems", static: false },
-    {
-      value: contributions,
-      suffix: "+",
-      label: "GitHub\nContributions",
-      static: false,
-    },
-    {
-      value: 0,
-      suffix: "",
-      label: "Azure AI\nCertified",
-      static: true,
-      display: "AI-900",
-    },
-  ];
-
   return (
     <section
       id="hero"
-      className="relative min-h-screen flex items-center"
+      className="relative min-h-screen flex items-center overflow-hidden"
       style={{ paddingTop: "5rem" }}
     >
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 lg:px-16 w-full py-16 md:py-20">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
+      {/* Spotlight background */}
+      <Spotlight
+        fill="rgba(245, 166, 35, 0.15)"
+        className="-top-40 left-0 md:left-60 md:-top-20"
+      />
+
+      {/* Content */}
+      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 md:px-8 lg:px-16 w-full py-16 md:py-24 lg:py-32">
+        {/* Mobile photo — centered above headline */}
+        <motion.div
+          initial={{ opacity: prefersReducedMotion ? 1 : 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: prefersReducedMotion ? 0 : 0.6 }}
+          className="flex justify-center mb-8 md:hidden"
+        >
+          <div className="relative w-28 h-28 rounded-full overflow-hidden ring-2 ring-[var(--accent-subtle)]">
+            <Image
+              src="/images/Aryan Profile Picture.jpeg"
+              alt="Aryan B V"
+              fill
+              sizes="112px"
+              className="object-cover object-top"
+              priority
+            />
+          </div>
+        </motion.div>
+
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-8 md:gap-12 items-center">
           {/* Left — Text content */}
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="flex flex-col gap-6"
-          >
-            {/* Eyebrow label */}
-            <motion.p
-              variants={itemVariants}
-              className="text-xs tracking-[0.2em] uppercase"
-              style={{
-                color: "var(--text-muted)",
-                fontFamily: "var(--font-mono)",
-              }}
-            >
-              Full-Stack Developer · AI/ML Engineer
-            </motion.p>
-
+          <div className="text-center md:text-left">
             {/* Headline */}
-            <motion.h1
-              variants={itemVariants}
-              className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1] tracking-tight"
-              style={{ color: "var(--text-primary)" }}
-            >
-              I build production systems that{" "}
-              <span style={{ color: "var(--accent)" }}>
-                run in the real world.
-              </span>
-            </motion.h1>
-
-            {/* Role animation */}
-            <motion.div
-              variants={itemVariants}
-              className="text-lg"
-              style={{
-                color: "var(--text-secondary)",
-                fontFamily: "var(--font-mono)",
-              }}
-            >
-              <TypeAnimation
-                sequence={[
-                  "Next.js · NestJS · Supabase",
-                  2500,
-                  "OpenAI API · Claude API · pgvector",
-                  2500,
-                  "TypeScript · PostgreSQL · Vercel",
-                  2500,
-                ]}
-                wrapper="span"
-                speed={55}
-                repeat={Infinity}
+            <h1>
+              <TextGenerateEffect
+                words="I turn business problems into production software."
+                highlightWord="production"
               />
-            </motion.div>
+            </h1>
+
+            {/* Sub-headline */}
+            <motion.p
+              variants={fadeUp}
+              initial="hidden"
+              animate="visible"
+              className="mt-4 text-base md:text-lg text-[var(--text-secondary)]"
+            >
+              Full-stack engineer who built the system that replaced a 20-year
+              paper workflow.
+            </motion.p>
 
             {/* CTAs */}
             <motion.div
-              variants={itemVariants}
-              className="flex flex-wrap gap-4 pt-2"
+              variants={fadeUp}
+              initial="hidden"
+              animate="visible"
+              transition={{ delay: prefersReducedMotion ? 0 : 0.3 }}
+              className="flex flex-wrap justify-center md:justify-start gap-4 mt-8"
             >
               <a
                 href="#projects"
-                className="inline-flex items-center gap-2 px-6 py-3 text-sm font-medium transition-all duration-200 hover:opacity-[0.88] focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
-                style={{
-                  backgroundColor: "var(--accent)",
-                  color: "#0a0a0a",
-                }}
+                className="inline-flex items-center gap-2 bg-[var(--accent)] text-[var(--bg-base)] font-medium px-6 py-3 rounded-lg hover:opacity-90 transition-opacity focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
               >
                 View My Work
                 <FiArrowDown size={14} />
               </a>
               <a
-                href="/Aryan_BV_Resume_2026.pdf"
-                download
-                className="inline-flex items-center gap-2 px-6 py-3 text-sm font-medium border border-[var(--border-hover)] text-[var(--text-secondary)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
+                href="#contact"
+                className="inline-flex items-center gap-2 border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-hover)] px-6 py-3 rounded-lg transition-colors focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
               >
-                <FiDownload size={14} />
-                Download Resume
+                Get In Touch
               </a>
             </motion.div>
 
-            {/* Stats */}
-            <motion.div
-              variants={itemVariants}
-              className="grid grid-cols-3 gap-6 pt-6"
-              style={{ borderTop: "1px solid var(--border)" }}
+            {/* Tech stack line */}
+            <motion.p
+              variants={fadeUp}
+              initial="hidden"
+              animate="visible"
+              transition={{ delay: prefersReducedMotion ? 0 : 0.5 }}
+              className="mt-8 text-sm text-[var(--text-muted)] font-mono"
             >
-              {STATS.map(
-                ({ value, suffix, label, static: isStatic, display }) => (
-                  <div key={label} className="flex flex-col gap-1">
-                    <p
-                      className="text-2xl font-bold"
-                      style={{
-                        color: "var(--text-primary)",
-                        fontFamily: "var(--font-mono)",
-                      }}
-                    >
-                      {isStatic ? (
-                        <span>{display}</span>
-                      ) : (
-                        <StatCounter value={value} suffix={suffix} />
-                      )}
-                    </p>
-                    <p
-                      className="text-xs leading-tight whitespace-pre-line"
-                      style={{ color: "var(--text-muted)" }}
-                    >
-                      {label}
-                    </p>
-                  </div>
-                ),
-              )}
-            </motion.div>
-          </motion.div>
+              Currently building with Next.js · NestJS · Supabase · Claude API
+            </motion.p>
+          </div>
 
-          {/* Right — Profile photo */}
+          {/* Right — Desktop photo */}
           <motion.div
             initial={{
               opacity: prefersReducedMotion ? 1 : 0,
@@ -234,35 +125,16 @@ export default function Hero() {
               delay: prefersReducedMotion ? 0 : 0.3,
               ease: [0.22, 1, 0.36, 1],
             }}
-            className="hidden lg:flex justify-center items-center"
+            className="hidden md:flex justify-center items-center"
           >
-            <div
-              className="relative w-80 h-80"
-              style={{ border: "1px solid var(--border)" }}
-            >
+            <div className="relative w-64 h-64 md:w-72 md:h-72 rounded-2xl overflow-hidden ring-2 ring-[var(--accent-subtle)]">
               <Image
                 src="/images/Aryan Profile Picture.jpeg"
                 alt="Aryan B V"
                 fill
-                sizes="320px"
+                sizes="(min-width: 768px) 288px, 256px"
                 className="object-cover object-top"
                 priority
-              />
-              {/* Accent corner — top left */}
-              <span
-                className="absolute -top-px -left-px w-8 h-8"
-                style={{
-                  borderTop: "2px solid var(--border)",
-                  borderLeft: "2px solid var(--border)",
-                }}
-              />
-              {/* Accent corner — bottom right */}
-              <span
-                className="absolute -bottom-px -right-px w-8 h-8"
-                style={{
-                  borderBottom: "2px solid var(--border)",
-                  borderRight: "2px solid var(--border)",
-                }}
               />
             </div>
           </motion.div>

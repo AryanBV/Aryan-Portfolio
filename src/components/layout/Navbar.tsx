@@ -123,7 +123,7 @@ export default function Navbar() {
             <li key={href}>
               <a
                 href={href}
-                className="text-sm transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
+                className={`text-sm transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)] ${activeSection === href.slice(1) ? "border-b-2 border-[var(--accent)] pb-1" : ""}`}
                 style={{
                   color:
                     activeSection === href.slice(1)
