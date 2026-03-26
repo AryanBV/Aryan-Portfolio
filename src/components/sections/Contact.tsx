@@ -10,8 +10,11 @@ import { FiGithub, FiLinkedin, FiSend } from "react-icons/fi";
 type FormState = {
   name: string;
   email: string;
+  inquiry: string;
   message: string;
 };
+
+type FieldErrors = Partial<Record<keyof FormState, string>>;
 
 type SubmitStatus = "idle" | "sending" | "success" | "error";
 
@@ -32,27 +35,46 @@ const SOCIAL_LINKS = [
   },
 ];
 
-const INITIAL_FORM: FormState = { name: "", email: "", message: "" };
-
-// Defined at module level — not inside component — so it's not recreated on every render
-const INPUT_STYLE: React.CSSProperties = {
-  width: "100%",
-  backgroundColor: "var(--bg-surface)",
-  color: "var(--text-primary)",
-  fontSize: "0.875rem",
-  padding: "0.75rem 1rem",
-  outline: "none",
+const INITIAL_FORM: FormState = {
+  name: "",
+  email: "",
+  inquiry: "",
+  message: "",
 };
 
-// ─── Inline validation ────────────────────────────────────────────────────────
+const INQUIRY_OPTIONS = [
+  { value: "", label: "What can I help with?", disabled: true },
+  { value: "fulltime", label: "Full-time opportunity" },
+  { value: "freelance", label: "Freelance / contract project" },
+  { value: "collaboration", label: "Collaboration / open source" },
+  { value: "hello", label: "Just saying hello" },
+];
 
-function validate(form: FormState): string | null {
-  if (!form.name.trim()) return "Name is required.";
-  if (!form.email.trim()) return "Email is required.";
-  if (!/\S+@\S+\.\S+/.test(form.email)) return "Enter a valid email.";
-  if (form.message.trim().length < 10)
-    return "Message must be at least 10 characters.";
-  return null;
+const INPUT_CLASSES =
+  "w-full rounded-lg border border-[var(--border)] focus:border-[var(--accent)] transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)] text-sm p-3";
+
+const INPUT_BG: React.CSSProperties = {
+  backgroundColor: "var(--bg-base)",
+  color: "var(--text-primary)",
+};
+
+// Custom chevron SVG for the select dropdown
+const SELECT_CHEVRON =
+  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23787068' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E\")";
+
+// ─── Validation ───────────────────────────────────────────────────────────────
+
+function validate(form: FormState): FieldErrors {
+  const errors: FieldErrors = {};
+  if (!form.name.trim()) errors.name = "Name is required";
+  if (!form.email.trim()) {
+    errors.email = "Please enter a valid email";
+  } else if (!/\S+@\S+\.\S+/.test(form.email)) {
+    errors.email = "Please enter a valid email";
+  }
+  if (!form.inquiry) errors.inquiry = "Please select an inquiry type";
+  if (!form.message.trim()) errors.message = "Message is required";
+  return errors;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -64,25 +86,36 @@ export default function Contact() {
 
   const [form, setForm] = useState<FormState>(INITIAL_FORM);
   const [status, setStatus] = useState<SubmitStatus>("idle");
-  const [validationError, setValidationError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
 
   function handleChange(
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
   ) {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-    if (validationError) setValidationError(null);
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+    // Clear the error for this field when the user starts typing/selecting
+    if (fieldErrors[name as keyof FormState]) {
+      setFieldErrors((prev) => {
+        const next = { ...prev };
+        delete next[name as keyof FormState];
+        return next;
+      });
+    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    const error = validate(form);
-    if (error) {
-      setValidationError(error);
+    const errors = validate(form);
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
       return;
     }
 
     setStatus("sending");
+    setFieldErrors({});
 
     try {
       await emailjs.send(
@@ -92,6 +125,7 @@ export default function Contact() {
           from_name: form.name,
           name: form.name,
           from_email: form.email,
+          inquiry_type: form.inquiry,
           message: form.message,
         },
         process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!,
@@ -162,7 +196,7 @@ export default function Contact() {
           style={{ color: "var(--text-secondary)" }}
         >
           Open to full-time roles, contract projects, and interesting
-          collaborations. Available now — I respond within 24 hours.
+          collaborations.
         </motion.p>
 
         {/* Two-column layout: form left, social right */}
@@ -180,151 +214,225 @@ export default function Contact() {
           }}
           className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-8 lg:gap-12"
         >
-          {/* Form */}
-          <form
-            onSubmit={handleSubmit}
-            noValidate
-            className="flex flex-col gap-4"
+          {/* Form card */}
+          <div
+            className="card-shadow rounded-xl p-6 md:p-8"
+            style={{ backgroundColor: "var(--bg-surface)" }}
           >
-            {/* Name */}
-            <div className="flex flex-col gap-1">
-              <label
-                htmlFor="name"
-                className="text-xs uppercase tracking-widest"
-                style={{
-                  color: "var(--text-muted)",
-                }}
-              >
-                Name
-              </label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                autoComplete="name"
-                required
-                aria-required="true"
-                value={form.name}
-                onChange={handleChange}
-                placeholder="Your name"
-                className="border border-[var(--border)] focus:border-[var(--accent)] transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
-                style={INPUT_STYLE}
-              />
-            </div>
-
-            {/* Email */}
-            <div className="flex flex-col gap-1">
-              <label
-                htmlFor="email"
-                className="text-xs uppercase tracking-widest"
-                style={{
-                  color: "var(--text-muted)",
-                }}
-              >
-                Email
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                aria-required="true"
-                value={form.email}
-                onChange={handleChange}
-                placeholder="you@example.com"
-                className="border border-[var(--border)] focus:border-[var(--accent)] transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
-                style={INPUT_STYLE}
-              />
-            </div>
-
-            {/* Message */}
-            <div className="flex flex-col gap-1">
-              <label
-                htmlFor="message"
-                className="text-xs uppercase tracking-widest"
-                style={{
-                  color: "var(--text-muted)",
-                }}
-              >
-                Message
-              </label>
-              <textarea
-                id="message"
-                name="message"
-                rows={6}
-                required
-                aria-required="true"
-                value={form.message}
-                onChange={handleChange}
-                placeholder="Tell me about the project or role..."
-                className="border border-[var(--border)] focus:border-[var(--accent)] transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
-                style={{
-                  ...INPUT_STYLE,
-                  resize: "vertical",
-                  minHeight: "140px",
-                }}
-              />
-            </div>
-
-            {/* Validation error */}
-            {validationError && (
-              <p className="text-xs" style={{ color: "var(--error)" }}>
-                {validationError}
-              </p>
-            )}
-
-            {/* Submit */}
-            <button
-              type="submit"
-              disabled={status === "sending" || status === "success"}
-              className="inline-flex items-center gap-2 px-6 py-3 text-sm font-medium transition-all duration-200 self-start focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
-              style={{
-                backgroundColor:
-                  status === "success" ? "transparent" : "var(--accent)",
-                color: status === "success" ? "var(--accent)" : "#0a0a0a",
-                border:
-                  status === "success"
-                    ? "1px solid var(--accent)"
-                    : "1px solid transparent",
-                opacity: status === "sending" ? 0.6 : 1,
-                cursor:
-                  status === "sending" || status === "success"
-                    ? "not-allowed"
-                    : "pointer",
-              }}
+            <form
+              onSubmit={handleSubmit}
+              noValidate
+              className="flex flex-col gap-4"
             >
-              <FiSend size={14} />
-              {status === "idle" && "Send Message"}
-              {status === "sending" && "Sending\u2026"}
-              {status === "success" && "Message Sent"}
-              {status === "error" && "Try Again"}
-            </button>
+              {/* Name */}
+              <div className="flex flex-col gap-1">
+                <label
+                  htmlFor="name"
+                  className="text-xs uppercase tracking-widest"
+                  style={{ color: "var(--text-muted)" }}
+                >
+                  Name
+                </label>
+                <input
+                  id="name"
+                  name="name"
+                  type="text"
+                  autoComplete="name"
+                  required
+                  aria-required="true"
+                  aria-describedby={fieldErrors.name ? "name-error" : undefined}
+                  value={form.name}
+                  onChange={handleChange}
+                  placeholder="Your name"
+                  className={INPUT_CLASSES}
+                  style={INPUT_BG}
+                />
+                {fieldErrors.name && (
+                  <p
+                    id="name-error"
+                    className="text-sm"
+                    style={{ color: "var(--error)" }}
+                  >
+                    {fieldErrors.name}
+                  </p>
+                )}
+              </div>
 
-            {/* Success / error feedback */}
-            {status === "success" && (
-              <p className="text-xs" style={{ color: "var(--success)" }}>
-                Got it &mdash; I&apos;ll get back to you soon.
-              </p>
-            )}
-            {status === "error" && (
-              <p className="text-xs" style={{ color: "var(--error)" }}>
-                Something went wrong. Try emailing me at{" "}
-                <span style={{ color: "var(--text-secondary)" }}>
-                  aryansalian5678@gmail.com
-                </span>
-                .
-              </p>
-            )}
-          </form>
+              {/* Email */}
+              <div className="flex flex-col gap-1">
+                <label
+                  htmlFor="email"
+                  className="text-xs uppercase tracking-widest"
+                  style={{ color: "var(--text-muted)" }}
+                >
+                  Email
+                </label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  aria-required="true"
+                  aria-describedby={
+                    fieldErrors.email ? "email-error" : undefined
+                  }
+                  value={form.email}
+                  onChange={handleChange}
+                  placeholder="you@example.com"
+                  className={INPUT_CLASSES}
+                  style={INPUT_BG}
+                />
+                {fieldErrors.email && (
+                  <p
+                    id="email-error"
+                    className="text-sm"
+                    style={{ color: "var(--error)" }}
+                  >
+                    {fieldErrors.email}
+                  </p>
+                )}
+              </div>
+
+              {/* Inquiry type */}
+              <div className="flex flex-col gap-1">
+                <label
+                  htmlFor="inquiry"
+                  className="text-xs uppercase tracking-widest"
+                  style={{ color: "var(--text-muted)" }}
+                >
+                  Inquiry Type
+                </label>
+                <select
+                  id="inquiry"
+                  name="inquiry"
+                  required
+                  aria-required="true"
+                  aria-describedby={
+                    fieldErrors.inquiry ? "inquiry-error" : undefined
+                  }
+                  value={form.inquiry}
+                  onChange={handleChange}
+                  className={`${INPUT_CLASSES} appearance-none cursor-pointer`}
+                  style={{
+                    ...INPUT_BG,
+                    color: form.inquiry
+                      ? "var(--text-primary)"
+                      : "var(--text-muted)",
+                    backgroundImage: SELECT_CHEVRON,
+                    backgroundRepeat: "no-repeat",
+                    backgroundPosition: "right 0.75rem center",
+                    backgroundSize: "16px",
+                    paddingRight: "2.5rem",
+                  }}
+                >
+                  {INQUIRY_OPTIONS.map((opt) => (
+                    <option
+                      key={opt.value}
+                      value={opt.value}
+                      disabled={opt.disabled}
+                    >
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+                {fieldErrors.inquiry && (
+                  <p
+                    id="inquiry-error"
+                    className="text-sm"
+                    style={{ color: "var(--error)" }}
+                  >
+                    {fieldErrors.inquiry}
+                  </p>
+                )}
+              </div>
+
+              {/* Message */}
+              <div className="flex flex-col gap-1">
+                <label
+                  htmlFor="message"
+                  className="text-xs uppercase tracking-widest"
+                  style={{ color: "var(--text-muted)" }}
+                >
+                  Message
+                </label>
+                <textarea
+                  id="message"
+                  name="message"
+                  rows={6}
+                  required
+                  aria-required="true"
+                  aria-describedby={
+                    fieldErrors.message ? "message-error" : undefined
+                  }
+                  value={form.message}
+                  onChange={handleChange}
+                  placeholder="Tell me about the project or role..."
+                  className={`${INPUT_CLASSES} max-h-48 resize-y`}
+                  style={INPUT_BG}
+                />
+                {fieldErrors.message && (
+                  <p
+                    id="message-error"
+                    className="text-sm"
+                    style={{ color: "var(--error)" }}
+                  >
+                    {fieldErrors.message}
+                  </p>
+                )}
+              </div>
+
+              {/* Submit */}
+              <button
+                type="submit"
+                disabled={status === "sending" || status === "success"}
+                className="inline-flex items-center gap-2 px-6 py-3 text-sm font-medium rounded-lg transition-opacity duration-200 self-start focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
+                style={{
+                  backgroundColor:
+                    status === "success" ? "transparent" : "var(--accent)",
+                  color:
+                    status === "success" ? "var(--accent)" : "var(--bg-base)",
+                  border:
+                    status === "success"
+                      ? "1px solid var(--accent)"
+                      : "1px solid transparent",
+                  opacity: status === "sending" ? 0.6 : 1,
+                  cursor:
+                    status === "sending" || status === "success"
+                      ? "not-allowed"
+                      : "pointer",
+                }}
+              >
+                <FiSend size={14} />
+                {status === "idle" && "Send Message"}
+                {status === "sending" && "Sending\u2026"}
+                {status === "success" && "Message Sent"}
+                {status === "error" && "Try Again"}
+              </button>
+
+              {/* Success / error feedback */}
+              {status === "success" && (
+                <p className="text-xs" style={{ color: "var(--success)" }}>
+                  Got it &mdash; I&apos;ll get back to you soon.
+                </p>
+              )}
+              {status === "error" && (
+                <p className="text-xs" style={{ color: "var(--error)" }}>
+                  Something went wrong. Try emailing me at{" "}
+                  <span style={{ color: "var(--text-secondary)" }}>
+                    aryansalian5678@gmail.com
+                  </span>
+                  .
+                </p>
+              )}
+            </form>
+          </div>
 
           {/* Social links panel */}
           <div className="flex flex-col gap-6 pt-1">
             <p
               className="text-xs uppercase tracking-widest"
-              style={{
-                color: "var(--text-muted)",
-              }}
+              style={{ color: "var(--text-muted)" }}
             >
               Find me online
             </p>
@@ -352,9 +460,7 @@ export default function Contact() {
 
             <p
               className="text-xs leading-relaxed"
-              style={{
-                color: "var(--text-muted)",
-              }}
+              style={{ color: "var(--text-muted)" }}
             >
               Based in Bangalore, India.
               <br />

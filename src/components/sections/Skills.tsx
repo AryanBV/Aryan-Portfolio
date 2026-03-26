@@ -2,96 +2,94 @@
 
 import { useRef } from "react";
 import { motion, useInView, useReducedMotion } from "framer-motion";
-import {
-  SiNextdotjs,
-  SiReact,
-  SiTypescript,
-  SiTailwindcss,
-  SiNestjs,
-  SiNodedotjs,
-  SiPostgresql,
-  SiSupabase,
-  SiPrisma,
-  SiOpenai,
-  SiPython,
-  SiDocker,
-  SiGit,
-  SiVercel,
-  SiGithub,
-} from "react-icons/si";
-import { TbBrandFramerMotion } from "react-icons/tb";
-import type { IconType } from "react-icons";
+import { FiExternalLink } from "react-icons/fi";
+import Image from "next/image";
 
-type Skill = { name: string; icon?: IconType };
-type Category = { label: string; skills: Skill[] };
+// ─── Data ──────────────────────────────────────────────────────────────────────
 
-const CATEGORIES: Category[] = [
+type SkillColumn = { heading: string; items: string[] };
+
+const COLUMNS: SkillColumn[] = [
   {
-    label: "Frontend",
-    skills: [
-      { name: "Next.js", icon: SiNextdotjs },
-      { name: "React", icon: SiReact },
-      { name: "TypeScript", icon: SiTypescript },
-      { name: "Tailwind CSS", icon: SiTailwindcss },
-      { name: "Framer Motion", icon: TbBrandFramerMotion },
-      { name: "shadcn/ui" },
-      { name: "React Query" },
+    heading: "BUILD",
+    items: [
+      "Next.js",
+      "React",
+      "TypeScript",
+      "Tailwind CSS",
+      "NestJS",
+      "Express",
     ],
   },
   {
-    label: "Backend",
-    skills: [
-      { name: "NestJS", icon: SiNestjs },
-      { name: "Node.js", icon: SiNodedotjs },
-      { name: "Zod" },
+    heading: "INTEGRATE",
+    items: [
+      "Claude API",
+      "Supabase",
+      "Razorpay",
+      "PostgreSQL",
+      "Tesseract.js (OCR)",
     ],
   },
   {
-    label: "Database",
-    skills: [
-      { name: "Supabase", icon: SiSupabase },
-      { name: "PostgreSQL", icon: SiPostgresql },
-      { name: "Prisma", icon: SiPrisma },
-      { name: "pgvector" },
-    ],
-  },
-  {
-    label: "AI / ML",
-    skills: [
-      { name: "OpenAI API", icon: SiOpenai },
-      { name: "Claude API" },
-      { name: "Python", icon: SiPython },
-    ],
-  },
-  {
-    label: "DevOps & Tools",
-    skills: [
-      { name: "Git", icon: SiGit },
-      { name: "GitHub", icon: SiGithub },
-      { name: "Vercel", icon: SiVercel },
-      { name: "Docker", icon: SiDocker },
-      { name: "Railway" },
-    ],
+    heading: "SHIP",
+    items: ["Vercel", "GitHub", "PWA", "SEO & Analytics"],
   },
 ];
 
+type Certificate = {
+  id: string;
+  name: string;
+  code: string;
+  issuer: string;
+  issued: string;
+  verifyUrl: string;
+  image: string;
+  description: string;
+};
+
+const CERTIFICATES: Certificate[] = [
+  {
+    id: "az-900-ai",
+    name: "Azure AI Fundamentals",
+    code: "AI-900",
+    issuer: "Microsoft",
+    issued: "2024",
+    verifyUrl:
+      "https://learn.microsoft.com/api/credentials/share/en-us/AryanSalian-4114/878ECBC7C3BE4794?sharingId=D3203799C3E8D012",
+    image: "/images/microsoft-cert.png",
+    description:
+      "Core AI and machine learning concepts on Microsoft Azure — covering ML workloads, computer vision, NLP, and generative AI fundamentals.",
+  },
+  {
+    id: "apna-alpha",
+    name: "Java & Data Structures — Alpha Batch",
+    code: "ALPHA",
+    issuer: "Apna College",
+    issued: "2023",
+    verifyUrl: "https://www.apnacollege.in/course/alpha-placement-course",
+    image: "/images/alpha-certificate.png",
+    description:
+      "Comprehensive Java and Data Structures & Algorithms course — covering arrays, linked lists, trees, graphs, dynamic programming, OOP, and placement-ready problem solving.",
+  },
+  {
+    id: "apna-delta",
+    name: "Full Stack Web Development — Delta Batch",
+    code: "DELTA",
+    issuer: "Apna College",
+    issued: "2024",
+    verifyUrl: "https://www.apnacollege.in/course/delta",
+    image: "/images/delta-certificate.png",
+    description:
+      "Complete MERN stack development — HTML, CSS, JavaScript, Node.js, Express.js, React, MongoDB, REST APIs, and full-stack deployment.",
+  },
+];
+
+// ─── Animation ─────────────────────────────────────────────────────────────────
+
 const EASING = [0.22, 1, 0.36, 1] as const;
 
-function SkillChip({ skill }: { skill: Skill }) {
-  const Icon = skill.icon;
-  return (
-    <span
-      className="inline-flex items-center gap-2 px-3 py-2 text-sm border border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--border-hover)] hover:text-[var(--text-primary)] transition-colors duration-200 card-shadow"
-      style={{
-        backgroundColor: "var(--bg-surface)",
-        fontFamily: "var(--font-mono)",
-      }}
-    >
-      {Icon && <Icon size={14} style={{ flexShrink: 0 }} />}
-      {skill.name}
-    </span>
-  );
-}
+// ─── Component ─────────────────────────────────────────────────────────────────
 
 export default function Skills() {
   const ref = useRef<HTMLElement>(null);
@@ -100,7 +98,7 @@ export default function Skills() {
 
   const containerVariants = prefersReducedMotion
     ? { hidden: {}, visible: {} }
-    : { hidden: {}, visible: { transition: { staggerChildren: 0.08 } } };
+    : { hidden: {}, visible: { transition: { staggerChildren: 0.1 } } };
 
   const itemVariants = prefersReducedMotion
     ? {
@@ -121,7 +119,8 @@ export default function Skills() {
       ref={ref}
       className="py-12 md:py-20 lg:py-28 px-4 sm:px-6 md:px-8 lg:px-16"
     >
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-3xl mx-auto">
+        {/* Eyebrow */}
         <motion.p
           initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 12 }}
           animate={
@@ -139,6 +138,7 @@ export default function Skills() {
           Skills
         </motion.p>
 
+        {/* Heading */}
         <motion.h2
           initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 16 }}
           animate={
@@ -157,29 +157,191 @@ export default function Skills() {
           What I build with.
         </motion.h2>
 
+        {/* BUILD / INTEGRATE / SHIP columns */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate={inView ? "visible" : "hidden"}
-          className="flex flex-col gap-6 md:gap-8 lg:gap-10"
+          className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12"
         >
-          {CATEGORIES.map(({ label, skills }) => (
-            <motion.div key={label} variants={itemVariants}>
+          {COLUMNS.map(({ heading, items }) => (
+            <motion.div
+              key={heading}
+              variants={itemVariants}
+              className="border-l-2 border-[var(--border)] pl-4"
+            >
               <p
-                className="text-xs uppercase tracking-widest mb-4"
-                style={{
-                  color: "var(--text-muted)",
-                }}
+                className="text-lg font-semibold mb-4"
+                style={{ color: "var(--text-primary)" }}
               >
-                {label}
+                {heading}
               </p>
-              <div className="flex flex-wrap gap-2">
-                {skills.map((skill) => (
-                  <SkillChip key={skill.name} skill={skill} />
+              <ul className="flex flex-col gap-2">
+                {items.map((item) => (
+                  <li
+                    key={item}
+                    className="text-base"
+                    style={{
+                      color: "var(--text-secondary)",
+                      fontFamily: "var(--font-mono)",
+                    }}
+                  >
+                    {item}
+                  </li>
                 ))}
-              </div>
+              </ul>
             </motion.div>
           ))}
+        </motion.div>
+
+        {/* ─── Certifications ─────────────────────────────────────────────── */}
+        <motion.div
+          initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 20 }}
+          animate={
+            inView
+              ? { opacity: 1, y: 0 }
+              : { opacity: 0, y: prefersReducedMotion ? 0 : 20 }
+          }
+          transition={{
+            duration: prefersReducedMotion ? 0.3 : 0.6,
+            delay: prefersReducedMotion ? 0 : 0.3,
+            ease: EASING,
+          }}
+          className="mt-12 md:mt-16"
+        >
+          <p
+            className="text-xs tracking-[0.2em] uppercase mb-6 md:mb-8"
+            style={{
+              color: "var(--text-muted)",
+              fontFamily: "var(--font-mono)",
+            }}
+          >
+            Certifications
+          </p>
+
+          <div className="flex flex-col gap-6">
+            {/* Azure AI-900 — prominent */}
+            {CERTIFICATES.filter((c) => c.id === "az-900-ai").map((cert) => (
+              <div
+                key={cert.id}
+                className="overflow-hidden card-shadow rounded-lg"
+                style={{
+                  backgroundColor: "var(--bg-surface)",
+                  border: "1px solid var(--border)",
+                }}
+              >
+                {cert.image && (
+                  <div className="relative w-full h-44 sm:h-52">
+                    <Image
+                      src={cert.image}
+                      alt={`${cert.name} certificate`}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 768px"
+                      className="object-cover object-top"
+                    />
+                  </div>
+                )}
+                <div className="p-5 sm:p-6 flex flex-col gap-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex flex-col gap-1">
+                      <span
+                        className="text-xs px-2 py-0.5 self-start mb-1 rounded-sm"
+                        style={{
+                          backgroundColor: "var(--accent-dim)",
+                          color: "var(--accent)",
+                          border: "1px solid var(--border)",
+                          fontFamily: "var(--font-mono)",
+                        }}
+                      >
+                        {cert.code}
+                      </span>
+                      <h3
+                        className="text-base sm:text-lg font-semibold"
+                        style={{ color: "var(--text-primary)" }}
+                      >
+                        {cert.name}
+                      </h3>
+                      <p
+                        className="text-sm"
+                        style={{ color: "var(--text-muted)" }}
+                      >
+                        {cert.issuer} · {cert.issued}
+                      </p>
+                    </div>
+                    <a
+                      href={cert.verifyUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`Verify ${cert.name} certificate`}
+                      className="shrink-0 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
+                    >
+                      <FiExternalLink size={16} />
+                    </a>
+                  </div>
+                  <div style={{ borderTop: "1px solid var(--border)" }} />
+                  <p
+                    className="text-sm leading-relaxed"
+                    style={{ color: "var(--text-secondary)" }}
+                  >
+                    {cert.description}
+                  </p>
+                </div>
+              </div>
+            ))}
+
+            {/* Apna College certs — compact */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {CERTIFICATES.filter((c) => c.id !== "az-900-ai").map((cert) => (
+                <div
+                  key={cert.id}
+                  className="overflow-hidden card-shadow rounded-lg"
+                  style={{
+                    backgroundColor: "var(--bg-surface)",
+                    border: "1px solid var(--border)",
+                  }}
+                >
+                  {cert.image && (
+                    <div className="relative w-full h-32">
+                      <Image
+                        src={cert.image}
+                        alt={`${cert.name} certificate`}
+                        fill
+                        sizes="(max-width: 640px) 100vw, 50vw"
+                        className="object-cover object-top"
+                      />
+                    </div>
+                  )}
+                  <div className="p-4 flex flex-col gap-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex flex-col gap-0.5">
+                        <h3
+                          className="text-sm font-semibold"
+                          style={{ color: "var(--text-primary)" }}
+                        >
+                          {cert.name}
+                        </h3>
+                        <p
+                          className="text-xs"
+                          style={{ color: "var(--text-muted)" }}
+                        >
+                          {cert.issuer} · {cert.issued}
+                        </p>
+                      </div>
+                      <a
+                        href={cert.verifyUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={`Verify ${cert.name} certificate`}
+                        className="shrink-0 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
+                      >
+                        <FiExternalLink size={14} />
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </motion.div>
       </div>
     </section>
