@@ -177,7 +177,7 @@ export default function Contact() {
           className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4"
           style={{ color: "var(--text-primary)" }}
         >
-          Let&apos;s work together.
+          Work With Me
         </motion.h2>
 
         <motion.p
@@ -192,11 +192,11 @@ export default function Contact() {
             delay: prefersReducedMotion ? 0 : 0.1,
             ease: EASING,
           }}
-          className="text-sm mb-8 md:mb-12 lg:mb-16 max-w-md"
+          className="text-base md:text-lg mb-8 max-w-md"
           style={{ color: "var(--text-secondary)" }}
         >
-          Open to full-time roles, contract projects, and interesting
-          collaborations.
+          I&apos;m available for freelance and contract work. Have a project?
+          Let&apos;s talk.
         </motion.p>
 
         {/* Two-column layout: form left, social right */}

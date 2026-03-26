@@ -3,9 +3,8 @@ import About from "@/components/sections/About";
 import Projects from "@/components/sections/Projects";
 import Skills from "@/components/sections/Skills";
 import CodeStats from "@/components/sections/CodeStats";
-
+import Certificates from "@/components/sections/Certificates";
 import Contact from "@/components/sections/Contact";
-import Services from "@/components/sections/Services";
 
 export default function Home() {
   return (
@@ -17,7 +16,7 @@ export default function Home() {
         <Skills />
         <CodeStats />
       </div>
-      <Services />
+      <Certificates />
       <Contact />
     </>
   );

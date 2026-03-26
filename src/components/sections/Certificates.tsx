@@ -5,12 +5,23 @@ import { motion, useInView, useReducedMotion } from "framer-motion";
 import { FiExternalLink } from "react-icons/fi";
 import Image from "next/image";
 
-const EASING = [0.22, 1, 0.36, 1] as const;
+// ─── Data ──────────────────────────────────────────────────────────────────────
 
-const CERTIFICATES = [
+type Certificate = {
+  id: string;
+  name: string;
+  code: string;
+  issuer: string;
+  issued: string;
+  verifyUrl: string;
+  image: string;
+  description: string;
+};
+
+const CERTIFICATES: Certificate[] = [
   {
     id: "az-900-ai",
-    name: "Azure AI Fundamentals",
+    name: "Microsoft Azure AI Fundamentals (AI-900)",
     code: "AI-900",
     issuer: "Microsoft",
     issued: "2024",
@@ -44,6 +55,12 @@ const CERTIFICATES = [
   },
 ];
 
+// ─── Animation ─────────────────────────────────────────────────────────────────
+
+const EASING = [0.22, 1, 0.36, 1] as const;
+
+// ─── Component ─────────────────────────────────────────────────────────────────
+
 export default function Certificates() {
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
@@ -52,10 +69,11 @@ export default function Certificates() {
   return (
     <section
       ref={ref}
-      className="py-12 md:py-16 px-4 sm:px-6 md:px-8 lg:px-16"
-      style={{ borderTop: "1px solid var(--border)" }}
+      id="certifications"
+      className="py-12 md:py-20 lg:py-28 px-4 sm:px-6 md:px-8 lg:px-16"
     >
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-3xl mx-auto">
+        {/* Eyebrow */}
         <motion.p
           initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 12 }}
           animate={
@@ -67,7 +85,7 @@ export default function Certificates() {
             duration: prefersReducedMotion ? 0.3 : 0.5,
             ease: EASING,
           }}
-          className="text-xs tracking-[0.2em] uppercase mb-6 md:mb-10"
+          className="text-xs tracking-[0.2em] uppercase mb-6 md:mb-8"
           style={{ color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}
         >
           Certifications
@@ -85,39 +103,37 @@ export default function Certificates() {
             delay: prefersReducedMotion ? 0 : 0.05,
             ease: EASING,
           }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          className="flex flex-col gap-6"
         >
-          {CERTIFICATES.map((cert) => (
+          {/* Azure AI-900 — prominent */}
+          {CERTIFICATES.filter((c) => c.id === "az-900-ai").map((cert) => (
             <div
               key={cert.id}
-              className="flex flex-col overflow-hidden card-shadow card-shadow-hover"
+              className="overflow-hidden card-shadow rounded-lg max-w-md"
               style={{
                 backgroundColor: "var(--bg-surface)",
                 border: "1px solid var(--border)",
               }}
             >
-              {/* Image banner — edge-to-edge, no padding */}
               {cert.image && (
-                <div className="relative w-full h-40">
+                <div className="relative w-full h-44 sm:h-52">
                   <Image
                     src={cert.image}
                     alt={`${cert.name} certificate`}
                     fill
-                    sizes="(max-width: 768px) 100vw, 33vw"
+                    sizes="(max-width: 768px) 100vw, 448px"
                     className="object-cover object-top"
                   />
                 </div>
               )}
-
-              {/* Text content */}
-              <div className="p-6 flex flex-col gap-5">
+              <div className="p-5 sm:p-6 flex flex-col gap-4">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex flex-col gap-1">
                     <span
-                      className="text-xs px-2 py-0.5 self-start mb-2"
+                      className="text-xs px-2 py-0.5 self-start mb-1 rounded-sm"
                       style={{
                         backgroundColor: "var(--accent-dim)",
-                        color: "var(--text-secondary)",
+                        color: "var(--accent)",
                         border: "1px solid var(--border)",
                         fontFamily: "var(--font-mono)",
                       }}
@@ -125,33 +141,29 @@ export default function Certificates() {
                       {cert.code}
                     </span>
                     <h3
-                      className="text-base font-semibold"
+                      className="text-base sm:text-lg font-semibold"
                       style={{ color: "var(--text-primary)" }}
                     >
                       {cert.name}
                     </h3>
                     <p
                       className="text-sm"
-                      style={{
-                        color: "var(--text-muted)",
-                      }}
+                      style={{ color: "var(--text-muted)" }}
                     >
-                      {cert.issuer} · {cert.issued}
+                      {cert.issuer} &middot; {cert.issued}
                     </p>
                   </div>
                   <a
                     href={cert.verifyUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    aria-label="Verify certificate"
+                    aria-label={`Verify ${cert.name} certificate`}
                     className="shrink-0 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
                   >
                     <FiExternalLink size={16} />
                   </a>
                 </div>
-
                 <div style={{ borderTop: "1px solid var(--border)" }} />
-
                 <p
                   className="text-sm leading-relaxed"
                   style={{ color: "var(--text-secondary)" }}
@@ -161,6 +173,59 @@ export default function Certificates() {
               </div>
             </div>
           ))}
+
+          {/* Apna College certs — compact */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {CERTIFICATES.filter((c) => c.id !== "az-900-ai").map((cert) => (
+              <div
+                key={cert.id}
+                className="overflow-hidden card-shadow rounded-lg"
+                style={{
+                  backgroundColor: "var(--bg-surface)",
+                  border: "1px solid var(--border)",
+                }}
+              >
+                {cert.image && (
+                  <div className="relative w-full h-32">
+                    <Image
+                      src={cert.image}
+                      alt={`${cert.name} certificate`}
+                      fill
+                      sizes="(max-width: 640px) 100vw, 50vw"
+                      className="object-cover object-top"
+                    />
+                  </div>
+                )}
+                <div className="p-4 flex flex-col gap-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex flex-col gap-0.5">
+                      <h3
+                        className="text-sm font-semibold"
+                        style={{ color: "var(--text-primary)" }}
+                      >
+                        {cert.name}
+                      </h3>
+                      <p
+                        className="text-xs"
+                        style={{ color: "var(--text-muted)" }}
+                      >
+                        {cert.issuer} &middot; {cert.issued}
+                      </p>
+                    </div>
+                    <a
+                      href={cert.verifyUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`Verify ${cert.name} certificate`}
+                      className="shrink-0 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
+                    >
+                      <FiExternalLink size={14} />
+                    </a>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </motion.div>
       </div>
     </section>
