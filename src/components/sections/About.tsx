@@ -3,19 +3,6 @@
 import { useRef } from "react";
 import { motion, useInView, useReducedMotion } from "framer-motion";
 
-const STRENGTHS = [
-  {
-    label: "Production-first mindset",
-    detail:
-      "Every project I ship runs in a real environment — not just a demo.",
-  },
-  {
-    label: "Full-stack + AI in one",
-    detail:
-      "I combine end-to-end engineering with practical AI/ML integration.",
-  },
-];
-
 export default function About() {
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
@@ -46,7 +33,7 @@ export default function About() {
       className="py-12 md:py-20 lg:py-28 px-4 sm:px-6 md:px-8 lg:px-16"
     >
       <div className="max-w-6xl mx-auto">
-        {/* Section label */}
+        {/* Section eyebrow */}
         <motion.p
           initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 12 }}
           animate={
@@ -65,82 +52,49 @@ export default function About() {
           variants={sectionVariants}
           initial="hidden"
           animate={inView ? "visible" : "hidden"}
-          className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16"
+          className="flex flex-col gap-8 lg:gap-12"
         >
-          {/* Left — Bio */}
-          <div className="flex flex-col gap-8">
-            <motion.h2
-              variants={itemVariants}
-              className="text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight"
-              style={{ color: "var(--text-primary)" }}
-            >
-              I engineer systems end-to-end —{" "}
-              <span style={{ color: "var(--text-secondary)" }}>
-                from database schema to deployed product.
-              </span>
-            </motion.h2>
-
+          {/* Story text */}
+          <div className="max-w-2xl flex flex-col gap-6">
             <motion.p
               variants={itemVariants}
-              className="text-base leading-relaxed"
+              className="text-base md:text-lg leading-relaxed"
               style={{ color: "var(--text-secondary)" }}
             >
-              I&apos;m a Full-Stack Developer and AI/ML Engineer based in
-              Bangalore. I specialize in building end-to-end production systems
-              — from e-commerce platforms processing live payments to business
-              management tools running daily in an automotive retail
-              environment.
+              I grew up in Kodagu, Karnataka, where my family runs Amar Jyothi
+              Spare Parts — an automotive parts retail business. Watching
+              purchases get tracked in paper notebooks, supplier records filed
+              away in cabinets, and the entire stock counted by hand every six
+              months showed me firsthand how much time manual processes consume.
             </motion.p>
 
             <motion.p
               variants={itemVariants}
-              className="text-base leading-relaxed"
+              className="text-base md:text-lg leading-relaxed"
               style={{ color: "var(--text-secondary)" }}
             >
-              My stack centers on Next.js, NestJS, Supabase, and the OpenAI and
-              Claude APIs.
+              So I built AJSP Manager — a full-stack PWA that replaced that
+              15-year paper workflow. It&apos;s been in daily production use
+              since launch. That experience shaped how I approach every project:
+              start with a real problem, build something that actually gets
+              used.
             </motion.p>
 
-            {/* Strengths */}
-            <motion.div
+            <motion.p
               variants={itemVariants}
-              className="flex flex-col gap-4 pt-2"
+              className="text-base md:text-lg leading-relaxed"
+              style={{ color: "var(--text-secondary)" }}
             >
-              {STRENGTHS.map(({ label, detail }) => (
-                <div key={label} className="flex gap-4">
-                  <span
-                    className="mt-1 shrink-0 w-1 h-1 rounded-full self-start translate-y-2"
-                    style={{
-                      backgroundColor: "var(--text-muted)",
-                      minWidth: "4px",
-                      minHeight: "4px",
-                    }}
-                  />
-                  <div>
-                    <p
-                      className="text-sm font-medium"
-                      style={{
-                        color: "var(--text-primary)",
-                      }}
-                    >
-                      {label}
-                    </p>
-                    <p
-                      className="text-sm mt-0.5"
-                      style={{ color: "var(--text-muted)" }}
-                    >
-                      {detail}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </motion.div>
+              I&apos;m a full-stack developer and AI/ML engineer based in
+              Bangalore, working with Next.js, React, Supabase, and Claude API.
+              I&apos;m open to freelance projects and full-time opportunities.
+            </motion.p>
           </div>
 
-          {/* Right — Education card */}
-          <motion.div variants={itemVariants} className="flex flex-col gap-6">
+          {/* Education card */}
+          <motion.div variants={itemVariants} className="max-w-2xl">
             <div
-              className="p-6 flex flex-col gap-5"
+              className="p-6 rounded-lg flex flex-col gap-5 card-shadow"
               style={{
                 backgroundColor: "var(--bg-surface)",
                 border: "1px solid var(--border)",
