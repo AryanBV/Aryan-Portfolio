@@ -13,7 +13,7 @@ type Certificate = {
   code: string;
   issuer: string;
   issued: string;
-  verifyUrl: string;
+  verifyUrl?: string;
   image: string;
   description: string;
 };
@@ -37,7 +37,6 @@ const CERTIFICATES: Certificate[] = [
     code: "ALPHA",
     issuer: "Apna College",
     issued: "2023",
-    verifyUrl: "https://www.apnacollege.in/course/alpha-placement-course",
     image: "/images/alpha-certificate.png",
     description:
       "Comprehensive Java and Data Structures & Algorithms course — covering arrays, linked lists, trees, graphs, dynamic programming, OOP, and placement-ready problem solving.",
@@ -48,7 +47,6 @@ const CERTIFICATES: Certificate[] = [
     code: "DELTA",
     issuer: "Apna College",
     issued: "2024",
-    verifyUrl: "https://www.apnacollege.in/course/delta",
     image: "/images/delta-certificate.png",
     description:
       "Complete MERN stack development — HTML, CSS, JavaScript, Node.js, Express.js, React, MongoDB, REST APIs, and full-stack deployment.",
@@ -170,15 +168,17 @@ export default function Certificates() {
                       {cert.issuer} &middot; {cert.issued}
                     </p>
                   </div>
-                  <a
-                    href={cert.verifyUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={`Verify ${cert.name} certificate`}
-                    className="shrink-0 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
-                  >
-                    <FiExternalLink size={16} />
-                  </a>
+                  {cert.verifyUrl && (
+                    <a
+                      href={cert.verifyUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`Verify ${cert.name} certificate`}
+                      className="shrink-0 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
+                    >
+                      <FiExternalLink size={16} />
+                    </a>
+                  )}
                 </div>
                 <div style={{ borderTop: "1px solid var(--border)" }} />
                 <p
