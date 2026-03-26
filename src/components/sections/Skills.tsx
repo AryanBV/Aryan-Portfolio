@@ -106,11 +106,29 @@ export default function Skills() {
             duration: prefersReducedMotion ? 0.3 : 0.5,
             ease: EASING,
           }}
-          className="text-xs tracking-[0.2em] uppercase mb-8 md:mb-12"
+          className="text-xs tracking-[0.2em] uppercase mb-4"
           style={{ color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}
         >
           Skills
         </motion.p>
+
+        <motion.h2
+          initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 16 }}
+          animate={
+            inView
+              ? { opacity: 1, y: 0 }
+              : { opacity: 0, y: prefersReducedMotion ? 0 : 16 }
+          }
+          transition={{
+            duration: prefersReducedMotion ? 0.3 : 0.6,
+            delay: prefersReducedMotion ? 0 : 0.05,
+            ease: EASING,
+          }}
+          className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-8 md:mb-12"
+          style={{ color: "var(--text-primary)" }}
+        >
+          What I build with.
+        </motion.h2>
 
         {/* BUILD / INTEGRATE / SHIP cards */}
         <motion.div
@@ -127,7 +145,7 @@ export default function Skills() {
               style={{ backgroundColor: "var(--bg-surface)" }}
             >
               <h3
-                className="text-xl font-semibold"
+                className="text-lg font-semibold"
                 style={{ color: "var(--text-primary)" }}
               >
                 {title}

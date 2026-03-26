@@ -42,11 +42,29 @@ export default function About() {
               : { opacity: 0, y: prefersReducedMotion ? 0 : 12 }
           }
           transition={{ duration: prefersReducedMotion ? 0.3 : 0.5 }}
-          className="text-xs tracking-[0.2em] uppercase mb-8 md:mb-12"
+          className="text-xs tracking-[0.2em] uppercase mb-4"
           style={{ color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}
         >
           About
         </motion.p>
+
+        <motion.h2
+          initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 16 }}
+          animate={
+            inView
+              ? { opacity: 1, y: 0 }
+              : { opacity: 0, y: prefersReducedMotion ? 0 : 16 }
+          }
+          transition={{
+            duration: prefersReducedMotion ? 0.3 : 0.6,
+            delay: prefersReducedMotion ? 0 : 0.05,
+            ease: [0.22, 1, 0.36, 1],
+          }}
+          className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-8 md:mb-12"
+          style={{ color: "var(--text-primary)" }}
+        >
+          The story behind the code.
+        </motion.h2>
 
         <motion.div
           variants={sectionVariants}
@@ -113,7 +131,7 @@ export default function About() {
                     Education
                   </p>
                   <h3
-                    className="text-base font-semibold"
+                    className="text-lg font-semibold"
                     style={{ color: "var(--text-primary)" }}
                   >
                     B.Tech — Artificial Intelligence & Machine Learning

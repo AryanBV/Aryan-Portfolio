@@ -66,7 +66,7 @@ export default function CodeStats() {
   return (
     <section
       ref={ref}
-      className="py-12 md:py-16 px-4 sm:px-6 md:px-8 lg:px-16"
+      className="py-12 md:py-20 lg:py-28 px-4 sm:px-6 md:px-8 lg:px-16"
       style={{ borderTop: "1px solid var(--border)" }}
     >
       <div className="max-w-6xl mx-auto">

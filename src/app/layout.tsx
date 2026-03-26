@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import MainLayout from "@/components/layout/MainLayout";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 const geist = Geist({
@@ -66,6 +68,8 @@ export default function RootLayout({
           Skip to content
         </a>
         <MainLayout>{children}</MainLayout>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

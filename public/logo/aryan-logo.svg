@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <!-- Aryan B V — Portfolio Logo (Concept 4: Abstract Negative Space) -->
+  <!-- Colors: Amber #F5A623 on Dark #0a0a0a -->
+  <!-- Usage: favicon, navbar, OG images, resume, LinkedIn -->
+
+  <!-- Outer glow ring -->
+  <circle cx="60" cy="60" r="56" fill="none" stroke="#F5A623" stroke-width="1.2" opacity="0.2"/>
+
+  <!-- Main triangle body -->
+  <path d="M60 12 L108 96 L12 96 Z" fill="#F5A623"/>
+
+  <!-- Inner triangle cutout (negative space — the "A" counter) -->
+  <path d="M60 52 L76 96 L44 96 Z" fill="#0a0a0a"/>
+
+  <!-- Crossbar cutout -->
+  <rect x="30" y="68" width="60" height="7" rx="1.5" fill="#0a0a0a"/>
+</svg>

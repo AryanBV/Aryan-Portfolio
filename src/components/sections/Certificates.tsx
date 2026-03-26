@@ -85,11 +85,29 @@ export default function Certificates() {
             duration: prefersReducedMotion ? 0.3 : 0.5,
             ease: EASING,
           }}
-          className="text-xs tracking-[0.2em] uppercase mb-6 md:mb-8"
+          className="text-xs tracking-[0.2em] uppercase mb-4"
           style={{ color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}
         >
           Certifications
         </motion.p>
+
+        <motion.h2
+          initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 16 }}
+          animate={
+            inView
+              ? { opacity: 1, y: 0 }
+              : { opacity: 0, y: prefersReducedMotion ? 0 : 16 }
+          }
+          transition={{
+            duration: prefersReducedMotion ? 0.3 : 0.6,
+            delay: prefersReducedMotion ? 0 : 0.05,
+            ease: EASING,
+          }}
+          className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-6 md:mb-8"
+          style={{ color: "var(--text-primary)" }}
+        >
+          Verified credentials.
+        </motion.h2>
 
         <motion.div
           initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 20 }}
@@ -140,7 +158,7 @@ export default function Certificates() {
                       {cert.code}
                     </span>
                     <h3
-                      className="text-sm sm:text-base font-semibold"
+                      className="text-base sm:text-lg font-semibold"
                       style={{ color: "var(--text-primary)" }}
                     >
                       {cert.name}
