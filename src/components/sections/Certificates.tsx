@@ -103,31 +103,30 @@ export default function Certificates() {
             delay: prefersReducedMotion ? 0 : 0.05,
             ease: EASING,
           }}
-          className="flex flex-col gap-6"
+          className="grid grid-cols-1 md:grid-cols-3 gap-6"
         >
-          {/* Azure AI-900 — prominent */}
-          {CERTIFICATES.filter((c) => c.id === "az-900-ai").map((cert) => (
+          {CERTIFICATES.map((cert) => (
             <div
               key={cert.id}
-              className="overflow-hidden card-shadow rounded-lg max-w-md"
+              className="flex flex-col overflow-hidden card-shadow rounded-lg"
               style={{
                 backgroundColor: "var(--bg-surface)",
                 border: "1px solid var(--border)",
               }}
             >
               {cert.image && (
-                <div className="relative w-full h-44 sm:h-52">
+                <div className="relative w-full h-36 sm:h-40">
                   <Image
                     src={cert.image}
                     alt={`${cert.name} certificate`}
                     fill
-                    sizes="(max-width: 768px) 100vw, 448px"
+                    sizes="(max-width: 768px) 100vw, 33vw"
                     className="object-cover object-top"
                   />
                 </div>
               )}
-              <div className="p-5 sm:p-6 flex flex-col gap-4">
-                <div className="flex items-start justify-between gap-4">
+              <div className="p-4 sm:p-5 flex flex-col gap-3 flex-1">
+                <div className="flex items-start justify-between gap-3">
                   <div className="flex flex-col gap-1">
                     <span
                       className="text-xs px-2 py-0.5 self-start mb-1 rounded-sm"
@@ -141,13 +140,13 @@ export default function Certificates() {
                       {cert.code}
                     </span>
                     <h3
-                      className="text-base sm:text-lg font-semibold"
+                      className="text-sm sm:text-base font-semibold"
                       style={{ color: "var(--text-primary)" }}
                     >
                       {cert.name}
                     </h3>
                     <p
-                      className="text-sm"
+                      className="text-xs"
                       style={{ color: "var(--text-muted)" }}
                     >
                       {cert.issuer} &middot; {cert.issued}
@@ -173,59 +172,6 @@ export default function Certificates() {
               </div>
             </div>
           ))}
-
-          {/* Apna College certs — compact */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {CERTIFICATES.filter((c) => c.id !== "az-900-ai").map((cert) => (
-              <div
-                key={cert.id}
-                className="overflow-hidden card-shadow rounded-lg"
-                style={{
-                  backgroundColor: "var(--bg-surface)",
-                  border: "1px solid var(--border)",
-                }}
-              >
-                {cert.image && (
-                  <div className="relative w-full h-32">
-                    <Image
-                      src={cert.image}
-                      alt={`${cert.name} certificate`}
-                      fill
-                      sizes="(max-width: 640px) 100vw, 50vw"
-                      className="object-cover object-top"
-                    />
-                  </div>
-                )}
-                <div className="p-4 flex flex-col gap-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex flex-col gap-0.5">
-                      <h3
-                        className="text-sm font-semibold"
-                        style={{ color: "var(--text-primary)" }}
-                      >
-                        {cert.name}
-                      </h3>
-                      <p
-                        className="text-xs"
-                        style={{ color: "var(--text-muted)" }}
-                      >
-                        {cert.issuer} &middot; {cert.issued}
-                      </p>
-                    </div>
-                    <a
-                      href={cert.verifyUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={`Verify ${cert.name} certificate`}
-                      className="shrink-0 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
-                    >
-                      <FiExternalLink size={14} />
-                    </a>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
         </motion.div>
       </div>
     </section>
