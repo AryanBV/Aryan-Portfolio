@@ -3,14 +3,14 @@
 import { useRef } from "react";
 import { motion, useInView, useReducedMotion } from "framer-motion";
 import Image from "next/image";
-import { FiGithub, FiExternalLink } from "react-icons/fi";
+import { DeviceFrame } from "@/components/ui/device-frame";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type ProjectStatus = "Live" | "Built" | "In Development";
+type ProjectStatus = "Live" | "Prototype";
 
 type Project = {
-  id: string;
+  slug: string;
   title: string;
   tagline: string;
   description: string;
@@ -18,10 +18,11 @@ type Project = {
   featured?: boolean;
   tech: string[];
   links: {
-    github?: string;
+    caseStudy?: string;
     live?: string;
+    github?: string;
   };
-  image: string;
+  image?: string;
 };
 
 // ─── Project data ─────────────────────────────────────────────────────────────
@@ -29,7 +30,7 @@ type Project = {
 
 const PROJECTS: Project[] = [
   {
-    id: "ajsp-manager",
+    slug: "ajsp-manager",
     title: "AJSP Manager",
     tagline: "Automotive retail business management system",
     description:
@@ -43,7 +44,7 @@ const PROJECTS: Project[] = [
     image: "/images/AJSP-Manager.png",
   },
   {
-    id: "lumina-crafts",
+    slug: "lumina-crafts",
     title: "Lumina Crafts",
     tagline: "E-commerce platform for handmade goods",
     description:
@@ -57,12 +58,12 @@ const PROJECTS: Project[] = [
     image: "/images/Lumina-Craft.png",
   },
   {
-    id: "smart-med",
+    slug: "smart-med",
     title: "SMART_MED",
     tagline: "AI-powered family health management app",
     description:
       "Progressive web app for family health management. Uses OCR to digitize paper prescriptions, checks for drug interactions, and stores health records — built on a multi-agent AI architecture.",
-    status: "Built",
+    status: "Prototype",
     tech: ["Next.js", "OpenAI API", "TypeScript"],
     links: {
       github: "https://github.com/AryanBV/smart-med",
@@ -80,30 +81,17 @@ const EASING = [0.22, 1, 0.36, 1] as const;
 // ─── Status badge ──────────────────────────────────────────────────────────────
 
 const STATUS_COLORS: Record<ProjectStatus, { color: string; bg: string }> = {
-  Live: { color: "var(--status-live)", bg: "rgba(74, 222, 128, 0.1)" },
-  Built: { color: "var(--status-built)", bg: "var(--accent-dim)" },
-  "In Development": {
-    color: "var(--status-dev)",
-    bg: "rgba(250, 204, 21, 0.1)",
-  },
+  Live: { color: "var(--status-live)", bg: "var(--accent-dim)" },
+  Prototype: { color: "var(--text-muted)", bg: "var(--bg-elevated)" },
 };
 
 function StatusBadge({ status }: { status: ProjectStatus }) {
   const { color, bg } = STATUS_COLORS[status];
   return (
     <span
-      className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium"
-      style={{
-        color,
-        backgroundColor: bg,
-        border: `1px solid ${color}`,
-        opacity: 0.9,
-      }}
+      className="inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-full"
+      style={{ color, backgroundColor: bg }}
     >
-      <span
-        className="w-1.5 h-1.5 rounded-full"
-        style={{ backgroundColor: color }}
-      />
       {status}
     </span>
   );
@@ -130,17 +118,17 @@ function TechPill({ label }: { label: string }) {
 // ─── Project links ─────────────────────────────────────────────────────────────
 
 function ProjectLinks({ links }: { links: Project["links"] }) {
+  const hasAnyLink = links.caseStudy || links.live || links.github;
+  if (!hasAnyLink) return null;
+
+  const linkClass =
+    "text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]";
+
   return (
-    <div className="flex items-center gap-4">
-      {links.github && (
-        <a
-          href={links.github}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="GitHub repository"
-          className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
-        >
-          <FiGithub size={18} />
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+      {links.caseStudy && (
+        <a href={links.caseStudy} className={linkClass}>
+          Read Case Study &rarr;
         </a>
       )}
       {links.live && (
@@ -148,12 +136,66 @@ function ProjectLinks({ links }: { links: Project["links"] }) {
           href={links.live}
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="Live site"
-          className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
+          className={linkClass}
         >
-          <FiExternalLink size={18} />
+          View Live &#8599;
         </a>
       )}
+      {links.github && (
+        <a
+          href={links.github}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={linkClass}
+        >
+          Source Code &#8599;
+        </a>
+      )}
+    </div>
+  );
+}
+
+// ─── Image or placeholder ──────────────────────────────────────────────────────
+
+function ProjectImage({ project }: { project: Project }) {
+  if (project.image) {
+    return (
+      <div className="relative w-full aspect-[16/10]">
+        <Image
+          src={project.image}
+          alt={project.title}
+          fill
+          sizes="(max-width: 768px) 100vw, 50vw"
+          className="object-cover object-top"
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="aspect-[16/10] w-full flex flex-col items-center justify-center gap-3"
+      style={{
+        background:
+          "linear-gradient(to bottom, var(--bg-surface), var(--bg-elevated))",
+      }}
+    >
+      <span
+        className="text-lg font-semibold"
+        style={{ color: "var(--text-muted)" }}
+      >
+        {project.title}
+      </span>
+      <span
+        className="text-xs"
+        style={{
+          color: "var(--text-muted)",
+          fontFamily: "var(--font-mono)",
+          opacity: 0.7,
+        }}
+      >
+        {project.tech.join(" · ")}
+      </span>
     </div>
   );
 }
@@ -170,64 +212,49 @@ function FeaturedCard({
   return (
     <motion.div
       variants={itemVariants}
-      className="grid grid-cols-1 lg:grid-cols-2 gap-0 border border-[var(--border)] hover:border-[var(--border-hover)] transition-colors duration-200 card-shadow card-shadow-hover"
+      className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center rounded-lg overflow-hidden card-shadow card-shadow-hover"
+      style={{ backgroundColor: "var(--bg-surface)" }}
     >
-      {/* Image — left on desktop */}
-      <div
-        className="relative w-full"
-        style={{ minHeight: "280px", backgroundColor: "var(--bg-surface)" }}
-      >
-        <Image
-          src={project.image}
-          alt={project.title}
-          fill
-          sizes="(max-width: 768px) 100vw, 50vw"
-          className="object-cover object-top"
-        />
-        {/* Featured label overlay */}
-        <span
-          className="absolute top-4 left-4 px-2.5 py-1 text-xs font-semibold tracking-widest uppercase"
-          style={{
-            backgroundColor: "var(--bg-base)",
-            color: "var(--text-muted)",
-            border: "1px solid var(--border)",
-          }}
-        >
-          Featured
-        </span>
+      {/* Image in device frame — left on desktop */}
+      <div className="p-4 md:p-6">
+        <DeviceFrame url={project.links.live}>
+          <ProjectImage project={project} />
+        </DeviceFrame>
       </div>
 
       {/* Content — right on desktop */}
-      <div
-        className="flex flex-col justify-between gap-6 p-8"
-        style={{ backgroundColor: "var(--bg-surface)" }}
-      >
-        <div className="flex flex-col gap-5">
-          <div className="flex items-center justify-between gap-4">
-            <StatusBadge status={project.status} />
-            <ProjectLinks links={project.links} />
-          </div>
+      <div className="flex flex-col gap-5 p-6 md:p-8 md:pl-0">
+        <div className="flex items-center gap-3">
+          <StatusBadge status={project.status} />
+          {project.featured && (
+            <span
+              className="text-xs font-semibold tracking-widest uppercase"
+              style={{ color: "var(--text-muted)" }}
+            >
+              Featured
+            </span>
+          )}
+        </div>
 
-          <div>
-            <h3
-              className="text-2xl font-bold mb-2"
-              style={{ color: "var(--text-primary)" }}
-            >
-              {project.title}
-            </h3>
-            <p
-              className="text-sm mb-4"
-              style={{ color: "var(--text-secondary)" }}
-            >
-              {project.tagline}
-            </p>
-            <p
-              className="text-sm leading-relaxed"
-              style={{ color: "var(--text-secondary)" }}
-            >
-              {project.description}
-            </p>
-          </div>
+        <div>
+          <h3
+            className="text-2xl font-bold mb-2"
+            style={{ color: "var(--text-primary)" }}
+          >
+            {project.title}
+          </h3>
+          <p
+            className="text-sm mb-3"
+            style={{ color: "var(--text-secondary)" }}
+          >
+            {project.tagline}
+          </p>
+          <p
+            className="text-sm leading-relaxed"
+            style={{ color: "var(--text-secondary)" }}
+          >
+            {project.description}
+          </p>
         </div>
 
         <div className="flex flex-wrap gap-2">
@@ -235,6 +262,8 @@ function FeaturedCard({
             <TechPill key={t} label={t} />
           ))}
         </div>
+
+        <ProjectLinks links={project.links} />
       </div>
     </motion.div>
   );
@@ -252,32 +281,20 @@ function ProjectCard({
   return (
     <motion.div
       variants={itemVariants}
-      className="flex flex-col border border-[var(--border)] hover:border-[var(--border-hover)] transition-colors duration-200 card-shadow card-shadow-hover"
+      className="flex flex-col rounded-lg overflow-hidden card-shadow"
+      style={{ backgroundColor: "var(--bg-surface)" }}
     >
-      {/* Image */}
-      <div
-        className="relative w-full"
-        style={{ height: "200px", backgroundColor: "var(--bg-surface)" }}
-      >
-        <Image
-          src={project.image}
-          alt={project.title}
-          fill
-          sizes="(max-width: 768px) 100vw, 50vw"
-          className="object-cover object-top"
-        />
+      {/* Device-framed image */}
+      <div className="p-4">
+        <DeviceFrame>
+          <ProjectImage project={project} />
+        </DeviceFrame>
       </div>
 
       {/* Content */}
-      <div
-        className="flex flex-col justify-between gap-5 p-6 flex-1"
-        style={{ backgroundColor: "var(--bg-surface)" }}
-      >
+      <div className="flex flex-col justify-between gap-5 p-6 pt-2 flex-1">
         <div className="flex flex-col gap-4">
-          <div className="flex items-center justify-between gap-4">
-            <StatusBadge status={project.status} />
-            <ProjectLinks links={project.links} />
-          </div>
+          <StatusBadge status={project.status} />
 
           <div>
             <h3
@@ -301,10 +318,13 @@ function ProjectCard({
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          {project.tech.map((t) => (
-            <TechPill key={t} label={t} />
-          ))}
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-wrap gap-2">
+            {project.tech.map((t) => (
+              <TechPill key={t} label={t} />
+            ))}
+          </div>
+          <ProjectLinks links={project.links} />
         </div>
       </div>
     </motion.div>
@@ -402,11 +422,11 @@ export default function Projects() {
           {rest.length > 0 && (
             <motion.div
               variants={containerVariants}
-              className="grid grid-cols-1 md:grid-cols-2 gap-6"
+              className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8"
             >
               {rest.map((project) => (
                 <ProjectCard
-                  key={project.id}
+                  key={project.slug}
                   project={project}
                   itemVariants={itemVariants}
                 />

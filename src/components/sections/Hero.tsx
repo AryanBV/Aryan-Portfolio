@@ -74,7 +74,7 @@ export default function Hero() {
               animate="visible"
               className="mt-4 text-base md:text-lg text-[var(--text-secondary)]"
             >
-              Full-stack engineer who built the system that replaced a 20-year
+              Full-stack engineer who built the system that replaced a 15-year
               paper workflow.
             </motion.p>
 
@@ -109,7 +109,7 @@ export default function Hero() {
               transition={{ delay: prefersReducedMotion ? 0 : 0.5 }}
               className="mt-8 text-sm text-[var(--text-muted)] font-mono"
             >
-              Currently building with Next.js · NestJS · Supabase · Claude API
+              Currently building with Next.js · React · Supabase · Claude API
             </motion.p>
           </div>
 
