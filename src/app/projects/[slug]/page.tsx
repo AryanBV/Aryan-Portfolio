@@ -1,8 +1,14 @@
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { getProjectBySlug, getProjectSlugs, projects } from "@/lib/projects";
+import {
+  getProjectBySlug,
+  getProjectSlugs,
+  projects,
+  type Project,
+} from "@/lib/projects";
 import { DeviceFrame } from "@/components/ui/device-frame";
+import { TerminalFrame } from "@/components/ui/terminal-frame";
 
 // ─── Static generation ──────────────────────────────────────────────────────
 
@@ -24,6 +30,21 @@ export async function generateMetadata({
   };
 }
 
+// ─── Live-link label derivation ─────────────────────────────────────────────
+
+function getLiveLinkLabel(kind: Project["kind"]): string {
+  switch (kind) {
+    case "library":
+      return "View on PyPI";
+    case "mcp-server":
+    case "cli":
+      return "View on npm";
+    case "web-app":
+    default:
+      return "View Live";
+  }
+}
+
 // ─── Page ───────────────────────────────────────────────────────────────────
 
 export default async function CaseStudyPage({
@@ -33,7 +54,9 @@ export default async function CaseStudyPage({
 }) {
   const { slug } = await params;
   const project = getProjectBySlug(slug);
-  if (!project || !project.links.caseStudy) notFound();
+  if (!project || !project.caseStudy) notFound();
+
+  const cs = project.caseStudy;
 
   // Find next case study project for bottom navigation
   const caseStudySlugs = getProjectSlugs();
@@ -46,7 +69,44 @@ export default async function CaseStudyPage({
     ? projects.find((p) => p.slug === nextSlug)
     : null;
 
-  const cs = project.caseStudy;
+  // Image or gradient-fallback content used inside both frame variants
+  const imageContent = project.image ? (
+    <div className="relative w-full aspect-[16/10]">
+      <Image
+        src={project.image}
+        alt={project.title}
+        fill
+        sizes="(max-width: 768px) 100vw, 800px"
+        className="object-cover object-top"
+        priority
+      />
+    </div>
+  ) : (
+    <div
+      className="aspect-[16/10] w-full flex flex-col items-center justify-center gap-3"
+      style={{
+        background:
+          "linear-gradient(to bottom, var(--bg-surface), var(--bg-elevated))",
+      }}
+    >
+      <span
+        className="text-lg font-semibold"
+        style={{ color: "var(--text-muted)" }}
+      >
+        {project.title}
+      </span>
+      <span
+        className="text-xs"
+        style={{
+          color: "var(--text-muted)",
+          fontFamily: "var(--font-mono)",
+          opacity: 0.7,
+        }}
+      >
+        {project.tech.join(" · ")}
+      </span>
+    </div>
+  );
 
   return (
     <main
@@ -104,7 +164,7 @@ export default async function CaseStudyPage({
             className="text-lg md:text-xl"
             style={{ color: "var(--text-secondary)" }}
           >
-            {cs ? cs.tagline : project.tagline}
+            {cs.tagline}
           </p>
 
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
@@ -115,7 +175,7 @@ export default async function CaseStudyPage({
                 rel="noopener noreferrer"
                 className="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors duration-200"
               >
-                View Live &#8599;
+                {getLiveLinkLabel(project.kind)} &#8599;
               </a>
             )}
             {project.links.github && (
@@ -131,148 +191,111 @@ export default async function CaseStudyPage({
           </div>
         </header>
 
-        {/* ── Device frame screenshot ──────────────────────────────── */}
+        {/* ── Device / terminal frame screenshot ───────────────────── */}
         <div className="max-w-4xl mx-auto">
-          <DeviceFrame url={project.links.live}>
-            {project.image ? (
-              <div className="relative w-full aspect-[16/10]">
-                <Image
-                  src={project.image}
-                  alt={project.title}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 800px"
-                  className="object-cover object-top"
-                  priority
-                />
-              </div>
-            ) : (
-              <div
-                className="aspect-[16/10] w-full flex flex-col items-center justify-center gap-3"
-                style={{
-                  background:
-                    "linear-gradient(to bottom, var(--bg-surface), var(--bg-elevated))",
-                }}
-              >
-                <span
-                  className="text-lg font-semibold"
-                  style={{ color: "var(--text-muted)" }}
-                >
-                  {project.title}
-                </span>
-                <span
-                  className="text-xs"
-                  style={{
-                    color: "var(--text-muted)",
-                    fontFamily: "var(--font-mono)",
-                    opacity: 0.7,
-                  }}
-                >
-                  {project.tech.join(" · ")}
-                </span>
-              </div>
-            )}
-          </DeviceFrame>
+          {project.kind === "web-app" ? (
+            <DeviceFrame url={project.links.live}>{imageContent}</DeviceFrame>
+          ) : (
+            <TerminalFrame label={`~ $ ${project.slug}`}>
+              {imageContent}
+            </TerminalFrame>
+          )}
         </div>
 
-        {/* ── Case study content (only if populated) ───────────────── */}
-        {cs && (
-          <>
-            {/* The Challenge */}
-            <section>
-              <p
-                className="text-sm uppercase tracking-[0.2em] mb-4"
-                style={{
-                  color: "var(--text-muted)",
-                  fontFamily: "var(--font-mono)",
-                }}
-              >
-                The Challenge
-              </p>
-              <p
-                className="text-base md:text-lg leading-relaxed"
-                style={{ color: "var(--text-secondary)" }}
-              >
-                {cs.challenge}
-              </p>
-            </section>
+        {/* ── The Challenge ────────────────────────────────────────── */}
+        <section>
+          <p
+            className="text-sm uppercase tracking-[0.2em] mb-4"
+            style={{
+              color: "var(--text-muted)",
+              fontFamily: "var(--font-mono)",
+            }}
+          >
+            The Challenge
+          </p>
+          <p
+            className="text-base md:text-lg leading-relaxed"
+            style={{ color: "var(--text-secondary)" }}
+          >
+            {cs.challenge}
+          </p>
+        </section>
 
-            {/* The Approach */}
-            <section>
-              <p
-                className="text-sm uppercase tracking-[0.2em] mb-4"
-                style={{
-                  color: "var(--text-muted)",
-                  fontFamily: "var(--font-mono)",
-                }}
-              >
-                The Approach
-              </p>
-              <p
-                className="text-base md:text-lg leading-relaxed"
-                style={{ color: "var(--text-secondary)" }}
-              >
-                {cs.approach}
-              </p>
-            </section>
+        {/* ── The Approach ─────────────────────────────────────────── */}
+        <section>
+          <p
+            className="text-sm uppercase tracking-[0.2em] mb-4"
+            style={{
+              color: "var(--text-muted)",
+              fontFamily: "var(--font-mono)",
+            }}
+          >
+            The Approach
+          </p>
+          <p
+            className="text-base md:text-lg leading-relaxed"
+            style={{ color: "var(--text-secondary)" }}
+          >
+            {cs.approach}
+          </p>
+        </section>
 
-            {/* The Impact */}
-            <section>
-              <p
-                className="text-sm uppercase tracking-[0.2em] mb-4"
-                style={{
-                  color: "var(--text-muted)",
-                  fontFamily: "var(--font-mono)",
-                }}
-              >
-                The Impact
-              </p>
-              <p
-                className="text-base md:text-lg leading-relaxed"
-                style={{ color: "var(--text-secondary)" }}
-              >
-                {cs.impact}
-              </p>
-            </section>
+        {/* ── The Impact ───────────────────────────────────────────── */}
+        <section>
+          <p
+            className="text-sm uppercase tracking-[0.2em] mb-4"
+            style={{
+              color: "var(--text-muted)",
+              fontFamily: "var(--font-mono)",
+            }}
+          >
+            The Impact
+          </p>
+          <p
+            className="text-base md:text-lg leading-relaxed"
+            style={{ color: "var(--text-secondary)" }}
+          >
+            {cs.impact}
+          </p>
+        </section>
 
-            {/* Tech Stack */}
-            <section>
-              <p
-                className="text-sm uppercase tracking-[0.2em] mb-6"
-                style={{
-                  color: "var(--text-muted)",
-                  fontFamily: "var(--font-mono)",
-                }}
+        {/* ── Tech Stack ───────────────────────────────────────────── */}
+        <section>
+          <p
+            className="text-sm uppercase tracking-[0.2em] mb-6"
+            style={{
+              color: "var(--text-muted)",
+              fontFamily: "var(--font-mono)",
+            }}
+          >
+            Tech Stack
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {cs.techDetails.map((tech) => (
+              <div
+                key={tech.name}
+                className="p-4 rounded-lg card-shadow"
+                style={{ backgroundColor: "var(--bg-surface)" }}
               >
-                Tech Stack
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {cs.techDetails.map((tech) => (
-                  <div
-                    key={tech.name}
-                    className="p-4 rounded-lg card-shadow"
-                    style={{ backgroundColor: "var(--bg-surface)" }}
-                  >
-                    <p
-                      className="text-sm font-medium"
-                      style={{
-                        color: "var(--text-primary)",
-                        fontFamily: "var(--font-mono)",
-                      }}
-                    >
-                      {tech.name}
-                    </p>
-                    <p
-                      className="text-sm mt-1"
-                      style={{ color: "var(--text-muted)" }}
-                    >
-                      {tech.reason}
-                    </p>
-                  </div>
-                ))}
+                <p
+                  className="text-sm font-medium"
+                  style={{
+                    color: "var(--text-primary)",
+                    fontFamily: "var(--font-mono)",
+                  }}
+                >
+                  {tech.name}
+                </p>
+                <p
+                  className="text-sm mt-1"
+                  style={{ color: "var(--text-muted)" }}
+                >
+                  {tech.reason}
+                </p>
               </div>
-            </section>
-          </>
-        )}
+            ))}
+          </div>
+        </section>
 
         {/* ── Bottom navigation ────────────────────────────────────── */}
         <nav
@@ -285,9 +308,9 @@ export default async function CaseStudyPage({
           >
             &larr; Back to Projects
           </Link>
-          {nextProject && nextProject.links.caseStudy && (
+          {nextProject && nextProject.caseStudy && (
             <Link
-              href={nextProject.links.caseStudy}
+              href={`/projects/${nextProject.slug}`}
               className="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors duration-200"
             >
               {nextProject.title} &rarr;

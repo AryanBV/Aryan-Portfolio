@@ -4,13 +4,35 @@ import { useRef } from "react";
 import { motion, useInView, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import { DeviceFrame } from "@/components/ui/device-frame";
-import { projects, type Project, type ProjectStatus } from "@/lib/projects";
+import { TerminalFrame } from "@/components/ui/terminal-frame";
+import {
+  getFeaturedProject,
+  getRestProjects,
+  getProjectCaseStudyRoute,
+  type Project,
+  type ProjectStatus,
+} from "@/lib/projects";
 
 // ─── Animation variants ────────────────────────────────────────────────────────
 
 const EASING = [0.22, 1, 0.36, 1] as const;
 
 // Variants are defined inside the component to access useReducedMotion
+
+// ─── Live-link label derivation ────────────────────────────────────────────────
+
+function getLiveLinkLabel(kind: Project["kind"]): string {
+  switch (kind) {
+    case "library":
+      return "View on PyPI";
+    case "mcp-server":
+    case "cli":
+      return "View on npm";
+    case "web-app":
+    default:
+      return "View Live";
+  }
+}
 
 // ─── Status badge ──────────────────────────────────────────────────────────────
 
@@ -51,8 +73,12 @@ function TechPill({ label }: { label: string }) {
 
 // ─── Project links ─────────────────────────────────────────────────────────────
 
-function ProjectLinks({ links }: { links: Project["links"] }) {
-  const hasAnyLink = links.caseStudy || links.live || links.github;
+function ProjectLinks({ project }: { project: Project }) {
+  const caseStudyRoute = getProjectCaseStudyRoute(project);
+  const liveLinkLabel = getLiveLinkLabel(project.kind);
+
+  const hasAnyLink =
+    caseStudyRoute || project.links.live || project.links.github;
   if (!hasAnyLink) return null;
 
   const linkClass =
@@ -60,24 +86,24 @@ function ProjectLinks({ links }: { links: Project["links"] }) {
 
   return (
     <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-      {links.caseStudy && (
-        <a href={links.caseStudy} className={linkClass}>
+      {caseStudyRoute && (
+        <a href={caseStudyRoute} className={linkClass}>
           Read Case Study &rarr;
         </a>
       )}
-      {links.live && (
+      {project.links.live && (
         <a
-          href={links.live}
+          href={project.links.live}
           target="_blank"
           rel="noopener noreferrer"
           className={linkClass}
         >
-          View Live &#8599;
+          {liveLinkLabel} &#8599;
         </a>
       )}
-      {links.github && (
+      {project.links.github && (
         <a
-          href={links.github}
+          href={project.links.github}
           target="_blank"
           rel="noopener noreferrer"
           className={linkClass}
@@ -134,6 +160,16 @@ function ProjectImage({ project }: { project: Project }) {
   );
 }
 
+// ─── Framed image — picks DeviceFrame for web apps, TerminalFrame otherwise ────
+
+function FramedImage({ project }: { project: Project }) {
+  const content = <ProjectImage project={project} />;
+  if (project.kind === "web-app") {
+    return <DeviceFrame url={project.links.live}>{content}</DeviceFrame>;
+  }
+  return <TerminalFrame label={`~ $ ${project.slug}`}>{content}</TerminalFrame>;
+}
+
 // ─── Featured project card ─────────────────────────────────────────────────────
 
 function FeaturedCard({
@@ -149,25 +185,21 @@ function FeaturedCard({
       className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center rounded-lg overflow-hidden card-shadow card-shadow-hover"
       style={{ backgroundColor: "var(--bg-surface)" }}
     >
-      {/* Image in device frame — left on desktop */}
+      {/* Image in frame — left on desktop */}
       <div className="p-4 md:p-6">
-        <DeviceFrame url={project.links.live}>
-          <ProjectImage project={project} />
-        </DeviceFrame>
+        <FramedImage project={project} />
       </div>
 
       {/* Content — right on desktop */}
       <div className="flex flex-col gap-5 p-6 md:p-8 md:pl-0">
         <div className="flex items-center gap-3">
           <StatusBadge status={project.status} />
-          {project.featured && (
-            <span
-              className="text-xs font-semibold tracking-widest uppercase"
-              style={{ color: "var(--text-muted)" }}
-            >
-              Featured
-            </span>
-          )}
+          <span
+            className="text-xs font-semibold tracking-widest uppercase"
+            style={{ color: "var(--text-muted)" }}
+          >
+            Featured
+          </span>
         </div>
 
         <div>
@@ -197,7 +229,7 @@ function FeaturedCard({
           ))}
         </div>
 
-        <ProjectLinks links={project.links} />
+        <ProjectLinks project={project} />
       </div>
     </motion.div>
   );
@@ -218,11 +250,9 @@ function ProjectCard({
       className="flex flex-col rounded-lg overflow-hidden card-shadow"
       style={{ backgroundColor: "var(--bg-surface)" }}
     >
-      {/* Device-framed image */}
+      {/* Framed image */}
       <div className="p-4">
-        <DeviceFrame>
-          <ProjectImage project={project} />
-        </DeviceFrame>
+        <FramedImage project={project} />
       </div>
 
       {/* Content */}
@@ -258,7 +288,7 @@ function ProjectCard({
               <TechPill key={t} label={t} />
             ))}
           </div>
-          <ProjectLinks links={project.links} />
+          <ProjectLinks project={project} />
         </div>
       </div>
     </motion.div>
@@ -290,8 +320,8 @@ export default function Projects() {
         },
       };
 
-  const featured = projects.find((p) => p.featured);
-  const rest = projects.filter((p) => !p.featured);
+  const featured = getFeaturedProject();
+  const rest = getRestProjects();
 
   return (
     <section
@@ -348,9 +378,7 @@ export default function Projects() {
           className="flex flex-col gap-6 md:gap-8"
         >
           {/* Featured card — full width */}
-          {featured && (
-            <FeaturedCard project={featured} itemVariants={itemVariants} />
-          )}
+          <FeaturedCard project={featured} itemVariants={itemVariants} />
 
           {/* Remaining cards — 2-column grid, own stagger context */}
           {rest.length > 0 && (

@@ -1,11 +1,21 @@
 // ─── Project data (shared between homepage cards + case study pages) ─────────
 
 export type ProjectStatus = "Live" | "Prototype";
+export type ProjectKind = "web-app" | "library" | "mcp-server" | "cli";
 
-export interface ProjectLink {
-  caseStudy?: string;
+export interface ProjectLinks {
   live?: string;
   github?: string;
+}
+
+export interface ProjectInstall {
+  label: string;
+  command: string;
+}
+
+export interface ProjectMetric {
+  label: string;
+  value: string;
 }
 
 export interface Project {
@@ -14,10 +24,12 @@ export interface Project {
   tagline: string;
   description: string;
   status: ProjectStatus;
-  featured?: boolean;
+  kind: ProjectKind;
   tech: string[];
-  links: ProjectLink;
+  links: ProjectLinks;
   image?: string;
+  install?: ProjectInstall[];
+  metrics?: ProjectMetric[];
   caseStudy?: {
     tagline: string;
     challenge: string;
@@ -27,6 +39,8 @@ export interface Project {
   };
 }
 
+// Index 0 is the featured project by convention.
+// Adding a new "on top" project means inserting at index 0 — no flag to flip.
 export const projects: Project[] = [
   {
     slug: "ajsp-manager",
@@ -35,11 +49,9 @@ export const projects: Project[] = [
     description:
       "Client-commissioned full-stack business management system running daily at an automotive spare parts retailer in Karnataka. Handles inventory tracking, billing, supplier management, and daily operations — replacing a manual paper-based workflow.",
     status: "Live",
-    featured: true,
+    kind: "web-app",
     tech: ["Next.js", "Supabase", "PostgreSQL", "TypeScript", "PWA"],
-    links: {
-      caseStudy: "/projects/ajsp-manager",
-    },
+    links: {},
     image: "/images/AJSP-Manager.png",
     caseStudy: {
       tagline:
@@ -76,9 +88,9 @@ export const projects: Project[] = [
     description:
       "Full-stack e-commerce platform with product catalogue, cart, checkout with payment integration, and a complete admin dashboard for inventory and order management.",
     status: "Live",
+    kind: "web-app",
     tech: ["Next.js", "Supabase", "TypeScript", "Razorpay"],
     links: {
-      caseStudy: "/projects/lumina-crafts",
       github: "https://github.com/AryanBV/lumina-crafts",
       live: "https://lumina-crafts.vercel.app/",
     },
@@ -118,6 +130,7 @@ export const projects: Project[] = [
     description:
       "AI-powered diabetes management system with interactive family tree visualization and medical document OCR. Upload prescriptions, extract medicine names automatically, and manage family health profiles with hierarchical access control.",
     status: "Prototype",
+    kind: "web-app",
     tech: ["React", "TypeScript", "Express", "MySQL", "Tesseract.js"],
     links: {
       github: "https://github.com/AryanBV/SMART_MED_2.0",
@@ -126,10 +139,32 @@ export const projects: Project[] = [
   },
 ];
 
+// ─── Invariants ──────────────────────────────────────────────────────────────
+
+if (projects.length === 0) {
+  throw new Error(
+    "projects array must have at least one entry — index 0 is the featured project by convention",
+  );
+}
+
+// ─── Derived accessors ───────────────────────────────────────────────────────
+
+export function getFeaturedProject(): Project {
+  return projects[0];
+}
+
+export function getRestProjects(): Project[] {
+  return projects.slice(1);
+}
+
 export function getProjectBySlug(slug: string): Project | undefined {
   return projects.find((p) => p.slug === slug);
 }
 
+export function getProjectCaseStudyRoute(project: Project): string | null {
+  return project.caseStudy ? `/projects/${project.slug}` : null;
+}
+
 export function getProjectSlugs(): string[] {
-  return projects.filter((p) => p.links.caseStudy).map((p) => p.slug);
+  return projects.filter((p) => p.caseStudy).map((p) => p.slug);
 }

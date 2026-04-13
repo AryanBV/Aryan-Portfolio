@@ -71,11 +71,7 @@ src/
 
 ## Portfolio 2.0 Rebuild
 
-This is the `portfolio-v2` branch. **Do NOT merge to main until M7.**
-
-- Warm amber `#F5A623` accent is replacing the current cyan `#00d4ff`
-- 7 milestones tracked in Linear (M1–M7)
-- Current milestone: M2 (Design System & Polish)
+Portfolio 2.0 was merged into `main` at commit 8fb1cea. The warm amber `#F5A623` accent replaced the original cyan `#00d4ff`. Milestone tracking continues in Linear (M1–M7).
 
 ## Responsive Design
 
