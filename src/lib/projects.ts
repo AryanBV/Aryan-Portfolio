@@ -30,6 +30,7 @@ export interface Project {
   image?: string;
   install?: ProjectInstall[];
   metrics?: ProjectMetric[];
+  terminalPreview?: string[];
   caseStudy?: {
     tagline: string;
     challenge: string;
@@ -67,6 +68,17 @@ export const projects: Project[] = [
       { label: "tests", value: "628" },
       { label: "coverage", value: "85%" },
       { label: "PDF generators", value: "7" },
+    ],
+    terminalPreview: [
+      "$ pip install pdf-edit-engine",
+      "Installed pdf-edit-engine 0.1.0",
+      "",
+      ">>> from pdf_edit_engine import replace",
+      '>>> r = replace("invoice.pdf",',
+      '...     "$12,500", "$13,250",',
+      '...     "invoice-v2.pdf")',
+      ">>> r.fidelity_report.font_preserved",
+      "True",
     ],
     caseStudy: {
       tagline:
@@ -133,6 +145,16 @@ export const projects: Project[] = [
       { label: "categories", value: "7" },
       { label: "prompts", value: "3" },
     ],
+    terminalPreview: [
+      "$ npx -y @aryanbv/pdf-edit-mcp",
+      "[mcp] ready · 38 tools · 3 prompts",
+      "",
+      '> pdf_inspect { "pdf_path": "quote.pdf" }',
+      "✓ 4 pages · 2 fonts · 12 annotations",
+      "",
+      '> pdf_batch_replace { "edits": [...] }',
+      "✓ font_preserved · overflow: false",
+    ],
     caseStudy: {
       tagline:
         "Bringing format-preserving PDF editing to AI agents — 38 tools, three guided workflows, one long-running Python bridge.",
@@ -198,6 +220,15 @@ export const projects: Project[] = [
       { label: "tools", value: "16" },
       { label: "tests", value: "51" },
       { label: "MCP Registry", value: "listed" },
+    ],
+    terminalPreview: [
+      "$ npx -y @aryanbv/pdf-toolkit-mcp",
+      "[mcp] pdf-toolkit ready · 16 tools",
+      "",
+      "> pdf_create_from_markdown {",
+      '    "markdown": "# Q1 2026 Review\\n..."',
+      "  }",
+      "✓ q1-review.pdf · 3 pages · 47 KB",
     ],
     caseStudy: {
       tagline:

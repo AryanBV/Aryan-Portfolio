@@ -9,6 +9,7 @@ import {
 } from "@/lib/projects";
 import { DeviceFrame } from "@/components/ui/device-frame";
 import { TerminalFrame } from "@/components/ui/terminal-frame";
+import { TerminalTranscript } from "@/components/ui/terminal-transcript";
 
 // ─── Static generation ──────────────────────────────────────────────────────
 
@@ -197,7 +198,11 @@ export default async function CaseStudyPage({
             <DeviceFrame url={project.links.live}>{imageContent}</DeviceFrame>
           ) : (
             <TerminalFrame label={`~ $ ${project.slug}`}>
-              {imageContent}
+              {project.terminalPreview ? (
+                <TerminalTranscript lines={project.terminalPreview} />
+              ) : (
+                imageContent
+              )}
             </TerminalFrame>
           )}
         </div>

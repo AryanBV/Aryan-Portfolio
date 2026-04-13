@@ -128,7 +128,7 @@ export default function Hero() {
               transition={{ delay: prefersReducedMotion ? 0 : 0.5 }}
               className="mt-8 text-sm text-[var(--text-muted)] font-mono"
             >
-              Currently building with Next.js · React · Supabase · Claude API
+              Currently building with Next.js · Python · Claude API · MCP SDK
             </motion.p>
           </div>
 

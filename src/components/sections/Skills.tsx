@@ -10,12 +10,14 @@ import {
   SiTailwindcss,
   SiNestjs,
   SiExpress,
+  SiPython,
   SiAnthropic,
   SiSupabase,
   SiRazorpay,
   SiPostgresql,
   SiVercel,
   SiGithub,
+  SiPytest,
 } from "react-icons/si";
 
 // ─── Data ──────────────────────────────────────────────────────────────────────
@@ -31,6 +33,7 @@ const SKILL_GROUPS: SkillGroup[] = [
       { name: "Next.js", icon: SiNextdotjs },
       { name: "React", icon: SiReact },
       { name: "TypeScript", icon: SiTypescript },
+      { name: "Python", icon: SiPython },
       { name: "Tailwind CSS", icon: SiTailwindcss },
       { name: "NestJS", icon: SiNestjs },
       { name: "Express", icon: SiExpress },
@@ -41,6 +44,7 @@ const SKILL_GROUPS: SkillGroup[] = [
     subtitle: "APIs, databases, AI",
     skills: [
       { name: "Claude API", icon: SiAnthropic },
+      { name: "Model Context Protocol", icon: null },
       { name: "Supabase", icon: SiSupabase },
       { name: "Razorpay", icon: SiRazorpay },
       { name: "PostgreSQL", icon: SiPostgresql },
@@ -55,6 +59,8 @@ const SKILL_GROUPS: SkillGroup[] = [
       { name: "GitHub", icon: SiGithub },
       { name: "PWA", icon: null },
       { name: "SEO & Analytics", icon: null },
+      { name: "pytest", icon: SiPytest },
+      { name: "mypy", icon: null },
     ],
   },
 ];

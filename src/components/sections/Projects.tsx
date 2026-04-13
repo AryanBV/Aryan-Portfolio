@@ -5,6 +5,7 @@ import { motion, useInView, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import { DeviceFrame } from "@/components/ui/device-frame";
 import { TerminalFrame } from "@/components/ui/terminal-frame";
+import { TerminalTranscript } from "@/components/ui/terminal-transcript";
 import {
   getFeaturedProject,
   getRestProjects,
@@ -163,11 +164,24 @@ function ProjectImage({ project }: { project: Project }) {
 // ─── Framed image — picks DeviceFrame for web apps, TerminalFrame otherwise ────
 
 function FramedImage({ project }: { project: Project }) {
-  const content = <ProjectImage project={project} />;
   if (project.kind === "web-app") {
-    return <DeviceFrame url={project.links.live}>{content}</DeviceFrame>;
+    return (
+      <DeviceFrame url={project.links.live}>
+        <ProjectImage project={project} />
+      </DeviceFrame>
+    );
   }
-  return <TerminalFrame label={`~ $ ${project.slug}`}>{content}</TerminalFrame>;
+  // Non-web-app projects use TerminalFrame; prefer the terminal transcript
+  // content when provided, otherwise fall back to the gradient placeholder.
+  return (
+    <TerminalFrame label={`~ $ ${project.slug}`}>
+      {project.terminalPreview ? (
+        <TerminalTranscript lines={project.terminalPreview} />
+      ) : (
+        <ProjectImage project={project} />
+      )}
+    </TerminalFrame>
+  );
 }
 
 // ─── Featured project card ─────────────────────────────────────────────────────
