@@ -8,6 +8,7 @@ import {
   type Project,
 } from "@/lib/projects";
 import { DeviceFrame } from "@/components/ui/device-frame";
+import { InstallSnippet } from "@/components/ui/install-snippet";
 import { TerminalFrame } from "@/components/ui/terminal-frame";
 import { TerminalTranscript } from "@/components/ui/terminal-transcript";
 
@@ -206,6 +207,22 @@ export default async function CaseStudyPage({
             </TerminalFrame>
           )}
         </div>
+
+        {/* ── Install ──────────────────────────────────────────────── */}
+        {project.install && project.install.length > 0 && (
+          <section>
+            <p
+              className="text-sm uppercase tracking-[0.2em] mb-4"
+              style={{
+                color: "var(--text-muted)",
+                fontFamily: "var(--font-mono)",
+              }}
+            >
+              Install
+            </p>
+            <InstallSnippet install={project.install} />
+          </section>
+        )}
 
         {/* ── The Challenge ────────────────────────────────────────── */}
         <section>
