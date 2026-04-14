@@ -1,0 +1,19 @@
+# Enforce LF line endings repo-wide.
+# Prevents Windows autocrlf phantom modifications and keeps the working tree
+# consistent across macOS / Linux / Windows contributors.
+* text=auto eol=lf
+
+# Explicit binary overrides — text=auto should detect these, but declaring
+# them defensively prevents future edge cases (e.g. a PNG with a text-looking
+# header).
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.gif    binary
+*.ico    binary
+*.webp   binary
+*.pdf    binary
+*.woff   binary
+*.woff2  binary
+*.ttf    binary
+*.otf    binary
