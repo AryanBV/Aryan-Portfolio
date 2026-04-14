@@ -60,6 +60,8 @@ src/
 - `next.config.ts` — security headers, devIndicators
 - `tsconfig.json` — `@/` path alias → `src/`
 - `globals.css` — Tailwind v4 (`@import "tailwindcss"`), CSS custom properties
+- `.gitattributes` — enforce LF line endings repo-wide (prevents Windows autocrlf phantoms)
+- `.editorconfig` — editor-level LF + UTF-8 + 2-space policy, complement to `.gitattributes`
 
 ## External Services
 
