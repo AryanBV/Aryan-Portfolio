@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 // ─── Project data (shared between homepage cards + case study pages) ─────────
 
 export type ProjectStatus = "Live" | "Prototype";
@@ -40,9 +42,66 @@ export interface Project {
   };
 }
 
+// ─── Runtime schema (validates conformance to the Project interface) ─────────
+// The interface above is the compile-time source of truth; this schema enforces
+// the same shape at module-load, catching typos and drift at build time.
+
+const projectKindSchema = z.enum(["web-app", "library", "mcp-server", "cli"]);
+const projectStatusSchema = z.enum(["Live", "Prototype"]);
+
+const projectSchema = z.object({
+  slug: z.string().regex(/^[a-z0-9-]+$/, "slug must be kebab-case"),
+  title: z.string().min(1),
+  tagline: z.string().min(1),
+  description: z.string().min(1),
+  status: projectStatusSchema,
+  kind: projectKindSchema,
+  tech: z.array(z.string().min(1)).min(1),
+  links: z.object({
+    live: z.url().optional(),
+    github: z.url().optional(),
+  }),
+  image: z.string().startsWith("/").optional(),
+  install: z
+    .array(
+      z.object({
+        label: z.string().min(1),
+        command: z.string().min(1),
+      }),
+    )
+    .optional(),
+  metrics: z
+    .array(
+      z.object({
+        label: z.string().min(1),
+        value: z.string().min(1),
+      }),
+    )
+    .optional(),
+  terminalPreview: z.array(z.string()).optional(),
+  caseStudy: z
+    .object({
+      tagline: z.string().min(1),
+      challenge: z.string().min(1),
+      approach: z.string().min(1),
+      impact: z.string().min(1),
+      techDetails: z
+        .array(
+          z.object({
+            name: z.string().min(1),
+            reason: z.string().min(1),
+          }),
+        )
+        .min(1),
+    })
+    .optional(),
+});
+
+const projectsSchema = z.array(projectSchema).min(1);
+
 // Index 0 is the featured project by convention.
 // Adding a new "on top" project means inserting at index 0 — no flag to flip.
-export const projects: Project[] = [
+export const projects: Project[] = projectsSchema.parse([
   {
     slug: "pdf-edit-engine",
     title: "pdf-edit-engine",
@@ -358,15 +417,7 @@ export const projects: Project[] = [
     },
     image: "/images/smart-med.png",
   },
-];
-
-// ─── Invariants ──────────────────────────────────────────────────────────────
-
-if (projects.length === 0) {
-  throw new Error(
-    "projects array must have at least one entry — index 0 is the featured project by convention",
-  );
-}
+]);
 
 // ─── Derived accessors ───────────────────────────────────────────────────────
 

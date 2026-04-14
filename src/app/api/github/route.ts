@@ -1,9 +1,28 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 
 const USERNAME = "AryanBV";
 const GITHUB_API = "https://api.github.com";
 
 type LangMap = Record<string, number>;
+
+// ─── Runtime schemas for upstream responses ──────────────────────────────────
+// GitHub and the contributions proxy are external systems — validate shape at
+// the boundary so the handler never operates on an untrusted cast.
+
+const repoSchema = z.object({
+  language: z.string().nullable(),
+  stargazers_count: z.number(),
+});
+const reposSchema = z.array(repoSchema);
+
+const contributionsSchema = z.object({
+  total: z
+    .object({
+      lastYear: z.number().optional(),
+    })
+    .optional(),
+});
 
 export async function GET() {
   // Repos are required — if this fails, return 503 (no useful data to show)
@@ -22,8 +41,15 @@ export async function GET() {
     );
   }
 
-  const repos: Array<{ language: string | null; stargazers_count: number }> =
-    await reposRes.json();
+  const rawRepos: unknown = await reposRes.json();
+  const reposParsed = reposSchema.safeParse(rawRepos);
+  if (!reposParsed.success) {
+    return NextResponse.json(
+      { error: "GitHub API response shape unexpected" },
+      { status: 502 },
+    );
+  }
+  const repos = reposParsed.data;
 
   const langMap: LangMap = {};
   for (const repo of repos) {
@@ -47,8 +73,12 @@ export async function GET() {
       { next: { revalidate: 3600 } },
     );
     if (contribRes.ok) {
-      const contribData = await contribRes.json();
-      totalContributions = contribData?.total?.lastYear ?? 544;
+      const rawContrib: unknown = await contribRes.json();
+      const contribParsed = contributionsSchema.safeParse(rawContrib);
+      if (contribParsed.success) {
+        totalContributions = contribParsed.data.total?.lastYear ?? 544;
+      }
+      // schema mismatch is non-fatal — keep default
     }
   } catch {
     // non-fatal: keep default
