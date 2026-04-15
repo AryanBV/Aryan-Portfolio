@@ -53,7 +53,7 @@ const SKILL_GROUPS: SkillGroup[] = [
   },
   {
     title: "SHIP",
-    subtitle: "Deploy & deliver",
+    subtitle: "Ship with confidence",
     skills: [
       { name: "Vercel", icon: SiVercel },
       { name: "GitHub", icon: SiGithub },
@@ -61,6 +61,7 @@ const SKILL_GROUPS: SkillGroup[] = [
       { name: "SEO & Analytics", icon: null },
       { name: "pytest", icon: SiPytest },
       { name: "mypy", icon: null },
+      { name: "Zod", icon: null },
     ],
   },
 ];
