@@ -14,6 +14,8 @@ import { TerminalTranscript } from "@/components/ui/terminal-transcript";
 
 // ─── Static generation ──────────────────────────────────────────────────────
 
+const SITE_ORIGIN = "https://aryanbv.com";
+
 export function generateStaticParams() {
   return getProjectSlugs().map((slug) => ({ slug }));
 }
@@ -26,9 +28,28 @@ export async function generateMetadata({
   const { slug } = await params;
   const project = getProjectBySlug(slug);
   if (!project) return {};
+  const title = `${project.title} | Aryan B V`;
+  const description = project.description;
+  const url = `${SITE_ORIGIN}/projects/${project.slug}`;
   return {
-    title: `${project.title} | Aryan B V`,
-    description: project.description,
+    title,
+    description,
+    alternates: {
+      canonical: url,
+    },
+    openGraph: {
+      title,
+      description,
+      url,
+      type: "article",
+      // images auto-injected from src/app/projects/[slug]/opengraph-image.tsx
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      // images auto-inherit from openGraph
+    },
   };
 }
 
@@ -45,6 +66,37 @@ function getLiveLinkLabel(kind: Project["kind"]): string {
     default:
       return "View Live";
   }
+}
+
+// ─── JSON-LD structured data ────────────────────────────────────────────────
+
+function getProjectJsonLd(project: Project): Record<string, unknown> {
+  const operatingSystem = project.kind === "web-app" ? "Web" : "Cross-platform";
+
+  const ld: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: project.title,
+    description: project.description,
+    applicationCategory: "DeveloperApplication",
+    operatingSystem,
+    author: {
+      "@type": "Person",
+      name: "Aryan B V",
+      url: SITE_ORIGIN,
+    },
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "USD",
+    },
+    url: project.links.live ?? `${SITE_ORIGIN}/projects/${project.slug}`,
+  };
+
+  if (project.links.github) ld.codeRepository = project.links.github;
+  if (project.image) ld.image = `${SITE_ORIGIN}${project.image}`;
+
+  return ld;
 }
 
 // ─── Page ───────────────────────────────────────────────────────────────────
@@ -115,6 +167,12 @@ export default async function CaseStudyPage({
       className="py-12 md:py-20 lg:py-28 px-4 sm:px-6 md:px-8 lg:px-16"
       style={{ backgroundColor: "var(--bg-base)" }}
     >
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(getProjectJsonLd(project)),
+        }}
+      />
       <div className="max-w-3xl mx-auto space-y-12 md:space-y-16 lg:space-y-20">
         {/* ── Back nav ─────────────────────────────────────────────── */}
         <nav>
