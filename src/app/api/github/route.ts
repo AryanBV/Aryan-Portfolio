@@ -90,5 +90,6 @@ export async function GET() {
     totalContributions,
     topLanguages,
     totalLangRepos,
+    fetchedAt: new Date().toISOString(),
   });
 }

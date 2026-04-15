@@ -16,9 +16,28 @@ type GitHubData = {
   totalContributions: number;
   totalLangRepos: number;
   topLanguages: Array<{ name: string; count: number }>;
+  fetchedAt: string;
 };
 
 const EASING = [0.22, 1, 0.36, 1] as const;
+
+function formatRelativeTime(iso: string): string {
+  const diffSec = Math.max(
+    0,
+    Math.floor((Date.now() - new Date(iso).getTime()) / 1000),
+  );
+  if (diffSec < 60) return "updated just now";
+  if (diffSec < 3600) {
+    const mins = Math.floor(diffSec / 60);
+    return `updated ${mins} minute${mins === 1 ? "" : "s"} ago`;
+  }
+  if (diffSec < 86400) {
+    const hours = Math.floor(diffSec / 3600);
+    return `updated ${hours} hour${hours === 1 ? "" : "s"} ago`;
+  }
+  const days = Math.floor(diffSec / 86400);
+  return `updated ${days} day${days === 1 ? "" : "s"} ago`;
+}
 
 function AnimatedNumber({ value, inView }: { value: number; inView: boolean }) {
   const prefersReducedMotion = useReducedMotion();
@@ -48,7 +67,8 @@ export default function CodeStats() {
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    fetch("/api/github")
+    const controller = new AbortController();
+    fetch("/api/github", { signal: controller.signal })
       .then((r) => {
         if (!r.ok) throw new Error(`status ${r.status}`);
         return r.json();
@@ -57,10 +77,12 @@ export default function CodeStats() {
         setData(d);
         setLoading(false);
       })
-      .catch(() => {
+      .catch((err) => {
+        if (err?.name === "AbortError") return;
         setError(true);
         setLoading(false);
       });
+    return () => controller.abort();
   }, []);
 
   return (
@@ -110,52 +132,82 @@ export default function CodeStats() {
             Could not load GitHub data.
           </p>
         ) : data ? (
-          <motion.div
-            initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 20 }}
-            animate={
-              inView
-                ? { opacity: 1, y: 0 }
-                : { opacity: 0, y: prefersReducedMotion ? 0 : 20 }
-            }
-            transition={{
-              duration: prefersReducedMotion ? 0.3 : 0.6,
-              ease: EASING,
-            }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-6"
-          >
-            {/* Repos + Stars */}
-            <div
-              className="p-6 flex flex-col gap-4"
-              style={{
-                backgroundColor: "var(--bg-surface)",
-                border: "1px solid var(--border)",
+          <>
+            <motion.div
+              initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 20 }}
+              animate={
+                inView
+                  ? { opacity: 1, y: 0 }
+                  : { opacity: 0, y: prefersReducedMotion ? 0 : 20 }
+              }
+              transition={{
+                duration: prefersReducedMotion ? 0.3 : 0.6,
+                ease: EASING,
               }}
+              className="grid grid-cols-1 md:grid-cols-3 gap-6"
             >
-              <div className="flex flex-col gap-1">
-                <p
-                  className="text-3xl font-bold"
-                  style={{
-                    color: "var(--text-primary)",
-                    fontFamily: "var(--font-mono)",
-                  }}
-                >
-                  <AnimatedNumber value={data.publicRepos} inView={inView} />
-                </p>
-                <p
-                  className="text-xs uppercase tracking-widest"
-                  style={{
-                    color: "var(--text-muted)",
-                    fontFamily: "var(--font-mono)",
-                  }}
-                >
-                  Public Repos
-                </p>
-              </div>
+              {/* Repos + Stars */}
               <div
-                className="flex flex-col gap-1"
+                className="p-6 flex flex-col gap-4"
                 style={{
-                  borderTop: "1px solid var(--border)",
-                  paddingTop: "1rem",
+                  backgroundColor: "var(--bg-surface)",
+                  border: "1px solid var(--border)",
+                }}
+              >
+                <div className="flex flex-col gap-1">
+                  <p
+                    className="text-3xl font-bold"
+                    style={{
+                      color: "var(--text-primary)",
+                      fontFamily: "var(--font-mono)",
+                    }}
+                  >
+                    <AnimatedNumber value={data.publicRepos} inView={inView} />
+                  </p>
+                  <p
+                    className="text-xs uppercase tracking-widest"
+                    style={{
+                      color: "var(--text-muted)",
+                      fontFamily: "var(--font-mono)",
+                    }}
+                  >
+                    Public Repos
+                  </p>
+                </div>
+                <div
+                  className="flex flex-col gap-1"
+                  style={{
+                    borderTop: "1px solid var(--border)",
+                    paddingTop: "1rem",
+                  }}
+                >
+                  <p
+                    className="text-3xl font-bold"
+                    style={{
+                      color: "var(--text-primary)",
+                      fontFamily: "var(--font-mono)",
+                    }}
+                  >
+                    <AnimatedNumber value={data.totalStars} inView={inView} />
+                  </p>
+                  <p
+                    className="text-xs uppercase tracking-widest"
+                    style={{
+                      color: "var(--text-muted)",
+                      fontFamily: "var(--font-mono)",
+                    }}
+                  >
+                    Total Stars
+                  </p>
+                </div>
+              </div>
+
+              {/* Contributions */}
+              <div
+                className="p-6 flex flex-col gap-2"
+                style={{
+                  backgroundColor: "var(--bg-surface)",
+                  border: "1px solid var(--border)",
                 }}
               >
                 <p
@@ -165,7 +217,11 @@ export default function CodeStats() {
                     fontFamily: "var(--font-mono)",
                   }}
                 >
-                  <AnimatedNumber value={data.totalStars} inView={inView} />
+                  <AnimatedNumber
+                    value={data.totalContributions}
+                    inView={inView}
+                  />
+                  <span style={{ color: "var(--accent)" }}>+</span>
                 </p>
                 <p
                   className="text-xs uppercase tracking-widest"
@@ -174,114 +230,93 @@ export default function CodeStats() {
                     fontFamily: "var(--font-mono)",
                   }}
                 >
-                  Total Stars
+                  Contributions (last year)
                 </p>
               </div>
-            </div>
 
-            {/* Contributions */}
-            <div
-              className="p-6 flex flex-col gap-2"
+              {/* Top Languages */}
+              <div
+                className="p-6 flex flex-col gap-3"
+                style={{
+                  backgroundColor: "var(--bg-surface)",
+                  border: "1px solid var(--border)",
+                }}
+              >
+                <p
+                  className="text-xs uppercase tracking-widest mb-1"
+                  style={{
+                    color: "var(--text-muted)",
+                    fontFamily: "var(--font-mono)",
+                  }}
+                >
+                  Top Languages
+                </p>
+                {data.topLanguages.map(({ name, count }, i) => (
+                  <div key={name} className="flex flex-col gap-1">
+                    <div className="flex justify-between">
+                      <span
+                        className="text-xs"
+                        style={{
+                          color: "var(--text-secondary)",
+                          fontFamily: "var(--font-mono)",
+                        }}
+                      >
+                        {name}
+                      </span>
+                      <span
+                        className="text-xs"
+                        style={{
+                          color: "var(--text-muted)",
+                          fontFamily: "var(--font-mono)",
+                        }}
+                      >
+                        {Math.round((count / data.totalLangRepos) * 100)}%
+                      </span>
+                    </div>
+                    <div
+                      className="w-full h-0.5"
+                      style={{ backgroundColor: "var(--border)" }}
+                    >
+                      <motion.div
+                        className="h-0.5"
+                        style={{ backgroundColor: "var(--accent)" }}
+                        initial={{
+                          width: prefersReducedMotion
+                            ? `${(count / data.totalLangRepos) * 100}%`
+                            : 0,
+                        }}
+                        animate={
+                          inView
+                            ? {
+                                width: `${(count / data.totalLangRepos) * 100}%`,
+                              }
+                            : {
+                                width: prefersReducedMotion
+                                  ? `${(count / data.totalLangRepos) * 100}%`
+                                  : 0,
+                              }
+                        }
+                        transition={{
+                          duration: prefersReducedMotion ? 0 : 1,
+                          delay: prefersReducedMotion ? 0 : 0.3 + i * 0.08,
+                          ease: EASING,
+                        }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+            <p
+              className="mt-6 text-xs"
               style={{
-                backgroundColor: "var(--bg-surface)",
-                border: "1px solid var(--border)",
+                color: "var(--text-muted)",
+                fontFamily: "var(--font-mono)",
               }}
             >
-              <p
-                className="text-3xl font-bold"
-                style={{
-                  color: "var(--text-primary)",
-                  fontFamily: "var(--font-mono)",
-                }}
-              >
-                <AnimatedNumber
-                  value={data.totalContributions}
-                  inView={inView}
-                />
-                <span style={{ color: "var(--accent)" }}>+</span>
-              </p>
-              <p
-                className="text-xs uppercase tracking-widest"
-                style={{
-                  color: "var(--text-muted)",
-                  fontFamily: "var(--font-mono)",
-                }}
-              >
-                Contributions (last year)
-              </p>
-            </div>
-
-            {/* Top Languages */}
-            <div
-              className="p-6 flex flex-col gap-3"
-              style={{
-                backgroundColor: "var(--bg-surface)",
-                border: "1px solid var(--border)",
-              }}
-            >
-              <p
-                className="text-xs uppercase tracking-widest mb-1"
-                style={{
-                  color: "var(--text-muted)",
-                  fontFamily: "var(--font-mono)",
-                }}
-              >
-                Top Languages
-              </p>
-              {data.topLanguages.map(({ name, count }, i) => (
-                <div key={name} className="flex flex-col gap-1">
-                  <div className="flex justify-between">
-                    <span
-                      className="text-xs"
-                      style={{
-                        color: "var(--text-secondary)",
-                        fontFamily: "var(--font-mono)",
-                      }}
-                    >
-                      {name}
-                    </span>
-                    <span
-                      className="text-xs"
-                      style={{
-                        color: "var(--text-muted)",
-                        fontFamily: "var(--font-mono)",
-                      }}
-                    >
-                      {Math.round((count / data.totalLangRepos) * 100)}%
-                    </span>
-                  </div>
-                  <div
-                    className="w-full h-0.5"
-                    style={{ backgroundColor: "var(--border)" }}
-                  >
-                    <motion.div
-                      className="h-0.5"
-                      style={{ backgroundColor: "var(--accent)" }}
-                      initial={{
-                        width: prefersReducedMotion
-                          ? `${(count / data.totalLangRepos) * 100}%`
-                          : 0,
-                      }}
-                      animate={
-                        inView
-                          ? { width: `${(count / data.totalLangRepos) * 100}%` }
-                          : {
-                              width: prefersReducedMotion
-                                ? `${(count / data.totalLangRepos) * 100}%`
-                                : 0,
-                            }
-                      }
-                      transition={{
-                        duration: prefersReducedMotion ? 0 : 1,
-                        delay: prefersReducedMotion ? 0 : 0.3 + i * 0.08,
-                        ease: EASING,
-                      }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </motion.div>
+              {formatRelativeTime(data.fetchedAt)}
+            </p>
+          </>
         ) : null}
       </div>
     </section>
