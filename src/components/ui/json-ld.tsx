@@ -17,6 +17,7 @@ export function JsonLd({ data, id }: JsonLdProps) {
     <script
       id={id}
       type="application/ld+json"
+      // eslint-disable-next-line react/no-danger -- escaped above; only safe inline-script path
       dangerouslySetInnerHTML={{ __html: json }}
     />
   );

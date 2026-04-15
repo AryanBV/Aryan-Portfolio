@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   devIndicators: false,
+  poweredByHeader: false,
   async headers() {
     return [
       {
@@ -21,13 +22,19 @@ const nextConfig: NextConfig = {
             key: "Strict-Transport-Security",
             value: "max-age=31536000; includeSubDomains",
           },
+          {
+            key: "Cross-Origin-Opener-Policy",
+            value: "same-origin",
+          },
           // script-src / style-src retain 'unsafe-inline' deliberately:
-          // * No user-generated content is rendered on this site
-          // * External data (GitHub API) is Zod-validated at the boundary
-          // * Static generation preserves TTFB (dynamic SSR adds ~150ms)
-          // Removing 'unsafe-inline' requires nonce middleware + dynamic
-          // rendering for all pages + threading nonce through JSON-LD on
-          // detail pages — complexity not justified for current XSS surface.
+          // * External URLs are rendered via <SafeExternalLink>, which rejects non-http(s) schemes.
+          // * JSON-LD is rendered via <JsonLd>, which HTML-escapes </script>, <!--, <![CDATA[, and U+2028/9.
+          // * GitHub API responses are Zod-validated by githubResponseSchema at the boundary.
+          // * Long-text project/certificate fields go through safeLongText, which rejects breakout sequences.
+          // * tests/security.test.ts asserts every primitive + source-scans render sites for bypasses.
+          // * react/no-danger ESLint rule flags any new dangerouslySetInnerHTML at lint time.
+          // Removing 'unsafe-inline' entirely via nonce middleware remains possible but the
+          // +150ms SSR cost is not justified now that the XSS surface is structurally zero.
           {
             key: "Content-Security-Policy",
             value: [

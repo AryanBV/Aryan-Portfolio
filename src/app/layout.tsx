@@ -60,6 +60,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${geist.variable} ${geistMono.variable}`}>
+      {/* suppressHydrationWarning: browser extensions (dark reader, Grammarly) inject
+          attributes into <body> before hydration; this prevents false-positive warnings
+          without affecting any first-party attributes. */}
       <body suppressHydrationWarning>
         <a
           href="#main"
