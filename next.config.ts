@@ -21,6 +21,13 @@ const nextConfig: NextConfig = {
             key: "Strict-Transport-Security",
             value: "max-age=31536000; includeSubDomains",
           },
+          // script-src / style-src retain 'unsafe-inline' deliberately:
+          // * No user-generated content is rendered on this site
+          // * External data (GitHub API) is Zod-validated at the boundary
+          // * Static generation preserves TTFB (dynamic SSR adds ~150ms)
+          // Removing 'unsafe-inline' requires nonce middleware + dynamic
+          // rendering for all pages + threading nonce through JSON-LD on
+          // detail pages — complexity not justified for current XSS surface.
           {
             key: "Content-Security-Policy",
             value: [
@@ -31,6 +38,10 @@ const nextConfig: NextConfig = {
               "font-src 'self'",
               "connect-src 'self' https://api.emailjs.com https://va.vercel-scripts.com https://vitals.vercel-insights.com",
               "frame-ancestors 'none'",
+              "base-uri 'self'",
+              "object-src 'none'",
+              "form-action 'self'",
+              "upgrade-insecure-requests",
             ].join("; "),
           },
         ],
