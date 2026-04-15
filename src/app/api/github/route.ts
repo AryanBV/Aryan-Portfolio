@@ -1,55 +1,32 @@
 import { NextResponse } from "next/server";
-import { z } from "zod";
+import { safeFetch } from "@/lib/safe-fetch";
+import { reposSchema, contributionsSchema } from "@/lib/github-schema";
 
 const USERNAME = "AryanBV";
 const GITHUB_API = "https://api.github.com";
 
 type LangMap = Record<string, number>;
 
-// ─── Runtime schemas for upstream responses ──────────────────────────────────
-// GitHub and the contributions proxy are external systems — validate shape at
-// the boundary so the handler never operates on an untrusted cast.
-
-const repoSchema = z.object({
-  language: z.string().nullable(),
-  stargazers_count: z.number(),
-});
-const reposSchema = z.array(repoSchema);
-
-const contributionsSchema = z.object({
-  total: z
-    .object({
-      lastYear: z.number().optional(),
-    })
-    .optional(),
-});
-
 export async function GET() {
   // Repos are required — if this fails, return 503 (no useful data to show)
-  const reposRes = await fetch(
+  const reposResult = await safeFetch(
     `${GITHUB_API}/users/${USERNAME}/repos?per_page=100&type=public`,
+    reposSchema,
     {
       headers: { Accept: "application/vnd.github+json" },
       next: { revalidate: 3600 },
     },
   );
 
-  if (!reposRes.ok) {
-    return NextResponse.json(
-      { error: "GitHub API unavailable" },
-      { status: 503 },
-    );
+  if (!reposResult.ok) {
+    const status = reposResult.error === "schema" ? 502 : 503;
+    const error =
+      reposResult.error === "schema"
+        ? "GitHub API response shape unexpected"
+        : "GitHub API unavailable";
+    return NextResponse.json({ error }, { status });
   }
-
-  const rawRepos: unknown = await reposRes.json();
-  const reposParsed = reposSchema.safeParse(rawRepos);
-  if (!reposParsed.success) {
-    return NextResponse.json(
-      { error: "GitHub API response shape unexpected" },
-      { status: 502 },
-    );
-  }
-  const repos = reposParsed.data;
+  const repos = reposResult.data;
 
   const langMap: LangMap = {};
   for (const repo of repos) {
@@ -65,31 +42,31 @@ export async function GET() {
 
   const totalStars = repos.reduce((sum, r) => sum + r.stargazers_count, 0);
 
-  // Contributions are optional — degrade gracefully if this third-party API is down
-  let totalContributions = 544;
-  try {
-    const contribRes = await fetch(
-      `https://github-contributions-api.jogruber.de/v4/${USERNAME}?y=last`,
-      { next: { revalidate: 3600 } },
-    );
-    if (contribRes.ok) {
-      const rawContrib: unknown = await contribRes.json();
-      const contribParsed = contributionsSchema.safeParse(rawContrib);
-      if (contribParsed.success) {
-        totalContributions = contribParsed.data.total?.lastYear ?? 544;
-      }
-      // schema mismatch is non-fatal — keep default
-    }
-  } catch {
-    // non-fatal: keep default
+  // Contributions are optional — return null when the third-party proxy is
+  // unavailable. Never fabricate a number: the client renders '—' for null.
+  let totalContributions: number | null = null;
+  const contribResult = await safeFetch(
+    `https://github-contributions-api.jogruber.de/v4/${USERNAME}?y=last`,
+    contributionsSchema,
+    { next: { revalidate: 3600 } },
+  );
+  if (contribResult.ok) {
+    totalContributions = contribResult.data.total?.lastYear ?? null;
   }
 
-  return NextResponse.json({
-    publicRepos: repos.length,
-    totalStars,
-    totalContributions,
-    topLanguages,
-    totalLangRepos,
-    fetchedAt: new Date().toISOString(),
-  });
+  return NextResponse.json(
+    {
+      publicRepos: repos.length,
+      totalStars,
+      totalContributions,
+      topLanguages,
+      totalLangRepos,
+      fetchedAt: new Date().toISOString(),
+    },
+    {
+      headers: {
+        "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=1800",
+      },
+    },
+  );
 }

@@ -9,15 +9,8 @@ import {
   animate,
   useReducedMotion,
 } from "framer-motion";
-
-type GitHubData = {
-  publicRepos: number;
-  totalStars: number;
-  totalContributions: number;
-  totalLangRepos: number;
-  topLanguages: Array<{ name: string; count: number }>;
-  fetchedAt: string;
-};
+import { safeFetch } from "@/lib/safe-fetch";
+import { githubResponseSchema, type GitHubResponse } from "@/lib/github-schema";
 
 const EASING = [0.22, 1, 0.36, 1] as const;
 
@@ -62,26 +55,25 @@ export default function CodeStats() {
   const inView = useInView(ref, { once: true, margin: "-80px" });
   const prefersReducedMotion = useReducedMotion();
 
-  const [data, setData] = useState<GitHubData | null>(null);
+  const [data, setData] = useState<GitHubResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
   useEffect(() => {
     const controller = new AbortController();
-    fetch("/api/github", { signal: controller.signal })
-      .then((r) => {
-        if (!r.ok) throw new Error(`status ${r.status}`);
-        return r.json();
-      })
-      .then((d: GitHubData) => {
-        setData(d);
-        setLoading(false);
-      })
-      .catch((err) => {
-        if (err?.name === "AbortError") return;
+    safeFetch("/api/github", githubResponseSchema, {
+      signal: controller.signal,
+    }).then((result) => {
+      if (!result.ok) {
+        // External unmount abort — silently ignore so we don't flash an error
+        if (result.error === "network" && result.detail === "aborted") return;
         setError(true);
         setLoading(false);
-      });
+        return;
+      }
+      setData(result.data);
+      setLoading(false);
+    });
     return () => controller.abort();
   }, []);
 
@@ -217,11 +209,17 @@ export default function CodeStats() {
                     fontFamily: "var(--font-mono)",
                   }}
                 >
-                  <AnimatedNumber
-                    value={data.totalContributions}
-                    inView={inView}
-                  />
-                  <span style={{ color: "var(--accent)" }}>+</span>
+                  {data.totalContributions !== null ? (
+                    <>
+                      <AnimatedNumber
+                        value={data.totalContributions}
+                        inView={inView}
+                      />
+                      <span style={{ color: "var(--accent)" }}>+</span>
+                    </>
+                  ) : (
+                    <span style={{ color: "var(--text-muted)" }}>—</span>
+                  )}
                 </p>
                 <p
                   className="text-xs uppercase tracking-widest"
@@ -251,60 +249,60 @@ export default function CodeStats() {
                 >
                   Top Languages
                 </p>
-                {data.topLanguages.map(({ name, count }, i) => (
-                  <div key={name} className="flex flex-col gap-1">
-                    <div className="flex justify-between">
-                      <span
-                        className="text-xs"
-                        style={{
-                          color: "var(--text-secondary)",
-                          fontFamily: "var(--font-mono)",
-                        }}
+                {data.topLanguages.map(({ name, count }, i) => {
+                  const pct =
+                    data.totalLangRepos > 0
+                      ? (count / data.totalLangRepos) * 100
+                      : 0;
+                  return (
+                    <div key={name} className="flex flex-col gap-1">
+                      <div className="flex justify-between">
+                        <span
+                          className="text-xs"
+                          style={{
+                            color: "var(--text-secondary)",
+                            fontFamily: "var(--font-mono)",
+                          }}
+                        >
+                          {name}
+                        </span>
+                        <span
+                          className="text-xs"
+                          style={{
+                            color: "var(--text-muted)",
+                            fontFamily: "var(--font-mono)",
+                          }}
+                        >
+                          {Math.round(pct)}%
+                        </span>
+                      </div>
+                      <div
+                        className="w-full h-0.5"
+                        style={{ backgroundColor: "var(--border)" }}
                       >
-                        {name}
-                      </span>
-                      <span
-                        className="text-xs"
-                        style={{
-                          color: "var(--text-muted)",
-                          fontFamily: "var(--font-mono)",
-                        }}
-                      >
-                        {Math.round((count / data.totalLangRepos) * 100)}%
-                      </span>
+                        <motion.div
+                          className="h-0.5"
+                          style={{ backgroundColor: "var(--accent)" }}
+                          initial={{
+                            width: prefersReducedMotion ? `${pct}%` : 0,
+                          }}
+                          animate={
+                            inView
+                              ? { width: `${pct}%` }
+                              : {
+                                  width: prefersReducedMotion ? `${pct}%` : 0,
+                                }
+                          }
+                          transition={{
+                            duration: prefersReducedMotion ? 0 : 1,
+                            delay: prefersReducedMotion ? 0 : 0.3 + i * 0.08,
+                            ease: EASING,
+                          }}
+                        />
+                      </div>
                     </div>
-                    <div
-                      className="w-full h-0.5"
-                      style={{ backgroundColor: "var(--border)" }}
-                    >
-                      <motion.div
-                        className="h-0.5"
-                        style={{ backgroundColor: "var(--accent)" }}
-                        initial={{
-                          width: prefersReducedMotion
-                            ? `${(count / data.totalLangRepos) * 100}%`
-                            : 0,
-                        }}
-                        animate={
-                          inView
-                            ? {
-                                width: `${(count / data.totalLangRepos) * 100}%`,
-                              }
-                            : {
-                                width: prefersReducedMotion
-                                  ? `${(count / data.totalLangRepos) * 100}%`
-                                  : 0,
-                              }
-                        }
-                        transition={{
-                          duration: prefersReducedMotion ? 0 : 1,
-                          delay: prefersReducedMotion ? 0 : 0.3 + i * 0.08,
-                          ease: EASING,
-                        }}
-                      />
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </motion.div>
             <p

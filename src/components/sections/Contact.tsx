@@ -1,10 +1,11 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, useInView, useReducedMotion } from "framer-motion";
 import emailjs from "@emailjs/browser";
 import { FiGithub, FiLinkedin, FiSend } from "react-icons/fi";
 import { SafeExternalLink } from "@/components/ui/safe-external-link";
+import { contactFormSchema } from "@/lib/schema";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -13,6 +14,7 @@ type FormState = {
   email: string;
   inquiry: string;
   message: string;
+  website: string;
 };
 
 type FieldErrors = Partial<Record<keyof FormState, string>>;
@@ -41,6 +43,7 @@ const INITIAL_FORM: FormState = {
   email: "",
   inquiry: "",
   message: "",
+  website: "",
 };
 
 const INQUIRY_OPTIONS = [
@@ -63,27 +66,21 @@ const INPUT_BG: React.CSSProperties = {
 const SELECT_CHEVRON =
   "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23787068' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E\")";
 
-// ─── Validation ───────────────────────────────────────────────────────────────
-
-function validate(form: FormState): FieldErrors {
-  const errors: FieldErrors = {};
-  if (!form.name.trim()) errors.name = "Name is required";
-  if (!form.email.trim()) {
-    errors.email = "Please enter a valid email";
-  } else if (!/\S+@\S+\.\S+/.test(form.email)) {
-    errors.email = "Please enter a valid email";
-  }
-  if (!form.inquiry) errors.inquiry = "Please select an inquiry type";
-  if (!form.message.trim()) errors.message = "Message is required";
-  return errors;
-}
-
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function Contact() {
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
   const prefersReducedMotion = useReducedMotion();
+
+  // Captures after mount (not during render — Date.now is impure); used
+  // to silently drop bot submissions that fire in under 3s of the form
+  // becoming interactive. Until set, the zero default makes the min-time
+  // check a no-op so the form never silently drops a real early submit.
+  const renderedAt = useRef<number>(0);
+  useEffect(() => {
+    renderedAt.current = Date.now();
+  }, []);
 
   const [form, setForm] = useState<FormState>(INITIAL_FORM);
   const [status, setStatus] = useState<SubmitStatus>("idle");
@@ -109,12 +106,36 @@ export default function Contact() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    const errors = validate(form);
-    if (Object.keys(errors).length > 0) {
+    // (1) Honeypot — silently drop bot traffic that fills the hidden field
+    if (form.website.length > 0) {
+      setStatus("success");
+      setForm(INITIAL_FORM);
+      return;
+    }
+
+    // (2) Min-time — silently drop submissions under 3s (humans can't type
+    //     name + email + inquiry + message that fast). renderedAt===0 means
+    //     the mount effect hasn't run yet; treat as human.
+    if (renderedAt.current !== 0 && Date.now() - renderedAt.current < 3000) {
+      setStatus("success");
+      setForm(INITIAL_FORM);
+      return;
+    }
+
+    // (3) Schema validation — surface inline errors for humans
+    const parsed = contactFormSchema.safeParse(form);
+    if (!parsed.success) {
+      const errors: FieldErrors = {};
+      for (const issue of parsed.error.issues) {
+        const key = issue.path[0] as keyof FormState;
+        if (key === "website") continue;
+        if (!errors[key]) errors[key] = issue.message;
+      }
       setFieldErrors(errors);
       return;
     }
 
+    // (4) Send — honeypot `website` intentionally NOT forwarded to EmailJS
     setStatus("sending");
     setFieldErrors({});
 
@@ -123,11 +144,11 @@ export default function Contact() {
         process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
         process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!,
         {
-          from_name: form.name,
-          name: form.name,
-          from_email: form.email,
-          inquiry_type: form.inquiry,
-          message: form.message,
+          from_name: parsed.data.name,
+          name: parsed.data.name,
+          from_email: parsed.data.email,
+          inquiry_type: parsed.data.inquiry,
+          message: parsed.data.message,
         },
         process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!,
       );
@@ -225,6 +246,23 @@ export default function Contact() {
               noValidate
               className="flex flex-col gap-4"
             >
+              {/* Honeypot — hidden from humans and screen readers, bots fill it */}
+              <input
+                type="text"
+                name="website"
+                tabIndex={-1}
+                autoComplete="off"
+                aria-hidden="true"
+                value={form.website}
+                onChange={handleChange}
+                style={{
+                  position: "absolute",
+                  left: "-10000px",
+                  opacity: 0,
+                  pointerEvents: "none",
+                }}
+              />
+
               {/* Name */}
               <div className="flex flex-col gap-1">
                 <label
