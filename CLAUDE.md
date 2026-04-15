@@ -15,6 +15,7 @@ npm run dev        # Start dev server (Turbopack)
 npm run build      # Production build
 npm run start      # Serve production build locally
 npm run lint       # ESLint
+npm run test       # Vitest — projects schema + derived accessor tests
 ```
 
 ## File Structure
@@ -43,6 +44,11 @@ src/
 │       ├── Certificates.tsx    # Certification cards with verify links
 │       └── Contact.tsx         # EmailJS contact form + social links
 └── lib/                        # (empty — reserved for utilities)
+tests/
+└── projects.test.ts            # Zod schema + derived accessor tests
+.github/
+└── workflows/
+    └── ci.yml                  # Lint + tsc + test + build on push/PR
 ```
 
 ## Key Patterns
@@ -54,14 +60,16 @@ src/
 - **GitHub data:** Client fetches `/api/github` (same-origin). Server calls GitHub API + contributions API.
 - **Fonts:** Geist Sans + Geist Mono via `next/font/google` (self-hosted at build time).
 - **Contact form:** EmailJS (`@emailjs/browser`), client-side validation, env vars for keys.
+- **Tests:** Vitest, node env, `tests/**/*.test.ts`. Import `describe`/`it`/`expect` explicitly (no globals).
 
 ## Config Files
 
-- `next.config.ts` — security headers, devIndicators
+- `next.config.ts` — security headers (CSP, HSTS, Permissions-Policy, frame/object/form lockdown), devIndicators
 - `tsconfig.json` — `@/` path alias → `src/`
 - `globals.css` — Tailwind v4 (`@import "tailwindcss"`), CSS custom properties
 - `.gitattributes` — enforce LF line endings repo-wide (prevents Windows autocrlf phantoms)
 - `.editorconfig` — editor-level LF + UTF-8 + 2-space policy, complement to `.gitattributes`
+- `vitest.config.ts` — Vitest runner config (node env, `@/` alias matching tsconfig)
 
 ## External Services
 
