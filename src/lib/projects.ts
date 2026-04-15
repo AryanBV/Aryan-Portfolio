@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { safeUrlSchema, safeImagePathSchema, safeLongText } from "@/lib/schema";
 
 // ─── Project data (shared between homepage cards + case study pages) ─────────
 
@@ -51,17 +52,17 @@ const projectStatusSchema = z.enum(["Live", "Prototype"]);
 
 const projectSchema = z.object({
   slug: z.string().regex(/^[a-z0-9-]+$/, "slug must be kebab-case"),
-  title: z.string().min(1),
-  tagline: z.string().min(1),
-  description: z.string().min(1),
+  title: safeLongText,
+  tagline: safeLongText,
+  description: safeLongText,
   status: projectStatusSchema,
   kind: projectKindSchema,
   tech: z.array(z.string().min(1)).min(1),
   links: z.object({
-    live: z.url().optional(),
-    github: z.url().optional(),
+    live: safeUrlSchema.optional(),
+    github: safeUrlSchema.optional(),
   }),
-  image: z.string().startsWith("/").optional(),
+  image: safeImagePathSchema.optional(),
   install: z
     .array(
       z.object({
@@ -81,15 +82,15 @@ const projectSchema = z.object({
   terminalPreview: z.array(z.string()).optional(),
   caseStudy: z
     .object({
-      tagline: z.string().min(1),
-      challenge: z.string().min(1),
-      approach: z.string().min(1),
-      impact: z.string().min(1),
+      tagline: safeLongText,
+      challenge: safeLongText,
+      approach: safeLongText,
+      impact: safeLongText,
       techDetails: z
         .array(
           z.object({
             name: z.string().min(1),
-            reason: z.string().min(1),
+            reason: safeLongText,
           }),
         )
         .min(1),

@@ -11,6 +11,8 @@ import { DeviceFrame } from "@/components/ui/device-frame";
 import { InstallSnippet } from "@/components/ui/install-snippet";
 import { TerminalFrame } from "@/components/ui/terminal-frame";
 import { TerminalTranscript } from "@/components/ui/terminal-transcript";
+import { JsonLd } from "@/components/ui/json-ld";
+import { SafeExternalLink } from "@/components/ui/safe-external-link";
 
 // ─── Static generation ──────────────────────────────────────────────────────
 
@@ -167,12 +169,7 @@ export default async function CaseStudyPage({
       className="py-12 md:py-20 lg:py-28 px-4 sm:px-6 md:px-8 lg:px-16"
       style={{ backgroundColor: "var(--bg-base)" }}
     >
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(getProjectJsonLd(project)),
-        }}
-      />
+      <JsonLd data={getProjectJsonLd(project)} id={`ld-${project.slug}`} />
       <div className="max-w-3xl mx-auto space-y-12 md:space-y-16 lg:space-y-20">
         {/* ── Back nav ─────────────────────────────────────────────── */}
         <nav>
@@ -229,24 +226,20 @@ export default async function CaseStudyPage({
 
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
             {project.links.live && (
-              <a
+              <SafeExternalLink
                 href={project.links.live}
-                target="_blank"
-                rel="noopener noreferrer"
                 className="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors duration-200"
               >
                 {getLiveLinkLabel(project.kind)} &#8599;
-              </a>
+              </SafeExternalLink>
             )}
             {project.links.github && (
-              <a
+              <SafeExternalLink
                 href={project.links.github}
-                target="_blank"
-                rel="noopener noreferrer"
                 className="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors duration-200"
               >
                 Source Code &#8599;
-              </a>
+              </SafeExternalLink>
             )}
           </div>
         </header>

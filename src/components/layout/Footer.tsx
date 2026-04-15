@@ -1,6 +1,7 @@
 "use client";
 
 import { FiGithub, FiLinkedin } from "react-icons/fi";
+import { SafeExternalLink } from "@/components/ui/safe-external-link";
 
 const SOCIAL_LINKS = {
   github: "https://github.com/AryanBV",
@@ -19,24 +20,20 @@ export default function Footer() {
         </p>
 
         <div className="flex items-center gap-5">
-          <a
+          <SafeExternalLink
             href={SOCIAL_LINKS.github}
-            target="_blank"
-            rel="noopener noreferrer"
             aria-label="GitHub"
             className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
           >
             <FiGithub size={18} />
-          </a>
-          <a
+          </SafeExternalLink>
+          <SafeExternalLink
             href={SOCIAL_LINKS.linkedin}
-            target="_blank"
-            rel="noopener noreferrer"
             aria-label="LinkedIn"
             className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
           >
             <FiLinkedin size={18} />
-          </a>
+          </SafeExternalLink>
         </div>
       </div>
     </footer>

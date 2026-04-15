@@ -6,6 +6,7 @@ import Image from "next/image";
 import { DeviceFrame } from "@/components/ui/device-frame";
 import { TerminalFrame } from "@/components/ui/terminal-frame";
 import { TerminalTranscript } from "@/components/ui/terminal-transcript";
+import { SafeExternalLink } from "@/components/ui/safe-external-link";
 import {
   getFeaturedProject,
   getRestProjects,
@@ -117,24 +118,14 @@ function ProjectLinks({ project }: { project: Project }) {
         </a>
       )}
       {project.links.live && (
-        <a
-          href={project.links.live}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={linkClass}
-        >
+        <SafeExternalLink href={project.links.live} className={linkClass}>
           {liveLinkLabel} &#8599;
-        </a>
+        </SafeExternalLink>
       )}
       {project.links.github && (
-        <a
-          href={project.links.github}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={linkClass}
-        >
+        <SafeExternalLink href={project.links.github} className={linkClass}>
           Source Code &#8599;
-        </a>
+        </SafeExternalLink>
       )}
     </div>
   );

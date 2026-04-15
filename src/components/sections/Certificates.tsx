@@ -4,54 +4,8 @@ import { useRef } from "react";
 import { motion, useInView, useReducedMotion } from "framer-motion";
 import { FiExternalLink } from "react-icons/fi";
 import Image from "next/image";
-
-// ─── Data ──────────────────────────────────────────────────────────────────────
-
-type Certificate = {
-  id: string;
-  name: string;
-  code: string;
-  issuer: string;
-  issued: string;
-  verifyUrl?: string;
-  image: string;
-  description: string;
-};
-
-const CERTIFICATES: Certificate[] = [
-  {
-    id: "az-900-ai",
-    name: "Microsoft Azure AI Fundamentals (AI-900)",
-    code: "AI-900",
-    issuer: "Microsoft",
-    issued: "2024",
-    verifyUrl:
-      "https://learn.microsoft.com/api/credentials/share/en-us/AryanSalian-4114/878ECBC7C3BE4794?sharingId=D3203799C3E8D012",
-    image: "/images/microsoft-cert.png",
-    description:
-      "Core AI and machine learning concepts on Microsoft Azure — covering ML workloads, computer vision, NLP, and generative AI fundamentals.",
-  },
-  {
-    id: "apna-alpha",
-    name: "Java & Data Structures — Alpha Batch",
-    code: "ALPHA",
-    issuer: "Apna College",
-    issued: "2023",
-    image: "/images/alpha-certificate.png",
-    description:
-      "Comprehensive Java and Data Structures & Algorithms course — covering arrays, linked lists, trees, graphs, dynamic programming, OOP, and placement-ready problem solving.",
-  },
-  {
-    id: "apna-delta",
-    name: "Full Stack Web Development — Delta Batch",
-    code: "DELTA",
-    issuer: "Apna College",
-    issued: "2024",
-    image: "/images/delta-certificate.png",
-    description:
-      "Complete MERN stack development — HTML, CSS, JavaScript, Node.js, Express.js, React, MongoDB, REST APIs, and full-stack deployment.",
-  },
-];
+import { certificates } from "@/lib/certificates";
+import { SafeExternalLink } from "@/components/ui/safe-external-link";
 
 // ─── Animation ─────────────────────────────────────────────────────────────────
 
@@ -121,7 +75,7 @@ export default function Certificates() {
           }}
           className="grid grid-cols-1 md:grid-cols-3 gap-6"
         >
-          {CERTIFICATES.map((cert) => (
+          {certificates.map((cert) => (
             <div
               key={cert.id}
               className="flex flex-col overflow-hidden card-shadow rounded-lg"
@@ -169,15 +123,13 @@ export default function Certificates() {
                     </p>
                   </div>
                   {cert.verifyUrl && (
-                    <a
+                    <SafeExternalLink
                       href={cert.verifyUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
                       aria-label={`Verify ${cert.name} certificate`}
                       className="shrink-0 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
                     >
                       <FiExternalLink size={16} />
-                    </a>
+                    </SafeExternalLink>
                   )}
                 </div>
                 <div style={{ borderTop: "1px solid var(--border)" }} />

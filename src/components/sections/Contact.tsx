@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { motion, useInView, useReducedMotion } from "framer-motion";
 import emailjs from "@emailjs/browser";
 import { FiGithub, FiLinkedin, FiSend } from "react-icons/fi";
+import { SafeExternalLink } from "@/components/ui/safe-external-link";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -438,16 +439,14 @@ export default function Contact() {
             </p>
 
             {SOCIAL_LINKS.map(({ label, href, icon: Icon }) => (
-              <a
+              <SafeExternalLink
                 key={label}
                 href={href}
-                target="_blank"
-                rel="noopener noreferrer"
                 className="inline-flex items-center gap-3 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
               >
                 <Icon size={16} />
                 {label}
-              </a>
+              </SafeExternalLink>
             ))}
 
             {/* Divider */}
