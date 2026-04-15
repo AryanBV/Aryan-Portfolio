@@ -11,6 +11,7 @@ import {
   getRestProjects,
   getProjectCaseStudyRoute,
   type Project,
+  type ProjectMetric,
   type ProjectStatus,
 } from "@/lib/projects";
 
@@ -69,6 +70,29 @@ function TechPill({ label }: { label: string }) {
     >
       {label}
     </span>
+  );
+}
+
+// ─── Metric row ────────────────────────────────────────────────────────────────
+
+function MetricRow({ metrics }: { metrics: ProjectMetric[] }) {
+  return (
+    <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+      {metrics.map((m) => (
+        <span
+          key={m.label}
+          className="text-xs"
+          style={{ fontFamily: "var(--font-mono)" }}
+        >
+          <span style={{ color: "var(--accent)", fontWeight: 600 }}>
+            {m.value}
+          </span>
+          <span className="ml-1" style={{ color: "var(--text-muted)" }}>
+            {m.label}
+          </span>
+        </span>
+      ))}
+    </div>
   );
 }
 
@@ -237,6 +261,10 @@ function FeaturedCard({
           </p>
         </div>
 
+        {project.metrics && project.metrics.length > 0 && (
+          <MetricRow metrics={project.metrics} />
+        )}
+
         <div className="flex flex-wrap gap-2">
           {project.tech.map((t) => (
             <TechPill key={t} label={t} />
@@ -294,6 +322,10 @@ function ProjectCard({
               {project.description}
             </p>
           </div>
+
+          {project.metrics && project.metrics.length > 0 && (
+            <MetricRow metrics={project.metrics} />
+          )}
         </div>
 
         <div className="flex flex-col gap-4">
