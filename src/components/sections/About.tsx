@@ -103,9 +103,33 @@ export default function About() {
               className="text-base md:text-lg leading-relaxed"
               style={{ color: "var(--text-secondary)" }}
             >
-              I&apos;m a full-stack developer and AI/ML engineer based in
-              Bangalore, working with Next.js, React, Supabase, and Claude API.
-              I&apos;m open to freelance projects and full-time opportunities.
+              The PDF trilogy came from going a layer deeper when the shallow
+              fix wasn&apos;t enough. I started with pdf-toolkit-mcp — a
+              zero-config MCP server for everyday PDF tasks like
+              Markdown-to-PDF, merging, and form filling — and hit the limits of
+              existing PDF editing libraries, which cover the original text with
+              a white rectangle and stamp replacements in a substitute font,
+              silently destroying fonts and kerning. So I built pdf-edit-engine,
+              a Python library that modifies content-stream operators in place
+              and keeps fonts, kerning, and pixel positioning intact, shipped to
+              PyPI with 628 tests under mypy strict, validated across seven PDF
+              generators. Then I wrapped the engine in pdf-edit-mcp so AI agents
+              get the same format-preserving editing through 38 tools with
+              Zod-validated inputs and a long-running Python bridge. Same habit
+              as AJSP, applied to a different kind of problem: go deep enough to
+              actually fix it.
+            </motion.p>
+
+            <motion.p
+              variants={itemVariants}
+              className="text-base md:text-lg leading-relaxed"
+              style={{ color: "var(--text-secondary)" }}
+            >
+              Whether it&apos;s a family business running on paper or a PDF
+              library that covers text with a rectangle, the habit is the same:
+              find the real problem, build what actually fixes it, ship it with
+              enough discipline to trust the result. Based in Bangalore, open to
+              freelance projects and full-time roles.
             </motion.p>
           </div>
 
