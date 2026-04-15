@@ -7,6 +7,15 @@ const GITHUB_API = "https://api.github.com";
 
 type LangMap = Record<string, number>;
 
+// Opt into ISR at the segment level. Route handlers are dynamic by default
+// in Next 15+, which means explicit s-maxage / stale-while-revalidate in
+// NextResponse.json headers get stripped (Next drops caching directives
+// from dynamic routes). This export tells Next the response is cacheable
+// for 1 hour, and Next auto-generates the correct Cache-Control header.
+// The literal 3600 must match `next: { revalidate: 3600 }` on the fetch
+// below — the lower of the two values wins per Next's fetch docs.
+export const revalidate = 3600;
+
 export async function GET() {
   // Repos are required — if this fails, return 503 (no useful data to show)
   const reposResult = await safeFetch(
@@ -54,19 +63,12 @@ export async function GET() {
     totalContributions = contribResult.data.total?.lastYear ?? null;
   }
 
-  return NextResponse.json(
-    {
-      publicRepos: repos.length,
-      totalStars,
-      totalContributions,
-      topLanguages,
-      totalLangRepos,
-      fetchedAt: new Date().toISOString(),
-    },
-    {
-      headers: {
-        "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=1800",
-      },
-    },
-  );
+  return NextResponse.json({
+    publicRepos: repos.length,
+    totalStars,
+    totalContributions,
+    topLanguages,
+    totalLangRepos,
+    fetchedAt: new Date().toISOString(),
+  });
 }
