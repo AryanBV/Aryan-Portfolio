@@ -3,22 +3,21 @@ import Marquee from "@/components/sections/Marquee";
 import Projects from "@/components/sections/Projects";
 import About from "@/components/sections/About";
 import Skills from "@/components/sections/Skills";
-import Certificates from "@/components/sections/Certificates";
 import Stats from "@/components/sections/Stats";
+import Certificates from "@/components/sections/Certificates";
 import Contact from "@/components/sections/Contact";
 import ScrollProgress from "@/components/ui/ScrollProgress";
 import ScrollToTop from "@/components/ui/ScrollToTop";
 import ConsoleSignature from "@/components/ui/ConsoleSignature";
 
-// Section order (Order E from audit):
+// Section order — locked per user preference:
 //
 //   Hero → Marquee → Projects (01) → About (02) → Skills (03)
-//        → Certs (04) → Stats (05) → Contact (06)
+//        → Stats (04) → Certs (05) → Contact (06)
 //
-// Rationale: Stats sits directly before Contact so the "active developer
-// who ships consistently" signal is the last thing a prospective client
-// sees before the CTA. Skills → Certs → Stats reads as a natural
-// progression: what I use → formal validation → ongoing practice.
+// This matches the navbar numbering 1:1. Do not swap Stats and Certs —
+// that's a decision already made and revisited, see
+// .claude/.../memory/feedback_section_order.md.
 export default function Home() {
   return (
     <>
@@ -29,8 +28,8 @@ export default function Home() {
       <Projects />
       <About />
       <Skills />
-      <Certificates />
       <Stats />
+      <Certificates />
       <Contact />
       <ScrollToTop />
     </>
