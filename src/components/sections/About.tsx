@@ -1,207 +1,289 @@
 "use client";
 
-import { useRef } from "react";
-import { motion, useInView, useReducedMotion } from "framer-motion";
+import Reveal from "@/components/ui/Reveal";
+import SpotCard from "@/components/ui/SpotCard";
+import MagneticLink from "@/components/ui/MagneticLink";
+
+// Facts grid rendered in the education card. Extending to include the AI-900
+// cert means the existing Certificates section still lists the full record
+// while this card gives the highlight in context.
+const FACTS: Array<[label: string, value: string]> = [
+  ["Duration", "2021–25"],
+  ["Location", "Bangalore"],
+  ["Cert", "Azure AI-900"],
+  ["Grad", "2025"],
+];
 
 export default function About() {
-  const ref = useRef<HTMLElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
-  const prefersReducedMotion = useReducedMotion();
-
-  const sectionVariants = prefersReducedMotion
-    ? { hidden: {}, visible: {} }
-    : { hidden: {}, visible: { transition: { staggerChildren: 0.1 } } };
-
-  const itemVariants = prefersReducedMotion
-    ? {
-        hidden: { opacity: 0 },
-        visible: { opacity: 1, transition: { duration: 0.3 } },
-      }
-    : {
-        hidden: { opacity: 0, y: 20 },
-        visible: {
-          opacity: 1,
-          y: 0,
-          transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as const },
-        },
-      };
-
   return (
     <section
-      ref={ref}
       id="about"
-      className="py-12 md:py-20 lg:py-28 px-4 sm:px-6 md:px-8 lg:px-16"
+      className="py-16 md:py-24 lg:py-32 relative z-[2] overflow-hidden"
     >
-      <div className="max-w-6xl mx-auto">
-        {/* Section eyebrow */}
-        <motion.p
-          initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 12 }}
-          animate={
-            inView
-              ? { opacity: 1, y: 0 }
-              : { opacity: 0, y: prefersReducedMotion ? 0 : 12 }
-          }
-          transition={{ duration: prefersReducedMotion ? 0.3 : 0.5 }}
-          className="text-xs tracking-[0.2em] uppercase mb-4"
-          style={{ color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}
-        >
-          About
-        </motion.p>
-
-        <motion.h2
-          initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 16 }}
-          animate={
-            inView
-              ? { opacity: 1, y: 0 }
-              : { opacity: 0, y: prefersReducedMotion ? 0 : 16 }
-          }
-          transition={{
-            duration: prefersReducedMotion ? 0.3 : 0.6,
-            delay: prefersReducedMotion ? 0 : 0.05,
-            ease: [0.22, 1, 0.36, 1],
-          }}
-          className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-8 md:mb-12"
-          style={{ color: "var(--text-primary)" }}
-        >
-          The story behind the code.
-        </motion.h2>
-
-        <motion.div
-          variants={sectionVariants}
-          initial="hidden"
-          animate={inView ? "visible" : "hidden"}
-          className="flex flex-col gap-8 lg:gap-12"
-        >
-          {/* Story text */}
-          <div className="max-w-2xl flex flex-col gap-6">
-            <motion.p
-              variants={itemVariants}
-              className="text-base md:text-lg leading-relaxed"
-              style={{ color: "var(--text-secondary)" }}
-            >
-              I grew up in Kodagu, Karnataka, where my family runs Amar Jyothi
-              Spare Parts — an automotive parts retail business. Watching
-              purchases get tracked in paper notebooks, supplier records filed
-              away in cabinets, and the entire stock counted by hand every six
-              months showed me firsthand how much time manual processes consume.
-            </motion.p>
-
-            <motion.p
-              variants={itemVariants}
-              className="text-base md:text-lg leading-relaxed"
-              style={{ color: "var(--text-secondary)" }}
-            >
-              So I built AJSP Manager — a full-stack PWA that replaced that
-              15-year paper workflow. It&apos;s been in daily production use
-              since launch. That experience shaped how I approach every project:
-              start with a real problem, build something that actually gets
-              used.
-            </motion.p>
-
-            <motion.p
-              variants={itemVariants}
-              className="text-base md:text-lg leading-relaxed"
-              style={{ color: "var(--text-secondary)" }}
-            >
-              The PDF trilogy came from going a layer deeper when the shallow
-              fix wasn&apos;t enough. I started with pdf-toolkit-mcp — a
-              zero-config MCP server for everyday PDF tasks like
-              Markdown-to-PDF, merging, and form filling — and hit the limits of
-              existing PDF editing libraries, which cover the original text with
-              a white rectangle and stamp replacements in a substitute font,
-              silently destroying fonts and kerning. So I built pdf-edit-engine,
-              a Python library that modifies content-stream operators in place
-              and keeps fonts, kerning, and pixel positioning intact, shipped to
-              PyPI with 628 tests under mypy strict, validated across seven PDF
-              generators. Then I wrapped the engine in pdf-edit-mcp so AI agents
-              get the same format-preserving editing through 38 tools with
-              Zod-validated inputs and a long-running Python bridge. Same habit
-              as AJSP, applied to a different kind of problem: go deep enough to
-              actually fix it.
-            </motion.p>
-
-            <motion.p
-              variants={itemVariants}
-              className="text-base md:text-lg leading-relaxed"
-              style={{ color: "var(--text-secondary)" }}
-            >
-              Whether it&apos;s a family business running on paper or a PDF
-              library that covers text with a rectangle, the habit is the same:
-              find the real problem, build what actually fixes it, ship it with
-              enough discipline to trust the result. Based in Bangalore, open to
-              freelance projects and full-time roles.
-            </motion.p>
-          </div>
-
-          {/* Education card */}
-          <motion.div variants={itemVariants} className="max-w-2xl">
-            <div
-              className="p-6 rounded-lg flex flex-col gap-5 card-shadow"
-              style={{
-                backgroundColor: "var(--bg-surface)",
-                border: "1px solid var(--border)",
-              }}
-            >
-              {/* Card header */}
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p
-                    className="text-xs tracking-widest uppercase mb-2"
-                    style={{
-                      color: "var(--text-muted)",
-                      fontFamily: "var(--font-mono)",
-                    }}
-                  >
-                    Education
-                  </p>
-                  <h3
-                    className="text-lg font-semibold"
-                    style={{ color: "var(--text-primary)" }}
-                  >
-                    B.Tech — Artificial Intelligence & Machine Learning
-                  </h3>
-                  <p
-                    className="text-sm mt-1"
-                    style={{ color: "var(--text-secondary)" }}
-                  >
-                    M S Ramaiah University of Applied Sciences
-                  </p>
-                </div>
+      {/* Ambient wash — mirrors Stats, keeps visual rhythm consistent */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          top: "20%",
+          left: "-12%",
+          width: "45%",
+          aspectRatio: "1",
+          background:
+            "radial-gradient(circle at center, rgba(245,166,35,0.06), transparent 55%)",
+          pointerEvents: "none",
+          zIndex: 0,
+          filter: "blur(40px)",
+        }}
+      />
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 relative z-[1]">
+        <div className="grid grid-cols-1 lg:grid-cols-[0.7fr_1.3fr] gap-8 lg:gap-16">
+          {/* Left: eyebrow + title + currently */}
+          <Reveal>
+            <div>
+              <div className="eyebrow-line">
+                <span className="section-number">03</span>
+                <span>About</span>
               </div>
+              <h2
+                style={{
+                  fontSize: "var(--fluid-h2)",
+                  fontWeight: 600,
+                  letterSpacing: "-0.025em",
+                  lineHeight: 1.05,
+                  margin: "20px 0 0",
+                }}
+              >
+                The story behind
+                <br />
+                <span
+                  style={{
+                    color: "var(--accent)",
+                    fontStyle: "italic",
+                    fontWeight: 400,
+                  }}
+                >
+                  the code.
+                </span>
+              </h2>
+              <div
+                style={{
+                  marginTop: 32,
+                  paddingLeft: 24,
+                  borderLeft: "1px solid var(--accent-subtle)",
+                }}
+              >
+                <p
+                  style={{
+                    fontSize: 11,
+                    color: "var(--accent)",
+                    letterSpacing: "0.2em",
+                    textTransform: "uppercase",
+                    margin: 0,
+                    fontFamily: "var(--font-mono)",
+                  }}
+                >
+                  Currently
+                </p>
+                <p
+                  style={{
+                    fontSize: 15,
+                    color: "var(--text-secondary)",
+                    margin: "8px 0 0",
+                    lineHeight: 1.55,
+                  }}
+                >
+                  Shipping the PDF trilogy. Open to full-time SWE roles in
+                  Bangalore or remote. Interested in infra + developer tools.
+                </p>
+              </div>
+            </div>
+          </Reveal>
 
-              {/* Divider */}
-              <div style={{ borderTop: "1px solid var(--border)" }} />
+          {/* Right: narrative + education */}
+          <div className="flex flex-col gap-6 md:gap-7">
+            <Reveal>
+              <p
+                style={{
+                  fontSize: 17,
+                  lineHeight: 1.7,
+                  color: "var(--text-secondary)",
+                  margin: 0,
+                }}
+              >
+                I grew up in Kodagu, Karnataka, where my family runs{" "}
+                <MagneticLink
+                  href="#projects"
+                  style={{
+                    color: "var(--text-primary)",
+                    fontWeight: 500,
+                    display: "inline",
+                  }}
+                >
+                  Amar Jyothi Spare Parts
+                </MagneticLink>{" "}
+                — an automotive retail business. Watching purchases tracked in
+                paper notebooks, supplier records filed in cabinets, and the
+                entire stock counted by hand every six months showed me how much
+                time manual processes consume.
+              </p>
+            </Reveal>
+            <Reveal>
+              <p
+                style={{
+                  fontSize: 17,
+                  lineHeight: 1.7,
+                  color: "var(--text-secondary)",
+                  margin: 0,
+                }}
+              >
+                So I built{" "}
+                <strong
+                  style={{ color: "var(--text-primary)", fontWeight: 500 }}
+                >
+                  AJSP Manager
+                </strong>{" "}
+                — a full-stack PWA that replaced that 15-year paper workflow.
+                It&apos;s been in daily production use since launch. That
+                experience shaped how I approach every project:{" "}
+                <em
+                  style={{
+                    color: "var(--text-primary)",
+                    fontStyle: "italic",
+                  }}
+                >
+                  start with a real problem, build something that actually gets
+                  used
+                </em>
+                .
+              </p>
+            </Reveal>
+            <Reveal>
+              <p
+                style={{
+                  fontSize: 17,
+                  lineHeight: 1.7,
+                  color: "var(--text-secondary)",
+                  margin: 0,
+                }}
+              >
+                The{" "}
+                <strong
+                  style={{ color: "var(--text-primary)", fontWeight: 500 }}
+                >
+                  PDF trilogy
+                </strong>{" "}
+                came from going a layer deeper when the shallow fix wasn&apos;t
+                enough. I started with pdf-toolkit-mcp, hit the limits of
+                existing PDF libraries, and built pdf-edit-engine — a Python
+                library that modifies content-stream operators in place and
+                keeps fonts, kerning, and pixel positioning intact.
+              </p>
+            </Reveal>
 
-              {/* Meta row */}
-              <div className="grid grid-cols-2 gap-4">
-                {[
-                  { label: "Year", value: "2021 – 2025" },
-                  { label: "GPA", value: "8.0 / 10" },
-                  { label: "Location", value: "Bangalore, IN" },
-                  { label: "Certification", value: "Azure AI-900" },
-                ].map(({ label, value }) => (
-                  <div key={label}>
+            <Reveal>
+              <SpotCard style={{ marginTop: 12, padding: 0 }}>
+                <div
+                  className="flex items-center justify-between flex-wrap gap-4"
+                  style={{
+                    padding: "24px 28px",
+                    borderBottom: "1px solid var(--divider)",
+                  }}
+                >
+                  <div>
                     <p
-                      className="text-xs uppercase tracking-wider mb-1"
                       style={{
-                        color: "var(--text-muted)",
+                        fontSize: 10,
+                        color: "var(--accent)",
+                        letterSpacing: "0.25em",
+                        textTransform: "uppercase",
+                        margin: 0,
                         fontFamily: "var(--font-mono)",
                       }}
                     >
-                      {label}
+                      Education
                     </p>
-                    <p
-                      className="text-sm"
-                      style={{ color: "var(--text-primary)" }}
+                    <h3
+                      style={{
+                        fontSize: 18,
+                        fontWeight: 500,
+                        color: "var(--text-primary)",
+                        margin: "8px 0 0",
+                        letterSpacing: "-0.01em",
+                      }}
                     >
-                      {value}
+                      B.Tech · AI/ML
+                    </h3>
+                    <p
+                      style={{
+                        fontSize: 14,
+                        color: "var(--text-secondary)",
+                        margin: "4px 0 0",
+                      }}
+                    >
+                      M S Ramaiah University of Applied Sciences
                     </p>
                   </div>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-        </motion.div>
+                  <div
+                    style={{
+                      fontSize: 44,
+                      fontWeight: 300,
+                      color: "var(--accent)",
+                      letterSpacing: "-0.04em",
+                      lineHeight: 1,
+                      fontFamily: "var(--font-mono)",
+                    }}
+                  >
+                    8.0
+                    <span
+                      style={{
+                        fontSize: 16,
+                        color: "var(--text-muted)",
+                        fontWeight: 400,
+                      }}
+                    >
+                      /10
+                    </span>
+                  </div>
+                </div>
+                <div
+                  className="grid grid-cols-2 sm:grid-cols-4 gap-4"
+                  style={{
+                    padding: "20px 28px",
+                    background: "var(--bg-base)",
+                  }}
+                >
+                  {FACTS.map(([l, v]) => (
+                    <div key={l}>
+                      <p
+                        style={{
+                          fontSize: 9,
+                          color: "var(--text-muted)",
+                          letterSpacing: "0.2em",
+                          textTransform: "uppercase",
+                          margin: 0,
+                          fontFamily: "var(--font-mono)",
+                        }}
+                      >
+                        {l}
+                      </p>
+                      <p
+                        style={{
+                          fontSize: 14,
+                          color: "var(--text-primary)",
+                          margin: "6px 0 0",
+                          fontWeight: 500,
+                        }}
+                      >
+                        {v}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </SpotCard>
+            </Reveal>
+          </div>
+        </div>
       </div>
     </section>
   );

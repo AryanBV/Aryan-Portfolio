@@ -1,438 +1,307 @@
 "use client";
 
-import { useRef } from "react";
-import { motion, useInView, useReducedMotion } from "framer-motion";
-import Image from "next/image";
-import { DeviceFrame } from "@/components/ui/device-frame";
-import { TerminalFrame } from "@/components/ui/terminal-frame";
-import { TerminalTranscript } from "@/components/ui/terminal-transcript";
-import { SafeExternalLink } from "@/components/ui/safe-external-link";
+import Reveal from "@/components/ui/Reveal";
+import SpotCard from "@/components/ui/SpotCard";
+import TerminalPreview from "@/components/ui/TerminalPreview";
+import BrowserPreview from "@/components/ui/BrowserPreview";
+import MagneticLink from "@/components/ui/MagneticLink";
 import {
-  getFeaturedProject,
-  getRestProjects,
-  getProjectCaseStudyRoute,
+  ArrowRight,
+  ArrowUpRight,
+  Github,
+  External,
+} from "@/components/ui/Icons";
+import {
+  projects,
   type Project,
-  type ProjectMetric,
-  type ProjectStatus,
+  getProjectCaseStudyRoute,
 } from "@/lib/projects";
 
-// ─── Animation variants ────────────────────────────────────────────────────────
-
-const EASING = [0.22, 1, 0.36, 1] as const;
-
-// Variants are defined inside the component to access useReducedMotion
-
-// ─── Live-link label derivation ────────────────────────────────────────────────
-
-function getLiveLinkLabel(kind: Project["kind"]): string {
-  switch (kind) {
-    case "library":
-      return "View on PyPI";
-    case "mcp-server":
-    case "cli":
-      return "View on npm";
-    case "web-app":
-    default:
-      return "View Live";
-  }
+function liveLinkLabel(p: Project): string {
+  if (p.kind === "library") return "PyPI";
+  if (p.kind === "mcp-server" || p.kind === "cli") return "npm";
+  return "Live";
 }
 
-// ─── Status badge ──────────────────────────────────────────────────────────────
+interface ProjectCardProps {
+  project: Project;
+  index: number;
+  idx: string;
+}
 
-const STATUS_COLORS: Record<ProjectStatus, { color: string; bg: string }> = {
-  Live: { color: "var(--status-live)", bg: "var(--accent-dim)" },
-  Prototype: { color: "var(--text-muted)", bg: "var(--bg-elevated)" },
-};
-
-function StatusBadge({ status }: { status: ProjectStatus }) {
-  const { color, bg } = STATUS_COLORS[status];
+function StatusBadge({ status }: { status: Project["status"] }) {
+  const isLive = status === "Live";
   return (
-    <span
-      className="inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-full"
-      style={{ color, backgroundColor: bg }}
-    >
+    <span className={`status-chip-v2 ${isLive ? "live" : "other"}`}>
+      <span
+        style={{
+          width: 6,
+          height: 6,
+          borderRadius: "50%",
+          background: isLive ? "var(--status-live)" : "var(--text-muted)",
+          boxShadow: isLive ? "0 0 8px var(--status-live)" : "none",
+        }}
+      />
       {status}
     </span>
   );
 }
 
-// ─── Tech pill ─────────────────────────────────────────────────────────────────
+function ProjectCard({ project: p, index, idx }: ProjectCardProps) {
+  const isCode = p.kind !== "web-app";
+  const layout: "left" | "right" = index % 2 === 0 ? "left" : "right";
+  const caseStudy = getProjectCaseStudyRoute(p);
+  const year = p.status === "Live" ? 2025 : 2024;
 
-function TechPill({ label }: { label: string }) {
+  const preview = isCode ? (
+    <TerminalPreview
+      lines={p.terminalPreview ?? [`$ ${p.title}`]}
+      title={`~/${p.slug}`}
+    />
+  ) : (
+    <BrowserPreview
+      image={p.image}
+      url={
+        p.links.live
+          ? p.links.live.replace(/^https?:\/\//, "").replace(/\/$/, "")
+          : undefined
+      }
+      title={p.title}
+    />
+  );
+
+  // Right-layout puts preview on the right side on md+. On mobile we always
+  // stack preview first — no alternating, no CSS order flip. The alternation
+  // happens via native grid order: layout=right swaps children via markup.
   return (
-    <span
-      className="px-2.5 py-1 text-xs"
-      style={{
-        color: "var(--text-muted)",
-        border: "1px solid var(--border)",
-        fontFamily: "var(--font-mono)",
-        backgroundColor: "var(--bg-surface)",
-      }}
-    >
-      {label}
-    </span>
+    <Reveal>
+      <SpotCard style={{ padding: 24 }}>
+        <div className="grid gap-6 md:gap-10 items-center grid-cols-1 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+          {layout === "right" ? (
+            <>
+              <div className="md:order-2">{preview}</div>
+              <div className="flex flex-col gap-4 md:order-1">
+                <CardMeta idx={idx} status={p.status} year={year} />
+                <CardBody p={p} caseStudy={caseStudy} />
+              </div>
+            </>
+          ) : (
+            <>
+              <div>{preview}</div>
+              <div className="flex flex-col gap-4">
+                <CardMeta idx={idx} status={p.status} year={year} />
+                <CardBody p={p} caseStudy={caseStudy} />
+              </div>
+            </>
+          )}
+        </div>
+      </SpotCard>
+    </Reveal>
   );
 }
 
-// ─── Metric row ────────────────────────────────────────────────────────────────
-
-function MetricRow({ metrics }: { metrics: ProjectMetric[] }) {
+function CardMeta({
+  idx,
+  status,
+  year,
+}: {
+  idx: string;
+  status: Project["status"];
+  year: number;
+}) {
   return (
-    <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
-      {metrics.map((m) => (
-        <span
-          key={m.label}
-          className="text-xs"
-          style={{ fontFamily: "var(--font-mono)" }}
-        >
-          <span style={{ color: "var(--accent)", fontWeight: 600 }}>
-            {m.value}
-          </span>
-          <span className="ml-1" style={{ color: "var(--text-muted)" }}>
-            {m.label}
-          </span>
-        </span>
-      ))}
-    </div>
-  );
-}
-
-// ─── Project links ─────────────────────────────────────────────────────────────
-
-function ProjectLinks({ project }: { project: Project }) {
-  const caseStudyRoute = getProjectCaseStudyRoute(project);
-  const liveLinkLabel = getLiveLinkLabel(project.kind);
-
-  const hasAnyLink =
-    caseStudyRoute || project.links.live || project.links.github;
-  if (!hasAnyLink) return null;
-
-  const linkClass =
-    "text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]";
-
-  return (
-    <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-      {caseStudyRoute && (
-        <a href={caseStudyRoute} className={linkClass}>
-          Read Case Study &rarr;
-        </a>
-      )}
-      {project.links.live && (
-        <SafeExternalLink href={project.links.live} className={linkClass}>
-          {liveLinkLabel} &#8599;
-        </SafeExternalLink>
-      )}
-      {project.links.github && (
-        <SafeExternalLink href={project.links.github} className={linkClass}>
-          Source Code &#8599;
-        </SafeExternalLink>
-      )}
-    </div>
-  );
-}
-
-// ─── Image or placeholder ──────────────────────────────────────────────────────
-
-function ProjectImage({ project }: { project: Project }) {
-  if (project.image) {
-    return (
-      <div className="relative w-full aspect-[16/10]">
-        <Image
-          src={project.image}
-          alt={project.title}
-          fill
-          sizes="(max-width: 768px) 100vw, 50vw"
-          className="object-cover object-top"
-        />
-      </div>
-    );
-  }
-
-  return (
-    <div
-      className="aspect-[16/10] w-full flex flex-col items-center justify-center gap-3"
-      style={{
-        background:
-          "linear-gradient(to bottom, var(--bg-surface), var(--bg-elevated))",
-      }}
-    >
+    <div className="flex items-center justify-between flex-wrap gap-3">
       <span
-        className="text-lg font-semibold"
-        style={{ color: "var(--text-muted)" }}
-      >
-        {project.title}
-      </span>
-      <span
-        className="text-xs"
         style={{
-          color: "var(--text-muted)",
+          fontSize: 12,
+          color: "var(--accent)",
+          letterSpacing: "0.1em",
           fontFamily: "var(--font-mono)",
-          opacity: 0.7,
         }}
       >
-        {project.tech.join(" · ")}
+        {idx}
       </span>
+      <div className="flex gap-2 items-center flex-wrap">
+        <StatusBadge status={status} />
+        <span
+          style={{
+            fontSize: 11,
+            color: "var(--text-muted)",
+            letterSpacing: "0.15em",
+            fontFamily: "var(--font-mono)",
+          }}
+        >
+          {year}
+        </span>
+      </div>
     </div>
   );
 }
 
-// ─── Framed image — picks DeviceFrame for web apps, TerminalFrame otherwise ────
-
-function FramedImage({ project }: { project: Project }) {
-  if (project.kind === "web-app") {
-    return (
-      <DeviceFrame url={project.links.live}>
-        <ProjectImage project={project} />
-      </DeviceFrame>
-    );
-  }
-  // Non-web-app projects use TerminalFrame; prefer the terminal transcript
-  // content when provided, otherwise fall back to the gradient placeholder.
+function CardBody({ p, caseStudy }: { p: Project; caseStudy: string | null }) {
   return (
-    <TerminalFrame label={`~ $ ${project.slug}`}>
-      {project.terminalPreview ? (
-        <TerminalTranscript lines={project.terminalPreview} />
-      ) : (
-        <ProjectImage project={project} />
-      )}
-    </TerminalFrame>
-  );
-}
-
-// ─── Featured project card ─────────────────────────────────────────────────────
-
-function FeaturedCard({
-  project,
-  itemVariants,
-}: {
-  project: Project;
-  itemVariants: import("framer-motion").Variants;
-}) {
-  return (
-    <motion.div
-      variants={itemVariants}
-      className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center rounded-lg overflow-hidden card-shadow card-shadow-hover"
-      style={{ backgroundColor: "var(--bg-surface)" }}
-    >
-      {/* Image in frame — left on desktop */}
-      <div className="p-4 md:p-6">
-        <FramedImage project={project} />
+    <>
+      <div>
+        <h3
+          className="text-2xl sm:text-[1.75rem] lg:text-[2rem]"
+          style={{
+            fontWeight: 600,
+            color: "var(--text-primary)",
+            margin: "0 0 8px 0",
+            letterSpacing: "-0.02em",
+            lineHeight: 1.1,
+          }}
+        >
+          {p.title}
+        </h3>
+        <p
+          style={{
+            fontSize: 15,
+            color: "var(--accent)",
+            margin: "0 0 12px 0",
+            fontWeight: 500,
+          }}
+        >
+          {p.tagline}
+        </p>
+        <p
+          style={{
+            fontSize: 15,
+            lineHeight: 1.65,
+            color: "var(--text-secondary)",
+            margin: 0,
+          }}
+        >
+          {p.description}
+        </p>
       </div>
 
-      {/* Content — right on desktop */}
-      <div className="flex flex-col gap-5 p-6 md:p-8 md:pl-0">
-        <div className="flex items-center gap-3">
-          <StatusBadge status={project.status} />
-          <span
-            className="text-xs font-semibold tracking-widest uppercase"
-            style={{ color: "var(--text-muted)" }}
-          >
-            Featured
-          </span>
-        </div>
-
-        <div>
-          <h3
-            className="text-2xl font-bold mb-2"
-            style={{ color: "var(--text-primary)" }}
-          >
-            {project.title}
-          </h3>
-          <p
-            className="text-sm mb-3"
-            style={{ color: "var(--text-secondary)" }}
-          >
-            {project.tagline}
-          </p>
-          <p
-            className="text-sm leading-relaxed"
-            style={{ color: "var(--text-secondary)" }}
-          >
-            {project.description}
-          </p>
-        </div>
-
-        {project.metrics && project.metrics.length > 0 && (
-          <MetricRow metrics={project.metrics} />
-        )}
-
-        <div className="flex flex-wrap gap-2">
-          {project.tech.map((t) => (
-            <TechPill key={t} label={t} />
+      {p.metrics && p.metrics.length > 0 && (
+        <div className="flex flex-wrap gap-x-6 gap-y-3 pt-1">
+          {p.metrics.map((m) => (
+            <div key={m.label}>
+              <div
+                style={{
+                  fontSize: 22,
+                  fontWeight: 600,
+                  color: "var(--accent)",
+                  lineHeight: 1,
+                  fontFamily: "var(--font-mono)",
+                }}
+              >
+                {m.value}
+              </div>
+              <div
+                style={{
+                  fontSize: 10,
+                  color: "var(--text-muted)",
+                  letterSpacing: "0.18em",
+                  textTransform: "uppercase",
+                  marginTop: 6,
+                  fontFamily: "var(--font-mono)",
+                }}
+              >
+                {m.label}
+              </div>
+            </div>
           ))}
         </div>
+      )}
 
-        <ProjectLinks project={project} />
+      <div className="flex flex-wrap gap-1.5 pt-1">
+        {p.tech.map((t) => (
+          <span
+            key={t}
+            style={{
+              padding: "4px 10px",
+              fontSize: 11,
+              color: "var(--text-muted)",
+              background: "rgba(255,255,255,0.02)",
+              border: "1px solid var(--divider)",
+              borderRadius: 6,
+              fontFamily: "var(--font-mono)",
+            }}
+          >
+            {t}
+          </span>
+        ))}
       </div>
-    </motion.div>
+
+      <div className="flex flex-wrap gap-5 pt-2">
+        {caseStudy && (
+          <MagneticLink href={caseStudy} style={{ fontSize: 13 }}>
+            Case study <ArrowRight size={13} />
+          </MagneticLink>
+        )}
+        {p.links.github && (
+          <MagneticLink external href={p.links.github} style={{ fontSize: 13 }}>
+            <Github size={13} /> Source{" "}
+            <span className="arrow">
+              <ArrowUpRight size={11} />
+            </span>
+          </MagneticLink>
+        )}
+        {p.links.live && (
+          <MagneticLink external href={p.links.live} style={{ fontSize: 13 }}>
+            <External size={13} /> {liveLinkLabel(p)}{" "}
+            <span className="arrow">
+              <ArrowUpRight size={11} />
+            </span>
+          </MagneticLink>
+        )}
+      </div>
+    </>
   );
 }
-
-// ─── Regular project card ──────────────────────────────────────────────────────
-
-function ProjectCard({
-  project,
-  itemVariants,
-}: {
-  project: Project;
-  itemVariants: import("framer-motion").Variants;
-}) {
-  return (
-    <motion.div
-      variants={itemVariants}
-      className="flex flex-col rounded-lg overflow-hidden card-shadow"
-      style={{ backgroundColor: "var(--bg-surface)" }}
-    >
-      {/* Framed image */}
-      <div className="p-4">
-        <FramedImage project={project} />
-      </div>
-
-      {/* Content */}
-      <div className="flex flex-col justify-between gap-5 p-6 pt-2 flex-1">
-        <div className="flex flex-col gap-4">
-          <StatusBadge status={project.status} />
-
-          <div>
-            <h3
-              className="text-lg font-bold mb-1.5"
-              style={{ color: "var(--text-primary)" }}
-            >
-              {project.title}
-            </h3>
-            <p
-              className="text-xs mb-3"
-              style={{ color: "var(--text-secondary)" }}
-            >
-              {project.tagline}
-            </p>
-            <p
-              className="text-sm leading-relaxed"
-              style={{ color: "var(--text-secondary)" }}
-            >
-              {project.description}
-            </p>
-          </div>
-
-          {project.metrics && project.metrics.length > 0 && (
-            <MetricRow metrics={project.metrics} />
-          )}
-        </div>
-
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-wrap gap-2">
-            {project.tech.map((t) => (
-              <TechPill key={t} label={t} />
-            ))}
-          </div>
-          <ProjectLinks project={project} />
-        </div>
-      </div>
-    </motion.div>
-  );
-}
-
-// ─── Section ───────────────────────────────────────────────────────────────────
 
 export default function Projects() {
-  const ref = useRef<HTMLElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
-  const prefersReducedMotion = useReducedMotion();
-
-  const containerVariants = prefersReducedMotion
-    ? { hidden: {}, visible: {} }
-    : { hidden: {}, visible: { transition: { staggerChildren: 0.1 } } };
-
-  const itemVariants = prefersReducedMotion
-    ? {
-        hidden: { opacity: 0 },
-        visible: { opacity: 1, transition: { duration: 0.3 } },
-      }
-    : {
-        hidden: { opacity: 0, y: 24 },
-        visible: {
-          opacity: 1,
-          y: 0,
-          transition: { duration: 0.6, ease: EASING },
-        },
-      };
-
-  const featured = getFeaturedProject();
-  const rest = getRestProjects();
-
   return (
-    <section
-      ref={ref}
-      id="projects"
-      className="py-12 md:py-20 lg:py-28 px-4 sm:px-6 md:px-8 lg:px-16"
-    >
-      <div className="max-w-6xl mx-auto">
-        {/* Eyebrow */}
-        <motion.p
-          initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 12 }}
-          animate={
-            inView
-              ? { opacity: 1, y: 0 }
-              : { opacity: 0, y: prefersReducedMotion ? 0 : 12 }
-          }
-          transition={{
-            duration: prefersReducedMotion ? 0.3 : 0.5,
-            ease: EASING,
-          }}
-          className="text-xs tracking-[0.2em] uppercase mb-4"
-          style={{ color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}
-        >
-          Projects
-        </motion.p>
-
-        {/* Heading */}
-        <motion.h2
-          initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 16 }}
-          animate={
-            inView
-              ? { opacity: 1, y: 0 }
-              : { opacity: 0, y: prefersReducedMotion ? 0 : 16 }
-          }
-          transition={{
-            duration: prefersReducedMotion ? 0.3 : 0.6,
-            delay: prefersReducedMotion ? 0 : 0.05,
-            ease: EASING,
-          }}
-          className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-8 md:mb-12 lg:mb-16"
-          style={{ color: "var(--text-primary)" }}
-        >
-          Production systems,{" "}
-          <span style={{ color: "var(--text-secondary)" }}>
-            not demo projects.
-          </span>
-        </motion.h2>
-
-        {/* Cards grid */}
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate={inView ? "visible" : "hidden"}
-          className="flex flex-col gap-6 md:gap-8"
-        >
-          {/* Featured card — full width */}
-          <FeaturedCard project={featured} itemVariants={itemVariants} />
-
-          {/* Remaining cards — 2-column grid, own stagger context */}
-          {rest.length > 0 && (
-            <motion.div
-              variants={containerVariants}
-              className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8"
+    <section id="projects" className="py-16 md:py-24 lg:py-32 relative z-[2]">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12">
+        <Reveal>
+          <div className="flex items-baseline justify-between gap-6 flex-wrap mb-12">
+            <div>
+              <div className="eyebrow-line">
+                <span className="section-number">02</span>
+                <span>Selected work</span>
+              </div>
+              <h2
+                style={{
+                  fontSize: "var(--fluid-h2)",
+                  fontWeight: 600,
+                  letterSpacing: "-0.025em",
+                  lineHeight: 1.05,
+                  margin: "20px 0 0",
+                  maxWidth: 720,
+                }}
+              >
+                Production systems.{" "}
+                <span style={{ color: "var(--text-muted)" }}>Not demos.</span>
+              </h2>
+            </div>
+            <MagneticLink
+              external
+              href="https://github.com/AryanBV?tab=repositories"
+              style={{ fontSize: 13 }}
             >
-              {rest.map((project) => (
-                <ProjectCard
-                  key={project.slug}
-                  project={project}
-                  itemVariants={itemVariants}
-                />
-              ))}
-            </motion.div>
-          )}
-        </motion.div>
+              All projects on GitHub{" "}
+              <span className="arrow">
+                <ArrowUpRight size={12} />
+              </span>
+            </MagneticLink>
+          </div>
+        </Reveal>
+
+        <div className="flex flex-col gap-6 md:gap-8">
+          {projects.map((p, i) => (
+            <ProjectCard
+              key={p.slug}
+              project={p}
+              index={i}
+              idx={`/${String(i + 1).padStart(2, "0")}`}
+            />
+          ))}
+        </div>
       </div>
     </section>
   );

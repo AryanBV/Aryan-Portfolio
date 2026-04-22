@@ -1,192 +1,241 @@
 "use client";
 
-import { useRef } from "react";
-import { motion, useInView, useReducedMotion } from "framer-motion";
-import type { IconType } from "react-icons";
-import {
-  SiNextdotjs,
-  SiReact,
-  SiTypescript,
-  SiTailwindcss,
-  SiNestjs,
-  SiExpress,
-  SiPython,
-  SiAnthropic,
-  SiSupabase,
-  SiRazorpay,
-  SiPostgresql,
-  SiVercel,
-  SiGithub,
-  SiPytest,
-} from "react-icons/si";
+import { useState } from "react";
+import Reveal from "@/components/ui/Reveal";
+import SpotCard from "@/components/ui/SpotCard";
+import TechPill, { type TechPillMode } from "@/components/ui/TechPill";
+import { Code, Layers, Zap } from "@/components/ui/Icons";
 
-// ─── Data ──────────────────────────────────────────────────────────────────────
-
-type Skill = { name: string; icon: IconType | null };
-type SkillGroup = { title: string; subtitle: string; skills: Skill[] };
-
-const SKILL_GROUPS: SkillGroup[] = [
+// Three skill cards — Build / Integrate / Ship. Each has a primary list
+// (logos + names) and a secondary "also using" list (name only / small logo).
+const SKILLS: Array<{
+  icon: React.ComponentType<{ size?: number }>;
+  title: string;
+  sub: string;
+  primary: string[];
+  secondary: string[];
+}> = [
   {
-    title: "BUILD",
-    subtitle: "Frontend & backend code",
-    skills: [
-      { name: "Next.js", icon: SiNextdotjs },
-      { name: "React", icon: SiReact },
-      { name: "TypeScript", icon: SiTypescript },
-      { name: "Python", icon: SiPython },
-      { name: "Tailwind CSS", icon: SiTailwindcss },
-      { name: "NestJS", icon: SiNestjs },
-      { name: "Express", icon: SiExpress },
-    ],
+    icon: Code,
+    title: "Build",
+    sub: "Frontend & backend code",
+    primary: ["React", "Next.js", "TypeScript", "Python", "Tailwind"],
+    secondary: ["NestJS", "Node.js", "FastAPI"],
   },
   {
-    title: "INTEGRATE",
-    subtitle: "APIs, databases, AI",
-    skills: [
-      { name: "Claude API", icon: SiAnthropic },
-      { name: "Model Context Protocol", icon: null },
-      { name: "Supabase", icon: SiSupabase },
-      { name: "Razorpay", icon: SiRazorpay },
-      { name: "PostgreSQL", icon: SiPostgresql },
-      { name: "Tesseract.js", icon: null },
-    ],
+    icon: Layers,
+    title: "Integrate",
+    sub: "APIs, databases, AI",
+    primary: ["Claude API", "MCP Protocol", "Supabase", "PostgreSQL"],
+    secondary: ["Razorpay", "Tesseract OCR", "REST"],
   },
   {
-    title: "SHIP",
-    subtitle: "Ship with confidence",
-    skills: [
-      { name: "Vercel", icon: SiVercel },
-      { name: "GitHub", icon: SiGithub },
-      { name: "PWA", icon: null },
-      { name: "SEO & Analytics", icon: null },
-      { name: "pytest", icon: SiPytest },
-      { name: "mypy", icon: null },
-      { name: "Zod", icon: null },
-    ],
+    icon: Zap,
+    title: "Ship",
+    sub: "Deploy with confidence",
+    primary: ["Vercel", "Git / GitHub", "pytest", "PWA"],
+    secondary: ["mypy", "Zod", "GitHub Actions"],
   },
 ];
 
-// ─── Animation ─────────────────────────────────────────────────────────────────
-
-const EASING = [0.22, 1, 0.36, 1] as const;
-
-// ─── Component ─────────────────────────────────────────────────────────────────
+const LOGO_MODES: Array<{ id: TechPillMode; label: string }> = [
+  { id: "both", label: "Logo + name" },
+  { id: "logo", label: "Logo only" },
+  { id: "name", label: "Name only" },
+];
 
 export default function Skills() {
-  const ref = useRef<HTMLElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
-  const prefersReducedMotion = useReducedMotion();
-
-  const containerVariants = prefersReducedMotion
-    ? { hidden: {}, visible: {} }
-    : { hidden: {}, visible: { transition: { staggerChildren: 0.1 } } };
-
-  const itemVariants = prefersReducedMotion
-    ? {
-        hidden: { opacity: 0 },
-        visible: { opacity: 1, transition: { duration: 0.3 } },
-      }
-    : {
-        hidden: { opacity: 0, y: 16 },
-        visible: {
-          opacity: 1,
-          y: 0,
-          transition: { duration: 0.5, ease: EASING },
-        },
-      };
+  const [mode, setMode] = useState<TechPillMode>("both");
 
   return (
-    <section
-      ref={ref}
-      className="py-12 md:py-20 lg:py-28 px-4 sm:px-6 md:px-8 lg:px-16"
-    >
-      <div className="max-w-6xl mx-auto">
-        {/* Eyebrow */}
-        <motion.p
-          initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 12 }}
-          animate={
-            inView
-              ? { opacity: 1, y: 0 }
-              : { opacity: 0, y: prefersReducedMotion ? 0 : 12 }
-          }
-          transition={{
-            duration: prefersReducedMotion ? 0.3 : 0.5,
-            ease: EASING,
-          }}
-          className="text-xs tracking-[0.2em] uppercase mb-4"
-          style={{ color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}
-        >
-          Skills
-        </motion.p>
-
-        <motion.h2
-          initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 16 }}
-          animate={
-            inView
-              ? { opacity: 1, y: 0 }
-              : { opacity: 0, y: prefersReducedMotion ? 0 : 16 }
-          }
-          transition={{
-            duration: prefersReducedMotion ? 0.3 : 0.6,
-            delay: prefersReducedMotion ? 0 : 0.05,
-            ease: EASING,
-          }}
-          className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-8 md:mb-12"
-          style={{ color: "var(--text-primary)" }}
-        >
-          What I build with.
-        </motion.h2>
-
-        {/* BUILD / INTEGRATE / SHIP cards */}
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate={inView ? "visible" : "hidden"}
-          className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8"
-        >
-          {SKILL_GROUPS.map(({ title, subtitle, skills }) => (
-            <motion.div
-              key={title}
-              variants={itemVariants}
-              className="card-shadow rounded-lg p-6"
-              style={{ backgroundColor: "var(--bg-surface)" }}
+    <section id="skills" className="py-16 md:py-24 lg:py-32 relative z-[2]">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12">
+        <Reveal>
+          <div className="flex items-end justify-between gap-6 flex-wrap mb-12">
+            <div>
+              <div className="eyebrow-line">
+                <span className="section-number">04</span>
+                <span>Skills</span>
+              </div>
+              <h2
+                style={{
+                  fontSize: "var(--fluid-h2)",
+                  fontWeight: 600,
+                  letterSpacing: "-0.025em",
+                  margin: "20px 0 0",
+                }}
+              >
+                What I build with.
+              </h2>
+            </div>
+            <div
+              role="radiogroup"
+              aria-label="Tech pill display mode"
+              style={{
+                display: "inline-flex",
+                padding: 4,
+                borderRadius: 10,
+                background: "var(--bg-surface)",
+                border: "1px solid var(--divider)",
+                alignItems: "center",
+                gap: 2,
+              }}
             >
-              <h3
-                className="text-lg font-semibold"
-                style={{ color: "var(--text-primary)" }}
-              >
-                {title}
-              </h3>
-              <p
-                className="text-sm mb-4"
-                style={{ color: "var(--text-muted)" }}
-              >
-                {subtitle}
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {skills.map(({ name, icon: Icon }) => (
-                  <span
-                    key={name}
-                    className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm"
+              {LOGO_MODES.map((m) => (
+                <button
+                  key={m.id}
+                  role="radio"
+                  aria-checked={mode === m.id}
+                  onClick={() => setMode(m.id)}
+                  style={{
+                    fontSize: 10,
+                    letterSpacing: "0.18em",
+                    textTransform: "uppercase",
+                    padding: "8px 12px",
+                    borderRadius: 7,
+                    background:
+                      mode === m.id ? "var(--accent-subtle)" : "transparent",
+                    color:
+                      mode === m.id ? "var(--accent)" : "var(--text-muted)",
+                    border:
+                      mode === m.id
+                        ? "1px solid var(--accent-dim)"
+                        : "1px solid transparent",
+                    cursor: "pointer",
+                    transition: "all 200ms var(--ease-emph)",
+                    fontFamily: "var(--font-mono)",
+                  }}
+                >
+                  {m.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </Reveal>
+
+        <Reveal stagger>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {SKILLS.map((s) => {
+              const Icon = s.icon;
+              return (
+                <SpotCard
+                  key={s.title}
+                  style={{
+                    padding: 0,
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                  }}
+                >
+                  <div
                     style={{
-                      backgroundColor: "var(--bg-elevated)",
-                      color: "var(--text-secondary)",
-                      fontFamily: "var(--font-mono)",
+                      padding: "24px 24px 18px",
+                      borderBottom: "1px solid var(--divider)",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 14,
                     }}
                   >
-                    {Icon && (
-                      <Icon
-                        className="w-4 h-4"
-                        style={{ color: "var(--text-muted)" }}
-                      />
-                    )}
-                    {name}
-                  </span>
-                ))}
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
+                    <div
+                      style={{
+                        width: 44,
+                        height: 44,
+                        borderRadius: 10,
+                        background:
+                          "linear-gradient(135deg, var(--accent-dim), var(--accent-subtle))",
+                        border: "1px solid var(--accent-subtle)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "var(--accent)",
+                        flexShrink: 0,
+                      }}
+                    >
+                      <Icon size={20} />
+                    </div>
+                    <div>
+                      <h3
+                        style={{
+                          fontSize: 18,
+                          fontWeight: 600,
+                          color: "var(--text-primary)",
+                          margin: 0,
+                          letterSpacing: "-0.01em",
+                        }}
+                      >
+                        {s.title}
+                      </h3>
+                      <p
+                        style={{
+                          fontSize: 12,
+                          color: "var(--text-muted)",
+                          margin: "2px 0 0",
+                        }}
+                      >
+                        {s.sub}
+                      </p>
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      padding: 24,
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 20,
+                      flex: 1,
+                    }}
+                  >
+                    <div>
+                      <p
+                        style={{
+                          fontSize: 10,
+                          color: "var(--text-muted)",
+                          letterSpacing: "0.22em",
+                          textTransform: "uppercase",
+                          margin: "0 0 12px",
+                          opacity: 0.7,
+                          fontFamily: "var(--font-mono)",
+                        }}
+                      >
+                        Core
+                      </p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {s.primary.map((t) => (
+                          <TechPill key={t} name={t} mode={mode} />
+                        ))}
+                      </div>
+                    </div>
+                    <div
+                      style={{
+                        borderTop: "1px dashed var(--divider)",
+                        paddingTop: 16,
+                      }}
+                    >
+                      <p
+                        style={{
+                          fontSize: 10,
+                          color: "var(--text-muted)",
+                          letterSpacing: "0.22em",
+                          textTransform: "uppercase",
+                          margin: "0 0 12px",
+                          opacity: 0.5,
+                          fontFamily: "var(--font-mono)",
+                        }}
+                      >
+                        Also using
+                      </p>
+                      <div className="flex flex-wrap gap-x-3.5 gap-y-2.5">
+                        {s.secondary.map((t) => (
+                          <TechPill key={t} name={t} mode={mode} secondary />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </SpotCard>
+              );
+            })}
+          </div>
+        </Reveal>
       </div>
     </section>
   );
