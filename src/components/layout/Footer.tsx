@@ -1,40 +1,42 @@
-"use client";
-
-import { FiGithub, FiLinkedin } from "react-icons/fi";
-import { SafeExternalLink } from "@/components/ui/safe-external-link";
-
-const SOCIAL_LINKS = {
-  github: "https://github.com/AryanBV",
-  linkedin: "https://www.linkedin.com/in/aryan-b-v-78aa63246/",
-};
-
 export default function Footer() {
   return (
     <footer
-      className="w-full py-8 px-4 sm:px-6"
-      style={{ borderTop: "1px solid var(--border)" }}
+      style={{
+        position: "relative",
+        zIndex: 2,
+        borderTop: "1px solid var(--divider)",
+        background: "var(--bg-base)",
+      }}
     >
-      <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-        <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+      <div
+        className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 flex flex-col sm:flex-row items-center justify-between gap-3"
+        style={{ paddingTop: 20, paddingBottom: 20, flexWrap: "wrap" }}
+      >
+        <p
+          style={{
+            fontSize: 11,
+            color: "var(--text-muted)",
+            letterSpacing: "0.18em",
+            textTransform: "uppercase",
+            margin: 0,
+            fontFamily: "var(--font-mono)",
+          }}
+        >
           © {new Date().getFullYear()} Aryan B V
         </p>
-
-        <div className="flex items-center gap-5">
-          <SafeExternalLink
-            href={SOCIAL_LINKS.github}
-            aria-label="GitHub"
-            className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
-          >
-            <FiGithub size={18} />
-          </SafeExternalLink>
-          <SafeExternalLink
-            href={SOCIAL_LINKS.linkedin}
-            aria-label="LinkedIn"
-            className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
-          >
-            <FiLinkedin size={18} />
-          </SafeExternalLink>
-        </div>
+        <a
+          href="#hero"
+          style={{
+            fontSize: 11,
+            color: "var(--text-muted)",
+            textDecoration: "none",
+            letterSpacing: "0.18em",
+            textTransform: "uppercase",
+            fontFamily: "var(--font-mono)",
+          }}
+        >
+          Back to top ↑
+        </a>
       </div>
     </footer>
   );

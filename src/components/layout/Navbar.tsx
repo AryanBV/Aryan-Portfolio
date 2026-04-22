@@ -1,51 +1,58 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
+import { ArrowUpRight } from "@/components/ui/Icons";
 
+// hrefs use `/#id` (not `#id`) so nav works from sub-routes like
+// /projects/[slug] — a bare `#id` on a sub-route only updates the URL
+// hash without navigating back to the home page.
 const NAV_LINKS = [
-  { label: "Projects", href: "#projects" },
-  { label: "About", href: "#about" },
-  { label: "Skills", href: "#skills" },
-  { label: "Certifications", href: "#certifications" },
-  { label: "Contact", href: "#contact" },
+  { n: "01", label: "Work", href: "/#projects", id: "projects" },
+  { n: "02", label: "About", href: "/#about", id: "about" },
+  { n: "03", label: "Skills", href: "/#skills", id: "skills" },
+  { n: "04", label: "Stats", href: "/#stats", id: "stats" },
+  { n: "05", label: "Certs", href: "/#certifications", id: "certifications" },
 ];
 
+// Floating pill nav that shrinks to a compact rounded bar on scroll.
+// Mobile uses a hamburger → overlay with the same links + CTA.
+// Scroll-spy, focus-trap, Escape-to-close — all preserved from v2.
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState("");
-  const prefersReducedMotion = useReducedMotion();
+  const [active, setActive] = useState<string>("");
   const hamburgerRef = useRef<HTMLButtonElement>(null);
-  const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
-  // Backdrop on scroll
+  // Scroll state (for pill shrink + backdrop)
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
+    const onScroll = () => setScrolled(window.scrollY > 24);
     window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Scroll spy
+  // Scroll spy (same IO pattern as v2)
   useEffect(() => {
-    const sectionIds = NAV_LINKS.map((l) => l.href.slice(1));
-    const observer = new IntersectionObserver(
+    const ids = NAV_LINKS.map((l) => l.id);
+    const io = new IntersectionObserver(
       (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) setActiveSection(entry.target.id);
-        });
+        for (const entry of entries) {
+          if (entry.isIntersecting) setActive(entry.target.id);
+        }
       },
       { rootMargin: "-40% 0px -55% 0px" },
     );
-    sectionIds.forEach((id) => {
+    ids.forEach((id) => {
       const el = document.getElementById(id);
-      if (el) observer.observe(el);
+      if (el) io.observe(el);
     });
-    return () => observer.disconnect();
+    return () => io.disconnect();
   }, []);
 
-  // Lock body scroll when mobile menu is open
+  // Lock body scroll when overlay open
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "";
     return () => {
@@ -53,179 +60,297 @@ export default function Navbar() {
     };
   }, [menuOpen]);
 
-  // Focus trap for mobile menu
+  // Focus trap + Escape
   useEffect(() => {
     if (!menuOpen) return;
-
-    // Wait for AnimatePresence to mount the menu
     const raf = requestAnimationFrame(() => {
-      const menu = mobileMenuRef.current;
+      const menu = menuRef.current;
       if (!menu) return;
-      const focusableEls = menu.querySelectorAll<HTMLElement>("a, button");
-      focusableEls[0]?.focus();
+      menu.querySelectorAll<HTMLElement>("a, button")[0]?.focus();
     });
-
-    function handleKeyDown(e: KeyboardEvent) {
+    function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") {
         setMenuOpen(false);
         hamburgerRef.current?.focus();
         return;
       }
-
       if (e.key !== "Tab") return;
-
-      const menu = mobileMenuRef.current;
+      const menu = menuRef.current;
       if (!menu) return;
-      const focusableEls = menu.querySelectorAll<HTMLElement>("a, button");
-      if (focusableEls.length === 0) return;
-
-      const firstEl = focusableEls[0];
-      const lastEl = focusableEls[focusableEls.length - 1];
-
-      if (e.shiftKey && document.activeElement === firstEl) {
+      const list = menu.querySelectorAll<HTMLElement>("a, button");
+      if (!list.length) return;
+      const first = list[0];
+      const last = list[list.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
         e.preventDefault();
-        lastEl.focus();
-      } else if (!e.shiftKey && document.activeElement === lastEl) {
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
         e.preventDefault();
-        firstEl.focus();
+        first.focus();
       }
     }
-
-    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("keydown", onKey);
     return () => {
       cancelAnimationFrame(raf);
-      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("keydown", onKey);
     };
   }, [menuOpen]);
 
   return (
     <header
-      className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
-      style={{
-        backgroundColor: scrolled ? "rgba(10,10,10,0.85)" : "transparent",
-        backdropFilter: scrolled ? "blur(12px)" : "none",
-        borderBottom: scrolled
-          ? "1px solid var(--border)"
-          : "1px solid transparent",
-      }}
+      className="fixed top-0 left-0 right-0 z-50"
+      style={{ transition: "all 400ms var(--ease-emph)" }}
     >
-      <nav className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <div
+        className="mx-auto flex items-center justify-between"
+        style={{
+          height: scrolled ? 60 : 72,
+          marginTop: scrolled ? 12 : 20,
+          maxWidth: scrolled ? 960 : 1200,
+          padding: scrolled ? "0 16px" : "0 clamp(1rem, 4vw, 2rem)",
+          background: scrolled ? "rgba(17,17,17,0.75)" : "transparent",
+          backdropFilter: scrolled ? "blur(20px) saturate(180%)" : "none",
+          WebkitBackdropFilter: scrolled ? "blur(20px) saturate(180%)" : "none",
+          border: scrolled
+            ? "1px solid var(--divider)"
+            : "1px solid transparent",
+          borderRadius: scrolled ? 999 : 0,
+          transition: "all 500ms var(--ease-emph)",
+          width: `calc(100% - ${scrolled ? 24 : 0}px)`,
+          marginLeft: "auto",
+          marginRight: "auto",
+          // Use max-width container — keeps alignment with section wraps
+        }}
+      >
         {/* Logo */}
-        <a
-          href="#"
-          className="flex items-center gap-2.5 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
-          style={{ color: "var(--text-primary)" }}
+        <Link
+          href="/#hero"
+          className="flex items-center gap-3"
+          style={{
+            textDecoration: "none",
+            color: "var(--text-primary)",
+          }}
         >
-          <Image
-            src="/logo/aryan-logo.svg"
-            alt=""
-            width={24}
-            height={24}
-            aria-hidden="true"
-          />
-          <span className="text-sm font-semibold tracking-widest uppercase">
-            Aryan B V
-          </span>
-        </a>
+          <div
+            style={{
+              position: "relative",
+              width: 32,
+              height: 32,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <div
+              aria-hidden="true"
+              style={{
+                position: "absolute",
+                inset: 0,
+                background: "var(--accent)",
+                borderRadius: 6,
+                opacity: 0.15,
+                filter: "blur(8px)",
+              }}
+            />
+            <Image
+              src="/logo/aryan-logo.svg"
+              width={26}
+              height={26}
+              alt=""
+              aria-hidden="true"
+              style={{ position: "relative" }}
+            />
+          </div>
+          <div
+            className="hidden sm:flex"
+            style={{ flexDirection: "column", lineHeight: 1 }}
+          >
+            <span
+              style={{
+                fontSize: 14,
+                fontWeight: 600,
+                letterSpacing: "0.02em",
+              }}
+            >
+              Aryan B V
+            </span>
+            <span
+              style={{
+                fontSize: 10,
+                color: "var(--text-muted)",
+                letterSpacing: "0.2em",
+                marginTop: 3,
+                fontFamily: "var(--font-mono)",
+              }}
+            >
+              SWE · BLR
+            </span>
+          </div>
+        </Link>
 
         {/* Desktop links */}
-        <ul className="hidden md:flex items-center gap-8">
-          {NAV_LINKS.map(({ label, href }) => (
-            <li key={href}>
+        <nav
+          className="hidden md:flex items-center"
+          style={{ gap: 4 }}
+          aria-label="Primary"
+        >
+          {NAV_LINKS.map((l) => {
+            const isActive = active === l.id;
+            return (
               <a
-                href={href}
-                className={`text-sm transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)] ${activeSection === href.slice(1) ? "border-b-2 border-[var(--accent)] pb-1" : ""}`}
+                key={l.id}
+                href={l.href}
                 style={{
-                  color:
-                    activeSection === href.slice(1)
-                      ? "var(--accent)"
-                      : "var(--text-secondary)",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 8,
+                  padding: "10px 14px",
+                  fontSize: 13,
+                  color: isActive ? "var(--text-primary)" : "var(--text-muted)",
+                  textDecoration: "none",
+                  borderRadius: 999,
+                  background: isActive ? "var(--accent-dim)" : "transparent",
+                  transition: "all 300ms var(--ease-emph)",
                 }}
               >
-                {label}
+                <span
+                  style={{
+                    fontSize: 10,
+                    color: isActive ? "var(--accent)" : "var(--text-muted)",
+                    fontFamily: "var(--font-mono)",
+                  }}
+                >
+                  {l.n}
+                </span>
+                {l.label}
               </a>
-            </li>
-          ))}
-        </ul>
+            );
+          })}
+        </nav>
+
+        {/* Desktop CTA */}
+        <Link
+          href="/#contact"
+          className="btn-xl primary hidden md:inline-flex"
+          style={{ padding: "10px 18px", fontSize: 13 }}
+        >
+          Let&apos;s talk <ArrowUpRight size={14} />
+        </Link>
 
         {/* Mobile hamburger */}
         <button
           ref={hamburgerRef}
-          className="md:hidden flex flex-col justify-center items-center w-8 h-8 gap-1.5 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
-          onClick={() => setMenuOpen((prev) => !prev)}
-          aria-label="Toggle menu"
+          className="md:hidden inline-flex items-center justify-center"
+          style={{
+            width: 44,
+            height: 44,
+            background: "transparent",
+            border: "1px solid var(--divider)",
+            borderRadius: 999,
+            color: "var(--text-primary)",
+          }}
+          onClick={() => setMenuOpen((o) => !o)}
+          aria-label={menuOpen ? "Close menu" : "Open menu"}
           aria-expanded={menuOpen}
         >
-          <motion.span
-            className="block h-px w-6"
-            style={{ backgroundColor: "var(--text-primary)" }}
-            animate={
-              menuOpen
-                ? {
-                    rotate: prefersReducedMotion ? 0 : 45,
-                    y: prefersReducedMotion ? 0 : 8,
-                  }
-                : { rotate: 0, y: 0 }
-            }
-            transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
-          />
-          <motion.span
-            className="block h-px w-6"
-            style={{ backgroundColor: "var(--text-primary)" }}
-            animate={menuOpen ? { opacity: 0 } : { opacity: 1 }}
-            transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
-          />
-          <motion.span
-            className="block h-px w-6"
-            style={{ backgroundColor: "var(--text-primary)" }}
-            animate={
-              menuOpen
-                ? {
-                    rotate: prefersReducedMotion ? 0 : -45,
-                    y: prefersReducedMotion ? 0 : -8,
-                  }
-                : { rotate: 0, y: 0 }
-            }
-            transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
-          />
-        </button>
-      </nav>
-
-      {/* Mobile menu */}
-      <AnimatePresence>
-        {menuOpen && (
-          <motion.div
-            ref={mobileMenuRef}
-            initial={{ opacity: 0, y: prefersReducedMotion ? 0 : -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: prefersReducedMotion ? 0 : -8 }}
-            transition={{ duration: prefersReducedMotion ? 0.15 : 0.2 }}
-            className="md:hidden px-6 pb-6 pt-2"
-            style={{ backgroundColor: "rgba(10,10,10,0.97)" }}
-            role="menu"
+          <span
+            aria-hidden="true"
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 4,
+              alignItems: "center",
+            }}
           >
-            <ul className="flex flex-col gap-5">
-              {NAV_LINKS.map(({ label, href }) => (
-                <li key={href}>
-                  <a
-                    href={href}
-                    className="text-base focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
-                    style={{
-                      color:
-                        activeSection === href.slice(1)
-                          ? "var(--accent)"
-                          : "var(--text-primary)",
-                    }}
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    {label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <span
+              style={{
+                width: 16,
+                height: 1.5,
+                background: "currentColor",
+                transform: menuOpen ? "translateY(3px) rotate(45deg)" : "none",
+                transition: "all 300ms var(--ease-emph)",
+              }}
+            />
+            <span
+              style={{
+                width: 16,
+                height: 1.5,
+                background: "currentColor",
+                transform: menuOpen
+                  ? "translateY(-3px) rotate(-45deg)"
+                  : "none",
+                transition: "all 300ms var(--ease-emph)",
+              }}
+            />
+          </span>
+        </button>
+      </div>
+
+      {/* Mobile overlay */}
+      {menuOpen && (
+        <div
+          ref={menuRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Menu"
+          className="md:hidden"
+          style={{
+            position: "fixed",
+            top: 96,
+            left: 16,
+            right: 16,
+            background: "rgba(17,17,17,0.97)",
+            backdropFilter: "blur(20px)",
+            WebkitBackdropFilter: "blur(20px)",
+            border: "1px solid var(--divider)",
+            borderRadius: 20,
+            padding: 20,
+            display: "flex",
+            flexDirection: "column",
+            gap: 4,
+          }}
+        >
+          {NAV_LINKS.map((l) => (
+            <a
+              key={l.id}
+              href={l.href}
+              onClick={() => setMenuOpen(false)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "14px 18px",
+                borderRadius: 12,
+                textDecoration: "none",
+                color: "var(--text-primary)",
+                background:
+                  active === l.id ? "var(--accent-dim)" : "transparent",
+              }}
+            >
+              <span style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <span
+                  style={{
+                    fontSize: 11,
+                    color: "var(--accent)",
+                    fontFamily: "var(--font-mono)",
+                  }}
+                >
+                  {l.n}
+                </span>
+                <span style={{ fontSize: 17 }}>{l.label}</span>
+              </span>
+            </a>
+          ))}
+          <Link
+            href="/#contact"
+            onClick={() => setMenuOpen(false)}
+            className="btn-xl primary"
+            style={{ marginTop: 8, justifyContent: "center" }}
+          >
+            Let&apos;s talk <ArrowUpRight size={14} />
+          </Link>
+        </div>
+      )}
     </header>
   );
 }

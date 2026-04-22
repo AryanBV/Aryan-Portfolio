@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { safeFetch } from "@/lib/safe-fetch";
-import { reposSchema, contributionsSchema } from "@/lib/github-schema";
+import {
+  reposSchema,
+  contributionsSchema,
+  type ContributionDay,
+} from "@/lib/github-schema";
 
 const USERNAME = "AryanBV";
 const GITHUB_API = "https://api.github.com";
@@ -19,7 +23,7 @@ export const revalidate = 3600;
 export async function GET() {
   // Repos are required — if this fails, return 503 (no useful data to show)
   const reposResult = await safeFetch(
-    `${GITHUB_API}/users/${USERNAME}/repos?per_page=100&type=public`,
+    `${GITHUB_API}/users/${USERNAME}/repos?per_page=100&type=public&sort=updated`,
     reposSchema,
     {
       headers: { Accept: "application/vnd.github+json" },
@@ -50,25 +54,52 @@ export async function GET() {
     .map(([name, count]) => ({ name, count }));
 
   const totalStars = repos.reduce((sum, r) => sum + r.stargazers_count, 0);
+  const totalForks = repos.reduce((sum, r) => sum + r.forks_count, 0);
+
+  // Top repos — sort by stars then most-recent push, take 3.
+  const topRepos = [...repos]
+    .sort(
+      (a, b) =>
+        b.stargazers_count - a.stargazers_count ||
+        new Date(b.pushed_at).getTime() - new Date(a.pushed_at).getTime(),
+    )
+    .slice(0, 3)
+    .map((r) => ({
+      name: r.name,
+      description: r.description ?? null,
+      stars: r.stargazers_count,
+      forks: r.forks_count,
+      language: r.language,
+      url: r.html_url,
+      pushedAt: r.pushed_at,
+    }));
 
   // Contributions are optional — return null when the third-party proxy is
   // unavailable. Never fabricate a number: the client renders '—' for null.
-  let totalContributions: number | null = null;
+  let contributions: {
+    total: number | null;
+    days: ContributionDay[];
+  } | null = null;
   const contribResult = await safeFetch(
     `https://github-contributions-api.jogruber.de/v4/${USERNAME}?y=last`,
     contributionsSchema,
     { next: { revalidate: 3600 } },
   );
   if (contribResult.ok) {
-    totalContributions = contribResult.data.total?.lastYear ?? null;
+    contributions = {
+      total: contribResult.data.total?.lastYear ?? null,
+      days: contribResult.data.contributions ?? [],
+    };
   }
 
   return NextResponse.json({
     publicRepos: repos.length,
     totalStars,
-    totalContributions,
+    totalForks,
+    contributions,
     topLanguages,
     totalLangRepos,
+    topRepos,
     fetchedAt: new Date().toISOString(),
   });
 }

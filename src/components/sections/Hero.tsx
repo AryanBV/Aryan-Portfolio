@@ -1,164 +1,176 @@
 "use client";
 
-import { useReducedMotion, motion } from "framer-motion";
-import { FiArrowDown } from "react-icons/fi";
-import Image from "next/image";
-import { Spotlight } from "@/components/ui/spotlight";
-import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
+import AnimatedHeadline from "@/components/ui/AnimatedHeadline";
+import HeroVisual from "@/components/ui/HeroVisual";
+import LiveClock from "@/components/ui/LiveClock";
+import { ArrowRight, Download } from "@/components/ui/Icons";
 
+// Hero section — the strict "fits within viewport" section.
+//
+// Key constraints (see plan file):
+//   - min-h-[100svh] (svh handles mobile browser-chrome expansion/collapse)
+//   - Fluid type via --fluid-h1 (2.25rem at 360px → 5rem at lg+)
+//   - Hero visual stacks ABOVE text on mobile (order-first md:order-last)
+//     but below the hidden-on-mobile meta row — so the page still starts
+//     with the "AVAILABLE FOR WORK" marker before the photo.
+//   - CTAs stack full-width on mobile (w-full sm:w-auto)
+//   - Safe-area top padding so floating nav never overlaps content on iOS
 export default function Hero() {
-  const prefersReducedMotion = useReducedMotion();
-
-  const fadeUp = prefersReducedMotion
-    ? {
-        hidden: { opacity: 0 },
-        visible: { opacity: 1, transition: { duration: 0.3 } },
-      }
-    : {
-        hidden: { opacity: 0, y: 20 },
-        visible: {
-          opacity: 1,
-          y: 0,
-          transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as const },
-        },
-      };
-
   return (
     <section
       id="hero"
-      className="relative min-h-screen flex items-center overflow-hidden"
-      style={{ paddingTop: "5rem" }}
+      className="relative flex flex-col justify-center overflow-hidden"
+      style={{
+        minHeight: "100svh",
+        paddingTop: "max(5rem, calc(env(safe-area-inset-top) + 4.5rem))",
+        paddingBottom: "clamp(1rem, 3vh, 3rem)",
+      }}
     >
-      {/* Spotlight background */}
-      <Spotlight
-        fill="rgba(245, 166, 35, 0.15)"
-        className="-top-40 left-0 md:left-60 md:-top-20"
+      {/* Radial amber washes */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          top: "-20%",
+          left: "-10%",
+          width: "70%",
+          aspectRatio: "1",
+          background:
+            "radial-gradient(circle at center, rgba(245,166,35,0.18), transparent 55%)",
+          pointerEvents: "none",
+          zIndex: 0,
+          filter: "blur(20px)",
+        }}
+      />
+      <div
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          bottom: "-10%",
+          right: "-5%",
+          width: "50%",
+          aspectRatio: "1",
+          background:
+            "radial-gradient(circle at center, rgba(255,107,53,0.1), transparent 60%)",
+          pointerEvents: "none",
+          zIndex: 0,
+          filter: "blur(40px)",
+        }}
       />
 
-      {/* Content */}
-      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 md:px-8 lg:px-16 w-full py-16 md:py-24 lg:py-32">
-        {/* Mobile photo — centered above headline */}
-        <motion.div
-          initial={{ opacity: prefersReducedMotion ? 1 : 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: prefersReducedMotion ? 0 : 0.6 }}
-          className="flex justify-center mb-8 md:hidden"
+      <div className="relative z-[2] w-full max-w-6xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12">
+        {/* Top meta row: available-for-work + clock */}
+        <div
+          className="flex flex-wrap items-center gap-x-4 gap-y-2"
+          style={{
+            paddingBottom: "clamp(16px, 3vh, 32px)",
+            fontSize: 12,
+            color: "var(--text-muted)",
+            fontFamily: "var(--font-mono)",
+            animation: "heroFadeIn 800ms 300ms both",
+          }}
         >
-          <div className="relative w-28 h-28 rounded-full overflow-hidden ring-2 ring-[var(--accent-subtle)]">
-            <Image
-              src="/images/Aryan Profile Picture.jpeg"
-              alt="Aryan B V"
-              fill
-              sizes="112px"
-              className="object-cover object-top"
-              priority
+          <span className="inline-flex items-center gap-2">
+            <span
+              aria-hidden="true"
+              style={{
+                width: 6,
+                height: 6,
+                borderRadius: "50%",
+                background: "var(--status-live)",
+                boxShadow: "0 0 8px var(--status-live)",
+                animation: "heroPulse 2s infinite",
+              }}
             />
-          </div>
-        </motion.div>
+            AVAILABLE FOR WORK
+          </span>
+          <span aria-hidden="true" style={{ opacity: 0.4 }}>
+            ·
+          </span>
+          <LiveClock />
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-8 md:gap-12 items-center">
-          {/* Left — Text content */}
-          <div className="text-center md:text-left">
-            {/* Headline */}
-            <h1>
-              <TextGenerateEffect
-                words="I turn business problems into production software."
-                highlightWord="production"
-              />
-            </h1>
+        <div className="grid items-center gap-[clamp(1rem,3vw,4rem)] grid-cols-1 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
+          <div className="order-2 md:order-1">
+            <AnimatedHeadline
+              lines={[
+                [
+                  { text: "I turn" },
+                  { text: "business" },
+                  { text: "problems" },
+                ],
+                [
+                  { text: "into", italic: true },
+                  { text: "production" },
+                  { text: "software." },
+                ],
+              ]}
+            />
 
-            {/* Sub-headline */}
-            <motion.p
-              variants={fadeUp}
-              initial="hidden"
-              animate="visible"
-              className="mt-4 text-base md:text-lg text-[var(--text-secondary)]"
+            <p
+              style={{
+                marginTop: "clamp(12px, 2vh, 24px)",
+                fontSize: "clamp(0.9rem, 1.2vw, 1.0625rem)",
+                color: "var(--text-secondary)",
+                maxWidth: 520,
+                lineHeight: 1.55,
+                animation: "heroFadeUp 800ms var(--ease-emph) 1200ms both",
+              }}
             >
-              Full-stack engineer who built the system that replaced a 15-year
-              paper workflow.
-            </motion.p>
+              Full-stack engineer who built the system that replaced a{" "}
+              <em style={{ color: "var(--text-primary)", fontStyle: "italic" }}>
+                15-year Excel workflow
+              </em>
+              . Now shipping a PDF editing trilogy with{" "}
+              <strong style={{ color: "var(--text-primary)", fontWeight: 500 }}>
+                628 tests
+              </strong>{" "}
+              and{" "}
+              <strong style={{ color: "var(--text-primary)", fontWeight: 500 }}>
+                85% coverage
+              </strong>
+              .
+            </p>
 
-            {/* CTAs */}
-            <motion.div
-              variants={fadeUp}
-              initial="hidden"
-              animate="visible"
-              transition={{ delay: prefersReducedMotion ? 0 : 0.3 }}
-              className="flex flex-wrap justify-center md:justify-start gap-4 mt-8"
+            <div
+              className="flex flex-row flex-wrap gap-2 sm:gap-3"
+              style={{
+                marginTop: "clamp(16px, 2.5vh, 28px)",
+                animation: "heroFadeUp 800ms var(--ease-emph) 1400ms both",
+              }}
             >
               <a
                 href="#projects"
-                className="inline-flex items-center gap-2 bg-[var(--accent)] text-[var(--bg-base)] font-medium px-6 py-3 rounded-lg hover:opacity-90 transition-opacity focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
+                className="btn-xl primary flex-1 sm:flex-none justify-center sm:justify-start"
               >
-                View My Work
-                <FiArrowDown size={14} />
+                View My Work <ArrowRight size={14} />
               </a>
-              <a
-                href="#contact"
-                className="inline-flex items-center gap-2 border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-hover)] px-6 py-3 rounded-lg transition-colors focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
-              >
-                Get In Touch
-              </a>
-            </motion.div>
-
-            {/* Resume link */}
-            <motion.div
-              variants={fadeUp}
-              initial="hidden"
-              animate="visible"
-              transition={{ delay: prefersReducedMotion ? 0 : 0.4 }}
-              className="mt-4 text-center md:text-left"
-            >
               <a
                 href="/Aryan_BV_Resume_2026.pdf"
-                target="_blank"
-                rel="noopener noreferrer"
                 download
-                className="inline-flex items-center gap-1 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
+                className="btn-xl ghost flex-1 sm:flex-none justify-center sm:justify-start"
               >
-                Download Resume &#8599;
+                <Download size={14} /> Resume
               </a>
-            </motion.div>
-
-            {/* Tech stack line */}
-            <motion.p
-              variants={fadeUp}
-              initial="hidden"
-              animate="visible"
-              transition={{ delay: prefersReducedMotion ? 0 : 0.5 }}
-              className="mt-8 text-sm text-[var(--text-muted)] font-mono"
-            >
-              Currently building with Next.js · Python · Claude API · MCP SDK
-            </motion.p>
+            </div>
           </div>
 
-          {/* Right — Desktop photo */}
-          <motion.div
-            initial={{
-              opacity: prefersReducedMotion ? 1 : 0,
-              scale: prefersReducedMotion ? 1 : 0.96,
+          <div
+            className="order-1 md:order-2 flex justify-center"
+            style={{
+              animation: "heroFadeUp 1000ms var(--ease-emph) 800ms both",
             }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{
-              duration: prefersReducedMotion ? 0 : 0.8,
-              delay: prefersReducedMotion ? 0 : 0.3,
-              ease: [0.22, 1, 0.36, 1],
-            }}
-            className="hidden md:flex justify-center items-center"
           >
-            <div className="relative w-64 h-64 md:w-72 md:h-72 rounded-2xl overflow-hidden ring-2 ring-[var(--accent-subtle)]">
-              <Image
-                src="/images/Aryan Profile Picture.jpeg"
-                alt="Aryan B V"
-                fill
-                sizes="(min-width: 768px) 288px, 256px"
-                className="object-cover object-top"
-                priority
-              />
-            </div>
-          </motion.div>
+            <HeroVisual />
+          </div>
         </div>
       </div>
+
+      <style>{`
+        @keyframes heroFadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+        @keyframes heroFadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes heroPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+      `}</style>
     </section>
   );
 }

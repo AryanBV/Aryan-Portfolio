@@ -1,5 +1,14 @@
 import type { NextConfig } from "next";
 
+// React's dev runtime uses eval() for debug features (call-stack
+// reconstruction, Fast Refresh, Turbopack hot modules). Allowing it in dev
+// keeps the console clean; production CSP stays fully locked. React itself
+// never uses eval() in production, so there is no security delta at runtime.
+const isDev = process.env.NODE_ENV === "development";
+const scriptSrc = isDev
+  ? "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com"
+  : "script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com";
+
 const nextConfig: NextConfig = {
   devIndicators: false,
   poweredByHeader: false,
@@ -35,13 +44,15 @@ const nextConfig: NextConfig = {
           // * react/no-danger ESLint rule flags any new dangerouslySetInnerHTML at lint time.
           // Removing 'unsafe-inline' entirely via nonce middleware remains possible but the
           // +150ms SSR cost is not justified now that the XSS surface is structurally zero.
+          //
+          // 'unsafe-eval' is dev-only — see `scriptSrc` above for rationale.
           {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com",
+              scriptSrc,
               "style-src 'self' 'unsafe-inline'",
-              "img-src 'self' data:",
+              "img-src 'self' data: https://cdn.simpleicons.org",
               "font-src 'self'",
               "connect-src 'self' https://api.emailjs.com https://va.vercel-scripts.com https://vitals.vercel-insights.com",
               "frame-ancestors 'none'",

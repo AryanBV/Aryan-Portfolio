@@ -1,13 +1,19 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion, useInView, useReducedMotion } from "framer-motion";
 import emailjs from "@emailjs/browser";
-import { FiGithub, FiLinkedin, FiSend } from "react-icons/fi";
+import Reveal from "@/components/ui/Reveal";
+import SpotCard from "@/components/ui/SpotCard";
+import {
+  Github,
+  Linkedin,
+  Map,
+  Send,
+  Check,
+  ArrowUpRight,
+} from "@/components/ui/Icons";
 import { SafeExternalLink } from "@/components/ui/safe-external-link";
 import { contactFormSchema } from "@/lib/schema";
-
-// ─── Types ────────────────────────────────────────────────────────────────────
 
 type FormState = {
   name: string;
@@ -21,23 +27,6 @@ type FieldErrors = Partial<Record<keyof FormState, string>>;
 
 type SubmitStatus = "idle" | "sending" | "success" | "error";
 
-// ─── Constants ────────────────────────────────────────────────────────────────
-
-const EASING = [0.22, 1, 0.36, 1] as const;
-
-const SOCIAL_LINKS = [
-  {
-    label: "GitHub",
-    href: "https://github.com/AryanBV",
-    icon: FiGithub,
-  },
-  {
-    label: "LinkedIn",
-    href: "https://www.linkedin.com/in/aryan-b-v-78aa63246/",
-    icon: FiLinkedin,
-  },
-];
-
 const INITIAL_FORM: FormState = {
   name: "",
   email: "",
@@ -46,37 +35,40 @@ const INITIAL_FORM: FormState = {
   website: "",
 };
 
-const INQUIRY_OPTIONS = [
-  { value: "", label: "What can I help with?", disabled: true },
-  { value: "fulltime", label: "Full-time opportunity" },
-  { value: "freelance", label: "Freelance / contract project" },
+const INQUIRY_OPTIONS: Array<{ value: string; label: string }> = [
+  { value: "freelance", label: "Freelance project" },
+  { value: "contract", label: "Contract / retainer" },
   { value: "collaboration", label: "Collaboration / open source" },
-  { value: "hello", label: "Just saying hello" },
+  { value: "hello", label: "Something else" },
 ];
 
-const INPUT_CLASSES =
-  "w-full rounded-lg border border-[var(--border)] focus:border-[var(--accent)] transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)] text-sm p-3";
-
-const INPUT_BG: React.CSSProperties = {
-  backgroundColor: "var(--bg-base)",
-  color: "var(--text-primary)",
-};
-
-// Custom chevron SVG for the select dropdown
-const SELECT_CHEVRON =
-  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23787068' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E\")";
-
-// ─── Component ────────────────────────────────────────────────────────────────
+const SOCIAL_ROWS: Array<{
+  icon: React.ComponentType<{ size?: number }>;
+  label: string;
+  value: string;
+  href: string | null;
+}> = [
+  {
+    icon: Github,
+    label: "GitHub",
+    value: "@AryanBV",
+    href: "https://github.com/AryanBV",
+  },
+  {
+    icon: Linkedin,
+    label: "LinkedIn",
+    value: "/in/aryan-b-v",
+    href: "https://www.linkedin.com/in/aryan-b-v-78aa63246/",
+  },
+  {
+    icon: Map,
+    label: "Location",
+    value: "Bangalore · IN",
+    href: null,
+  },
+];
 
 export default function Contact() {
-  const ref = useRef<HTMLElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
-  const prefersReducedMotion = useReducedMotion();
-
-  // Captures after mount (not during render — Date.now is impure); used
-  // to silently drop bot submissions that fire in under 3s of the form
-  // becoming interactive. Until set, the zero default makes the min-time
-  // check a no-op so the form never silently drops a real early submit.
   const renderedAt = useRef<number>(0);
   useEffect(() => {
     renderedAt.current = Date.now();
@@ -84,18 +76,18 @@ export default function Contact() {
 
   const [form, setForm] = useState<FormState>(INITIAL_FORM);
   const [status, setStatus] = useState<SubmitStatus>("idle");
-  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+  const [errors, setErrors] = useState<FieldErrors>({});
+  const [focusField, setFocusField] = useState<keyof FormState | null>(null);
 
   function handleChange(
     e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
     >,
   ) {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
-    // Clear the error for this field when the user starts typing/selecting
-    if (fieldErrors[name as keyof FormState]) {
-      setFieldErrors((prev) => {
+    if (errors[name as keyof FormState]) {
+      setErrors((prev) => {
         const next = { ...prev };
         delete next[name as keyof FormState];
         return next;
@@ -103,42 +95,36 @@ export default function Contact() {
     }
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    // (1) Honeypot — silently drop bot traffic that fills the hidden field
+    // Honeypot
     if (form.website.length > 0) {
       setStatus("success");
       setForm(INITIAL_FORM);
       return;
     }
-
-    // (2) Min-time — silently drop submissions under 3s (humans can't type
-    //     name + email + inquiry + message that fast). renderedAt===0 means
-    //     the mount effect hasn't run yet; treat as human.
+    // Min-time
     if (renderedAt.current !== 0 && Date.now() - renderedAt.current < 3000) {
       setStatus("success");
       setForm(INITIAL_FORM);
       return;
     }
-
-    // (3) Schema validation — surface inline errors for humans
+    // Schema
     const parsed = contactFormSchema.safeParse(form);
     if (!parsed.success) {
-      const errors: FieldErrors = {};
+      const errs: FieldErrors = {};
       for (const issue of parsed.error.issues) {
         const key = issue.path[0] as keyof FormState;
         if (key === "website") continue;
-        if (!errors[key]) errors[key] = issue.message;
+        if (!errs[key]) errs[key] = issue.message;
       }
-      setFieldErrors(errors);
+      setErrors(errs);
       return;
     }
 
-    // (4) Send — honeypot `website` intentionally NOT forwarded to EmailJS
     setStatus("sending");
-    setFieldErrors({});
-
+    setErrors({});
     try {
       await emailjs.send(
         process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
@@ -159,353 +145,490 @@ export default function Contact() {
     }
   }
 
+  const floating = (name: keyof FormState) =>
+    !!form[name] || focusField === name;
+
   return (
-    <section
-      ref={ref}
-      id="contact"
-      className="py-12 md:py-20 lg:py-28 px-4 sm:px-6 md:px-8 lg:px-16"
-    >
-      <div className="max-w-6xl mx-auto">
-        {/* Eyebrow + heading */}
-        <motion.p
-          initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 12 }}
-          animate={
-            inView
-              ? { opacity: 1, y: 0 }
-              : { opacity: 0, y: prefersReducedMotion ? 0 : 12 }
-          }
-          transition={{
-            duration: prefersReducedMotion ? 0.3 : 0.5,
-            ease: EASING,
-          }}
-          className="text-xs tracking-[0.2em] uppercase mb-4"
-          style={{ color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}
-        >
-          Contact
-        </motion.p>
-
-        <motion.h2
-          initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 16 }}
-          animate={
-            inView
-              ? { opacity: 1, y: 0 }
-              : { opacity: 0, y: prefersReducedMotion ? 0 : 16 }
-          }
-          transition={{
-            duration: prefersReducedMotion ? 0.3 : 0.6,
-            delay: prefersReducedMotion ? 0 : 0.05,
-            ease: EASING,
-          }}
-          className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4"
-          style={{ color: "var(--text-primary)" }}
-        >
-          Work With Me
-        </motion.h2>
-
-        <motion.p
-          initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 12 }}
-          animate={
-            inView
-              ? { opacity: 1, y: 0 }
-              : { opacity: 0, y: prefersReducedMotion ? 0 : 12 }
-          }
-          transition={{
-            duration: prefersReducedMotion ? 0.3 : 0.5,
-            delay: prefersReducedMotion ? 0 : 0.1,
-            ease: EASING,
-          }}
-          className="text-base md:text-lg mb-8 max-w-md"
-          style={{ color: "var(--text-secondary)" }}
-        >
-          I&apos;m available for freelance and contract work. Have a project?
-          Let&apos;s talk.
-        </motion.p>
-
-        {/* Two-column layout: form left, social right */}
-        <motion.div
-          initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 24 }}
-          animate={
-            inView
-              ? { opacity: 1, y: 0 }
-              : { opacity: 0, y: prefersReducedMotion ? 0 : 24 }
-          }
-          transition={{
-            duration: prefersReducedMotion ? 0.3 : 0.6,
-            delay: prefersReducedMotion ? 0 : 0.15,
-            ease: EASING,
-          }}
-          className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-8 lg:gap-12"
-        >
-          {/* Form card */}
-          <div
-            className="card-shadow rounded-xl p-6 md:p-8"
-            style={{ backgroundColor: "var(--bg-surface)" }}
-          >
-            <form
-              onSubmit={handleSubmit}
-              noValidate
-              className="flex flex-col gap-4"
-            >
-              {/* Honeypot — hidden from humans and screen readers, bots fill it */}
-              <input
-                type="text"
-                name="website"
-                tabIndex={-1}
-                autoComplete="off"
-                aria-hidden="true"
-                value={form.website}
-                onChange={handleChange}
+    <section id="contact" className="py-16 md:py-24 lg:py-32 relative z-[2]">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20">
+          {/* Left column: heading + social rows */}
+          <Reveal>
+            <div>
+              <div className="eyebrow-line">
+                <span className="section-number">06</span>
+                <span>Contact</span>
+              </div>
+              <h2
+                className="text-[clamp(2rem,5vw,3.75rem)]"
                 style={{
-                  position: "absolute",
-                  left: "-10000px",
-                  opacity: 0,
-                  pointerEvents: "none",
+                  fontWeight: 600,
+                  letterSpacing: "-0.03em",
+                  lineHeight: 1.02,
+                  margin: "20px 0 0",
                 }}
-              />
-
-              {/* Name */}
-              <div className="flex flex-col gap-1">
-                <label
-                  htmlFor="name"
-                  className="text-xs uppercase tracking-widest"
-                  style={{ color: "var(--text-muted)" }}
-                >
-                  Name
-                </label>
-                <input
-                  id="name"
-                  name="name"
-                  type="text"
-                  autoComplete="name"
-                  required
-                  aria-required="true"
-                  aria-describedby={fieldErrors.name ? "name-error" : undefined}
-                  value={form.name}
-                  onChange={handleChange}
-                  placeholder="Your name"
-                  className={INPUT_CLASSES}
-                  style={INPUT_BG}
-                />
-                {fieldErrors.name && (
-                  <p
-                    id="name-error"
-                    className="text-sm"
-                    style={{ color: "var(--error)" }}
-                  >
-                    {fieldErrors.name}
-                  </p>
-                )}
-              </div>
-
-              {/* Email */}
-              <div className="flex flex-col gap-1">
-                <label
-                  htmlFor="email"
-                  className="text-xs uppercase tracking-widest"
-                  style={{ color: "var(--text-muted)" }}
-                >
-                  Email
-                </label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  aria-required="true"
-                  aria-describedby={
-                    fieldErrors.email ? "email-error" : undefined
-                  }
-                  value={form.email}
-                  onChange={handleChange}
-                  placeholder="you@example.com"
-                  className={INPUT_CLASSES}
-                  style={INPUT_BG}
-                />
-                {fieldErrors.email && (
-                  <p
-                    id="email-error"
-                    className="text-sm"
-                    style={{ color: "var(--error)" }}
-                  >
-                    {fieldErrors.email}
-                  </p>
-                )}
-              </div>
-
-              {/* Inquiry type */}
-              <div className="flex flex-col gap-1">
-                <label
-                  htmlFor="inquiry"
-                  className="text-xs uppercase tracking-widest"
-                  style={{ color: "var(--text-muted)" }}
-                >
-                  Inquiry Type
-                </label>
-                <select
-                  id="inquiry"
-                  name="inquiry"
-                  required
-                  aria-required="true"
-                  aria-describedby={
-                    fieldErrors.inquiry ? "inquiry-error" : undefined
-                  }
-                  value={form.inquiry}
-                  onChange={handleChange}
-                  className={`${INPUT_CLASSES} appearance-none cursor-pointer`}
+              >
+                Let&apos;s make <br />
+                something{" "}
+                <span
                   style={{
-                    ...INPUT_BG,
-                    color: form.inquiry
-                      ? "var(--text-primary)"
-                      : "var(--text-muted)",
-                    backgroundImage: SELECT_CHEVRON,
-                    backgroundRepeat: "no-repeat",
-                    backgroundPosition: "right 0.75rem center",
-                    backgroundSize: "16px",
-                    paddingRight: "2.5rem",
+                    color: "var(--accent)",
+                    fontStyle: "italic",
+                    fontWeight: 400,
                   }}
                 >
-                  {INQUIRY_OPTIONS.map((opt) => (
-                    <option
-                      key={opt.value}
-                      value={opt.value}
-                      disabled={opt.disabled}
-                    >
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
-                {fieldErrors.inquiry && (
-                  <p
-                    id="inquiry-error"
-                    className="text-sm"
-                    style={{ color: "var(--error)" }}
-                  >
-                    {fieldErrors.inquiry}
-                  </p>
-                )}
-              </div>
-
-              {/* Message */}
-              <div className="flex flex-col gap-1">
-                <label
-                  htmlFor="message"
-                  className="text-xs uppercase tracking-widest"
-                  style={{ color: "var(--text-muted)" }}
-                >
-                  Message
-                </label>
-                <textarea
-                  id="message"
-                  name="message"
-                  rows={6}
-                  required
-                  aria-required="true"
-                  aria-describedby={
-                    fieldErrors.message ? "message-error" : undefined
-                  }
-                  value={form.message}
-                  onChange={handleChange}
-                  placeholder="Tell me about the project or role..."
-                  className={`${INPUT_CLASSES} max-h-48 resize-y`}
-                  style={INPUT_BG}
-                />
-                {fieldErrors.message && (
-                  <p
-                    id="message-error"
-                    className="text-sm"
-                    style={{ color: "var(--error)" }}
-                  >
-                    {fieldErrors.message}
-                  </p>
-                )}
-              </div>
-
-              {/* Submit */}
-              <button
-                type="submit"
-                disabled={status === "sending" || status === "success"}
-                className="inline-flex items-center gap-2 px-6 py-3 text-sm font-medium rounded-lg transition-opacity duration-200 self-start focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
+                  real.
+                </span>
+              </h2>
+              <p
                 style={{
-                  backgroundColor:
-                    status === "success" ? "transparent" : "var(--accent)",
-                  color:
-                    status === "success" ? "var(--accent)" : "var(--bg-base)",
-                  border:
-                    status === "success"
-                      ? "1px solid var(--accent)"
-                      : "1px solid transparent",
-                  opacity: status === "sending" ? 0.6 : 1,
-                  cursor:
-                    status === "sending" || status === "success"
-                      ? "not-allowed"
-                      : "pointer",
+                  fontSize: 16,
+                  color: "var(--text-secondary)",
+                  maxWidth: 440,
+                  marginTop: 20,
+                  lineHeight: 1.6,
                 }}
               >
-                <FiSend size={14} />
-                {status === "idle" && "Send Message"}
-                {status === "sending" && "Sending\u2026"}
-                {status === "success" && "Message Sent"}
-                {status === "error" && "Try Again"}
-              </button>
+                Available for freelance projects and contract engineering — from
+                one-off integrations to end-to-end product builds. Usually reply
+                within 24 hours.
+              </p>
 
-              {/* Success / error feedback */}
-              {status === "success" && (
-                <p className="text-xs" style={{ color: "var(--success)" }}>
-                  Got it &mdash; I&apos;ll get back to you soon.
-                </p>
-              )}
-              {status === "error" && (
-                <p className="text-xs" style={{ color: "var(--error)" }}>
-                  Something went wrong. Try emailing me at{" "}
-                  <span style={{ color: "var(--text-secondary)" }}>
-                    aryansalian5678@gmail.com
-                  </span>
-                  .
-                </p>
-              )}
-            </form>
-          </div>
-
-          {/* Social links panel */}
-          <div className="flex flex-col gap-6 pt-1">
-            <p
-              className="text-xs uppercase tracking-widest"
-              style={{ color: "var(--text-muted)" }}
-            >
-              Find me online
-            </p>
-
-            {SOCIAL_LINKS.map(({ label, href, icon: Icon }) => (
-              <SafeExternalLink
-                key={label}
-                href={href}
-                className="inline-flex items-center gap-3 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)]"
+              <div
+                className="flex flex-col gap-4"
+                style={{
+                  marginTop: 40,
+                  paddingTop: 24,
+                  borderTop: "1px solid var(--divider)",
+                }}
               >
-                <Icon size={16} />
-                {label}
-              </SafeExternalLink>
-            ))}
+                {SOCIAL_ROWS.map(({ icon: Icon, label, value, href }, i) => {
+                  const row = (
+                    <div className="flex items-center gap-5">
+                      <div
+                        style={{
+                          width: 40,
+                          height: 40,
+                          borderRadius: 10,
+                          background: "var(--bg-surface)",
+                          border: "1px solid var(--divider)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          color: "var(--text-muted)",
+                          flexShrink: 0,
+                        }}
+                      >
+                        <Icon size={16} />
+                      </div>
+                      <div
+                        className="flex-1 flex items-baseline justify-between gap-4"
+                        style={{
+                          borderBottom: "1px solid var(--divider)",
+                          paddingBottom: 14,
+                        }}
+                      >
+                        <div>
+                          <p
+                            style={{
+                              fontSize: 10,
+                              color: "var(--text-muted)",
+                              letterSpacing: "0.2em",
+                              textTransform: "uppercase",
+                              margin: 0,
+                              fontFamily: "var(--font-mono)",
+                            }}
+                          >
+                            {label}
+                          </p>
+                          <p
+                            style={{
+                              fontSize: 15,
+                              color: "var(--text-primary)",
+                              margin: "4px 0 0",
+                            }}
+                          >
+                            {value}
+                          </p>
+                        </div>
+                        {href && <ArrowUpRight size={16} />}
+                      </div>
+                    </div>
+                  );
+                  return href ? (
+                    <SafeExternalLink
+                      key={i}
+                      href={href}
+                      style={{
+                        textDecoration: "none",
+                        color: "inherit",
+                      }}
+                    >
+                      {row}
+                    </SafeExternalLink>
+                  ) : (
+                    <div key={i}>{row}</div>
+                  );
+                })}
+              </div>
+            </div>
+          </Reveal>
 
-            {/* Divider */}
-            <div
-              style={{
-                borderTop: "1px solid var(--border)",
-                marginTop: "0.5rem",
-              }}
-            />
+          {/* Right column: form card */}
+          <Reveal>
+            <SpotCard style={{ padding: "clamp(20px,4vw,32px)" }}>
+              <div className="flex items-center justify-between mb-5">
+                <span
+                  style={{
+                    fontSize: 10,
+                    color: "var(--text-muted)",
+                    letterSpacing: "0.2em",
+                    textTransform: "uppercase",
+                    fontFamily: "var(--font-mono)",
+                  }}
+                >
+                  New inquiry
+                </span>
+                <span
+                  style={{
+                    fontSize: 10,
+                    color: "var(--text-muted)",
+                    letterSpacing: "0.2em",
+                    textTransform: "uppercase",
+                    fontFamily: "var(--font-mono)",
+                  }}
+                >
+                  Replies in ~24h
+                </span>
+              </div>
 
-            <p
-              className="text-xs leading-relaxed"
-              style={{ color: "var(--text-muted)" }}
-            >
-              Based in Bangalore, India.
-              <br />
-              Open to remote and hybrid roles.
-            </p>
-          </div>
-        </motion.div>
+              <form
+                onSubmit={onSubmit}
+                noValidate
+                className="flex flex-col gap-4"
+              >
+                {/* Honeypot */}
+                <input
+                  type="text"
+                  name="website"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  aria-hidden="true"
+                  value={form.website}
+                  onChange={handleChange}
+                  style={{
+                    position: "absolute",
+                    left: "-10000px",
+                    opacity: 0,
+                    pointerEvents: "none",
+                  }}
+                />
+
+                <FloatingField
+                  name="name"
+                  label="Your name"
+                  value={form.name}
+                  error={errors.name}
+                  focused={focusField === "name"}
+                  isFloating={floating("name")}
+                  onChange={handleChange}
+                  onFocus={() => setFocusField("name")}
+                  onBlur={() => setFocusField(null)}
+                  autoComplete="name"
+                  required
+                />
+
+                <FloatingField
+                  name="email"
+                  label="Email address"
+                  type="email"
+                  value={form.email}
+                  error={errors.email}
+                  focused={focusField === "email"}
+                  isFloating={floating("email")}
+                  onChange={handleChange}
+                  onFocus={() => setFocusField("email")}
+                  onBlur={() => setFocusField(null)}
+                  autoComplete="email"
+                  required
+                />
+
+                <FloatingSelect
+                  name="inquiry"
+                  label="Inquiry type"
+                  value={form.inquiry}
+                  error={errors.inquiry}
+                  focused={focusField === "inquiry"}
+                  isFloating={floating("inquiry")}
+                  onChange={handleChange}
+                  onFocus={() => setFocusField("inquiry")}
+                  onBlur={() => setFocusField(null)}
+                  options={INQUIRY_OPTIONS}
+                />
+
+                <FloatingField
+                  name="message"
+                  label="Message"
+                  value={form.message}
+                  error={errors.message}
+                  focused={focusField === "message"}
+                  isFloating={floating("message")}
+                  onChange={handleChange}
+                  onFocus={() => setFocusField("message")}
+                  onBlur={() => setFocusField(null)}
+                  rows={5}
+                  required
+                />
+
+                <button
+                  type="submit"
+                  disabled={status === "sending" || status === "success"}
+                  className="btn-xl primary"
+                  style={{
+                    justifyContent: "center",
+                    marginTop: 4,
+                    background:
+                      status === "success" ? "var(--success)" : "var(--accent)",
+                    transition: "all 300ms var(--ease-emph)",
+                    cursor:
+                      status === "sending" || status === "success"
+                        ? "not-allowed"
+                        : "pointer",
+                  }}
+                >
+                  {status === "idle" && (
+                    <>
+                      Send message <Send size={14} />
+                    </>
+                  )}
+                  {status === "sending" && (
+                    <>
+                      <span
+                        aria-hidden="true"
+                        style={{
+                          width: 12,
+                          height: 12,
+                          border: "1.5px solid var(--bg-base)",
+                          borderTopColor: "transparent",
+                          borderRadius: "50%",
+                          animation: "contactSpin 700ms linear infinite",
+                        }}
+                      />
+                      Sending…
+                    </>
+                  )}
+                  {status === "success" && (
+                    <>
+                      <Check size={14} /> Sent — talk soon
+                    </>
+                  )}
+                  {status === "error" && <>Try again</>}
+                </button>
+
+                {status === "error" && (
+                  <p style={{ fontSize: 12, color: "var(--error)" }}>
+                    Something went wrong. Email me at{" "}
+                    <span style={{ color: "var(--text-secondary)" }}>
+                      aryansalian5678@gmail.com
+                    </span>
+                    .
+                  </p>
+                )}
+              </form>
+              <style>{`@keyframes contactSpin { to { transform: rotate(360deg); } }`}</style>
+            </SpotCard>
+          </Reveal>
+        </div>
       </div>
     </section>
+  );
+}
+
+// ─── Floating-label field primitives ────────────────────────────────────────
+
+interface FieldBase {
+  name: keyof FormState;
+  label: string;
+  value: string;
+  error?: string;
+  focused: boolean;
+  isFloating: boolean;
+  onChange: (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >,
+  ) => void;
+  onFocus: () => void;
+  onBlur: () => void;
+}
+
+function labelStyle(
+  isFloating: boolean,
+  focused: boolean,
+): React.CSSProperties {
+  return {
+    position: "absolute",
+    left: 14,
+    top: isFloating ? 6 : "50%",
+    transform: isFloating ? "none" : "translateY(-50%)",
+    fontSize: isFloating ? 10 : 13,
+    letterSpacing: isFloating ? "0.15em" : "0",
+    textTransform: isFloating ? "uppercase" : "none",
+    color: focused ? "var(--accent)" : "var(--text-muted)",
+    fontFamily: isFloating ? "var(--font-mono)" : "var(--font-display)",
+    pointerEvents: "none",
+    background: isFloating ? "var(--bg-base)" : "transparent",
+    padding: isFloating ? "0 6px" : 0,
+    zIndex: 1,
+    transition: "all 200ms var(--ease-emph)",
+  };
+}
+
+function FloatingField({
+  name,
+  label,
+  value,
+  error,
+  focused,
+  isFloating,
+  onChange,
+  onFocus,
+  onBlur,
+  type = "text",
+  rows,
+  autoComplete,
+  required,
+}: FieldBase & {
+  type?: string;
+  rows?: number;
+  autoComplete?: string;
+  required?: boolean;
+}) {
+  const common = {
+    id: name,
+    name,
+    value,
+    onChange,
+    onFocus,
+    onBlur,
+    autoComplete,
+    required,
+    "aria-required": required ? true : undefined,
+    "aria-invalid": !!error,
+    "aria-describedby": error ? `${name}-error` : undefined,
+    style: {
+      width: "100%",
+      padding: rows ? "22px 14px 12px" : "22px 14px 10px",
+      background: "var(--bg-base)",
+      color: "var(--text-primary)",
+      border: "1px solid " + (focused ? "var(--accent)" : "var(--divider)"),
+      borderRadius: 10,
+      fontFamily: "var(--font-display)",
+      fontSize: 14,
+      outline: "none",
+      resize: rows ? ("vertical" as const) : ("none" as const),
+      transition: "border-color 200ms, box-shadow 200ms",
+      boxShadow: focused ? "0 0 0 4px var(--accent-subtle)" : "none",
+      appearance: "none" as const,
+    },
+  };
+  return (
+    <div style={{ position: "relative" }}>
+      <label htmlFor={name} style={labelStyle(isFloating, focused)}>
+        {label}
+      </label>
+      {rows ? (
+        <textarea {...common} rows={rows} />
+      ) : (
+        <input {...common} type={type} />
+      )}
+      {error && (
+        <p
+          id={`${name}-error`}
+          style={{
+            fontSize: 12,
+            color: "var(--error)",
+            margin: "6px 0 0",
+          }}
+        >
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function FloatingSelect({
+  name,
+  label,
+  value,
+  error,
+  focused,
+  isFloating,
+  onChange,
+  onFocus,
+  onBlur,
+  options,
+}: FieldBase & {
+  options: Array<{ value: string; label: string }>;
+}) {
+  return (
+    <div style={{ position: "relative" }}>
+      <label htmlFor={name} style={labelStyle(isFloating, focused)}>
+        {label}
+      </label>
+      <select
+        id={name}
+        name={name}
+        value={value}
+        onChange={onChange}
+        onFocus={onFocus}
+        onBlur={onBlur}
+        required
+        aria-required="true"
+        aria-invalid={!!error}
+        aria-describedby={error ? `${name}-error` : undefined}
+        style={{
+          width: "100%",
+          padding: "22px 14px 10px",
+          background: "var(--bg-base)",
+          color: value ? "var(--text-primary)" : "var(--text-muted)",
+          border: "1px solid " + (focused ? "var(--accent)" : "var(--divider)"),
+          borderRadius: 10,
+          fontFamily: "var(--font-display)",
+          fontSize: 14,
+          outline: "none",
+          transition: "border-color 200ms, box-shadow 200ms",
+          boxShadow: focused ? "0 0 0 4px var(--accent-subtle)" : "none",
+          cursor: "pointer",
+          appearance: "none",
+          backgroundImage:
+            "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23787068' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E\")",
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "right 0.75rem center",
+          backgroundSize: "16px",
+          paddingRight: "2.5rem",
+        }}
+      >
+        <option value="" />
+        {options.map((o) => (
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
+        ))}
+      </select>
+      {error && (
+        <p
+          id={`${name}-error`}
+          style={{
+            fontSize: 12,
+            color: "var(--error)",
+            margin: "6px 0 0",
+          }}
+        >
+          {error}
+        </p>
+      )}
+    </div>
   );
 }

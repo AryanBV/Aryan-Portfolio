@@ -157,6 +157,16 @@ describe("next.config.ts CSP snapshot", () => {
     expect(src).toContain("Cross-Origin-Opener-Policy");
     expect(src).toContain("same-origin");
   });
+  it("gates 'unsafe-eval' behind NODE_ENV === 'development' (never ships to prod)", () => {
+    // The source may contain 'unsafe-eval' but only inside an `isDev` branch.
+    // This test locks that guard in so a future refactor can't accidentally
+    // promote it to the production CSP.
+    const hasEvalDirective = src.includes("'unsafe-eval'");
+    if (hasEvalDirective) {
+      expect(src).toMatch(/NODE_ENV\s*===\s*["']development["']/);
+      expect(src).toMatch(/isDev\s*\?/);
+    }
+  });
 });
 
 // ─── Render-site source scans (the real lock-in) ──────────────────────────────
