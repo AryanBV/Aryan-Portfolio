@@ -262,7 +262,7 @@ export default function Projects() {
           <div className="flex items-baseline justify-between gap-6 flex-wrap mb-12">
             <div>
               <div className="eyebrow-line">
-                <span className="section-number">02</span>
+                <span className="section-number">01</span>
                 <span>Selected work</span>
               </div>
               <h2

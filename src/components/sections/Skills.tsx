@@ -1,13 +1,10 @@
-"use client";
-
-import { useState } from "react";
 import Reveal from "@/components/ui/Reveal";
 import SpotCard from "@/components/ui/SpotCard";
-import TechPill, { type TechPillMode } from "@/components/ui/TechPill";
+import TechPill from "@/components/ui/TechPill";
 import { Code, Layers, Zap } from "@/components/ui/Icons";
 
 // Three skill cards — Build / Integrate / Ship. Each has a primary list
-// (logos + names) and a secondary "also using" list (name only / small logo).
+// (logos + names) and a secondary "also using" list that matches the style.
 const SKILLS: Array<{
   icon: React.ComponentType<{ size?: number }>;
   title: string;
@@ -38,78 +35,26 @@ const SKILLS: Array<{
   },
 ];
 
-const LOGO_MODES: Array<{ id: TechPillMode; label: string }> = [
-  { id: "both", label: "Logo + name" },
-  { id: "logo", label: "Logo only" },
-  { id: "name", label: "Name only" },
-];
-
 export default function Skills() {
-  const [mode, setMode] = useState<TechPillMode>("both");
-
   return (
     <section id="skills" className="py-16 md:py-24 lg:py-32 relative z-[2]">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12">
         <Reveal>
-          <div className="flex items-end justify-between gap-6 flex-wrap mb-12">
-            <div>
-              <div className="eyebrow-line">
-                <span className="section-number">04</span>
-                <span>Skills</span>
-              </div>
-              <h2
-                style={{
-                  fontSize: "var(--fluid-h2)",
-                  fontWeight: 600,
-                  letterSpacing: "-0.025em",
-                  margin: "20px 0 0",
-                }}
-              >
-                What I build with.
-              </h2>
+          <div className="mb-12">
+            <div className="eyebrow-line">
+              <span className="section-number">03</span>
+              <span>Skills</span>
             </div>
-            <div
-              role="radiogroup"
-              aria-label="Tech pill display mode"
+            <h2
               style={{
-                display: "inline-flex",
-                padding: 4,
-                borderRadius: 10,
-                background: "var(--bg-surface)",
-                border: "1px solid var(--divider)",
-                alignItems: "center",
-                gap: 2,
+                fontSize: "var(--fluid-h2)",
+                fontWeight: 600,
+                letterSpacing: "-0.025em",
+                margin: "20px 0 0",
               }}
             >
-              {LOGO_MODES.map((m) => (
-                <button
-                  key={m.id}
-                  role="radio"
-                  aria-checked={mode === m.id}
-                  onClick={() => setMode(m.id)}
-                  style={{
-                    fontSize: 10,
-                    letterSpacing: "0.18em",
-                    textTransform: "uppercase",
-                    padding: "8px 12px",
-                    borderRadius: 7,
-                    background:
-                      mode === m.id ? "var(--accent-subtle)" : "transparent",
-                    color:
-                      mode === m.id ? "var(--accent)" : "var(--text-muted)",
-                    border:
-                      mode === m.id
-                        ? "1px solid var(--accent-dim)"
-                        : "1px solid transparent",
-                    cursor: "pointer",
-                    transition: "all 200ms var(--ease-emph)",
-                    fontFamily: "var(--font-mono)",
-                  }}
-                >
-                  {m.label}
-                </button>
-              ))}
-            </div>
+              What I build with.
+            </h2>
           </div>
         </Reveal>
 
@@ -201,7 +146,7 @@ export default function Skills() {
                       </p>
                       <div className="flex flex-wrap gap-1.5">
                         {s.primary.map((t) => (
-                          <TechPill key={t} name={t} mode={mode} />
+                          <TechPill key={t} name={t} />
                         ))}
                       </div>
                     </div>
@@ -226,7 +171,7 @@ export default function Skills() {
                       </p>
                       <div className="flex flex-wrap gap-x-3.5 gap-y-2.5">
                         {s.secondary.map((t) => (
-                          <TechPill key={t} name={t} mode={mode} secondary />
+                          <TechPill key={t} name={t} secondary />
                         ))}
                       </div>
                     </div>

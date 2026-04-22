@@ -91,6 +91,20 @@ export const Zap = (p: IconProps) => (
     <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
   </svg>
 );
+export const Star = (p: IconProps) => (
+  <svg {...base(p)}>
+    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+  </svg>
+);
+export const GitFork = (p: IconProps) => (
+  <svg {...base(p)}>
+    <circle cx="12" cy="18" r="3" />
+    <circle cx="6" cy="6" r="3" />
+    <circle cx="18" cy="6" r="3" />
+    <path d="M18 9v1a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V9" />
+    <path d="M12 12v3" />
+  </svg>
+);
 export const Check = (p: IconProps) => (
   <svg {...base(p)}>
     <polyline points="20 6 9 17 4 12" />

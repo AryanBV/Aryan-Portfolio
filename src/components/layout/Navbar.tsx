@@ -8,8 +8,8 @@ const NAV_LINKS = [
   { n: "01", label: "Work", href: "#projects", id: "projects" },
   { n: "02", label: "About", href: "#about", id: "about" },
   { n: "03", label: "Skills", href: "#skills", id: "skills" },
-  { n: "04", label: "Certs", href: "#certifications", id: "certifications" },
-  { n: "05", label: "Stats", href: "#stats", id: "stats" },
+  { n: "04", label: "Stats", href: "#stats", id: "stats" },
+  { n: "05", label: "Certs", href: "#certifications", id: "certifications" },
 ];
 
 // Floating pill nav that shrinks to a compact rounded bar on scroll.

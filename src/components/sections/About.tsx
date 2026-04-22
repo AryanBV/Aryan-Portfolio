@@ -37,12 +37,12 @@ export default function About() {
         }}
       />
       <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 relative z-[1]">
-        <div className="grid grid-cols-1 lg:grid-cols-[0.7fr_1.3fr] gap-8 lg:gap-16">
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,0.7fr)_minmax(0,1.3fr)] gap-8 lg:gap-16">
           {/* Left: eyebrow + title + currently */}
           <Reveal>
             <div>
               <div className="eyebrow-line">
-                <span className="section-number">03</span>
+                <span className="section-number">02</span>
                 <span>About</span>
               </div>
               <h2

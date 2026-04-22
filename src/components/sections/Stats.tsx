@@ -6,7 +6,14 @@ import SpotCard from "@/components/ui/SpotCard";
 import CountUp from "@/components/ui/CountUp";
 import Heatmap from "@/components/ui/Heatmap";
 import MagneticLink from "@/components/ui/MagneticLink";
-import { Code, Zap, Layers, Github, ArrowUpRight } from "@/components/ui/Icons";
+import {
+  Code,
+  Zap,
+  Star,
+  GitFork,
+  Github,
+  ArrowUpRight,
+} from "@/components/ui/Icons";
 import { safeFetch } from "@/lib/safe-fetch";
 import { githubResponseSchema, type GitHubResponse } from "@/lib/github-schema";
 
@@ -170,7 +177,7 @@ export default function Stats() {
           <div className="flex items-baseline justify-between gap-6 flex-wrap mb-12">
             <div>
               <div className="eyebrow-line">
-                <span className="section-number">01</span>
+                <span className="section-number">04</span>
                 <span>Proof of work</span>
               </div>
               <h2
@@ -214,13 +221,13 @@ export default function Stats() {
               <StatTile
                 value={data?.totalStars}
                 label="Total stars"
-                icon={Zap}
+                icon={Star}
                 loading={loading}
               />
               <StatTile
                 value={data?.totalForks}
                 label="Forks"
-                icon={Layers}
+                icon={GitFork}
                 loading={loading}
               />
               <StatTile
@@ -282,7 +289,7 @@ export default function Stats() {
         </Reveal>
 
         {/* Bottom row: languages + top repos */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.3fr] gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] gap-4">
           <Reveal>
             <SpotCard style={{ padding: "24px 24px", height: "100%" }}>
               <p
@@ -539,7 +546,7 @@ export default function Stats() {
                           gap: 4,
                         }}
                       >
-                        <Zap size={11} /> {r.stars}
+                        <Star size={11} /> {r.stars}
                       </span>
                       <span
                         style={{
