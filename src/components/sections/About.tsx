@@ -93,8 +93,9 @@ export default function About() {
                     lineHeight: 1.55,
                   }}
                 >
-                  Shipping the PDF trilogy. Open to full-time SWE roles in
-                  Bangalore or remote. Interested in infra + developer tools.
+                  Shipping the PDF trilogy. Taking on freelance and contract
+                  work — web apps, MCP servers, Python tooling, AI integrations.
+                  Based in Bangalore, working with clients remotely.
                 </p>
               </div>
             </div>
@@ -122,10 +123,11 @@ export default function About() {
                 >
                   Amar Jyothi Spare Parts
                 </MagneticLink>{" "}
-                — an automotive retail business. Watching purchases tracked in
-                paper notebooks, supplier records filed in cabinets, and the
-                entire stock counted by hand every six months showed me how much
-                time manual processes consume.
+                — an automotive spare parts retail shop. Watching purchases,
+                payments, and sales tracked across ever-growing Excel
+                spreadsheets for 15 years &mdash; and the whole stock counted by
+                hand every six months &mdash; showed me how much time manual
+                processes quietly consume.
               </p>
             </Reveal>
             <Reveal>

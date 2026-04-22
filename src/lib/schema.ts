@@ -38,7 +38,7 @@ export const contactFormSchema = z.object({
     .refine((s) => !/[\r\n]/.test(s), {
       message: "Email contains invalid characters",
     }),
-  inquiry: z.enum(["fulltime", "freelance", "collaboration", "hello"], {
+  inquiry: z.enum(["freelance", "contract", "collaboration", "hello"], {
     message: "Please select an inquiry type",
   }),
   message: z.string().min(1, "Message is required").max(5000),

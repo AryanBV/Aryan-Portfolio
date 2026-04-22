@@ -2,14 +2,18 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { ArrowUpRight } from "@/components/ui/Icons";
 
+// hrefs use `/#id` (not `#id`) so nav works from sub-routes like
+// /projects/[slug] — a bare `#id` on a sub-route only updates the URL
+// hash without navigating back to the home page.
 const NAV_LINKS = [
-  { n: "01", label: "Work", href: "#projects", id: "projects" },
-  { n: "02", label: "About", href: "#about", id: "about" },
-  { n: "03", label: "Skills", href: "#skills", id: "skills" },
-  { n: "04", label: "Stats", href: "#stats", id: "stats" },
-  { n: "05", label: "Certs", href: "#certifications", id: "certifications" },
+  { n: "01", label: "Work", href: "/#projects", id: "projects" },
+  { n: "02", label: "About", href: "/#about", id: "about" },
+  { n: "03", label: "Skills", href: "/#skills", id: "skills" },
+  { n: "04", label: "Stats", href: "/#stats", id: "stats" },
+  { n: "05", label: "Certs", href: "/#certifications", id: "certifications" },
 ];
 
 // Floating pill nav that shrinks to a compact rounded bar on scroll.
@@ -119,8 +123,8 @@ export default function Navbar() {
         }}
       >
         {/* Logo */}
-        <a
-          href="#hero"
+        <Link
+          href="/#hero"
           className="flex items-center gap-3"
           style={{
             textDecoration: "none",
@@ -182,7 +186,7 @@ export default function Navbar() {
               SWE · BLR
             </span>
           </div>
-        </a>
+        </Link>
 
         {/* Desktop links */}
         <nav
@@ -225,13 +229,13 @@ export default function Navbar() {
         </nav>
 
         {/* Desktop CTA */}
-        <a
-          href="#contact"
+        <Link
+          href="/#contact"
           className="btn-xl primary hidden md:inline-flex"
           style={{ padding: "10px 18px", fontSize: 13 }}
         >
           Let&apos;s talk <ArrowUpRight size={14} />
-        </a>
+        </Link>
 
         {/* Mobile hamburger */}
         <button
@@ -337,14 +341,14 @@ export default function Navbar() {
               </span>
             </a>
           ))}
-          <a
-            href="#contact"
+          <Link
+            href="/#contact"
             onClick={() => setMenuOpen(false)}
             className="btn-xl primary"
             style={{ marginTop: 8, justifyContent: "center" }}
           >
             Let&apos;s talk <ArrowUpRight size={14} />
-          </a>
+          </Link>
         </div>
       )}
     </header>

@@ -1,11 +1,19 @@
-"use client";
-
+import Image from "next/image";
 import Reveal from "@/components/ui/Reveal";
 import SpotCard from "@/components/ui/SpotCard";
 import MagneticLink from "@/components/ui/MagneticLink";
 import { ArrowUpRight } from "@/components/ui/Icons";
 import { certificates } from "@/lib/certificates";
 
+// Certificate card: the whole document is visible — these are proof
+// artifacts, not hero images, so cropping them (objectFit: cover) was wrong.
+//   - objectFit: "contain" + inner padding so the full certificate fits.
+//   - Letterbox fills with the elevated surface so it reads as intentional.
+//   - Code + year chips moved OUT of the image overlay into a dedicated
+//     meta bar between the image and the content — they couldn't anchor
+//     reliably on the image bottom once the image stopped filling the
+//     container.
+//   - Subtle zoom on hover to match project-card interaction language.
 export default function Certificates() {
   return (
     <section
@@ -39,6 +47,7 @@ export default function Certificates() {
             {certificates.map((c) => (
               <SpotCard
                 key={c.id}
+                className="cert-card"
                 style={{
                   padding: 0,
                   display: "flex",
@@ -46,14 +55,49 @@ export default function Certificates() {
                   height: "100%",
                 }}
               >
+                {/* Image banner — padded + contained so whole cert is visible */}
                 <div
                   style={{
-                    padding: "22px 24px 18px",
+                    position: "relative",
+                    aspectRatio: "16 / 10",
+                    padding: 16,
+                    background: "var(--bg-elevated)",
                     borderBottom: "1px solid var(--divider)",
+                    overflow: "hidden",
+                  }}
+                >
+                  <div
+                    className="cert-image-wrap"
+                    style={{
+                      position: "relative",
+                      width: "100%",
+                      height: "100%",
+                      transition: "transform 500ms var(--ease-emph)",
+                    }}
+                  >
+                    <Image
+                      src={c.image}
+                      alt={`${c.name} certificate`}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 380px"
+                      style={{
+                        objectFit: "contain",
+                        objectPosition: "center",
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* Meta bar — code + year */}
+                <div
+                  style={{
+                    padding: "14px 20px",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "space-between",
                     gap: 12,
+                    borderBottom: "1px solid var(--divider)",
+                    background: "var(--bg-surface)",
                   }}
                 >
                   <span
@@ -64,6 +108,7 @@ export default function Certificates() {
                       textTransform: "uppercase",
                       color: "var(--accent)",
                       background: "var(--accent-dim)",
+                      border: "1px solid var(--accent-subtle)",
                       borderRadius: 4,
                       fontFamily: "var(--font-mono)",
                       fontWeight: 600,
@@ -83,9 +128,10 @@ export default function Certificates() {
                   </span>
                 </div>
 
+                {/* Content */}
                 <div
                   style={{
-                    padding: "22px 24px",
+                    padding: "20px 24px 24px",
                     display: "flex",
                     flexDirection: "column",
                     gap: 10,
@@ -126,7 +172,7 @@ export default function Certificates() {
                     {c.description}
                   </p>
                   {c.verifyUrl && (
-                    <div style={{ marginTop: 8 }}>
+                    <div style={{ marginTop: "auto", paddingTop: 12 }}>
                       <MagneticLink
                         external
                         href={c.verifyUrl}
@@ -145,6 +191,15 @@ export default function Certificates() {
           </div>
         </Reveal>
       </div>
+
+      <style>{`
+        .cert-card:hover .cert-image-wrap {
+          transform: scale(1.03);
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .cert-card:hover .cert-image-wrap { transform: none !important; }
+        }
+      `}</style>
     </section>
   );
 }

@@ -10,12 +10,11 @@ export default function LiveClock() {
   useEffect(() => {
     const fmt = () => {
       const now = new Date();
-      const formatter = new Intl.DateTimeFormat("en-GB", {
+      const formatter = new Intl.DateTimeFormat("en-US", {
         timeZone: "Asia/Kolkata",
-        hour: "2-digit",
+        hour: "numeric",
         minute: "2-digit",
-        second: "2-digit",
-        hour12: false,
+        hour12: true,
       });
       setTime(formatter.format(now));
     };

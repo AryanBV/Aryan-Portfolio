@@ -326,9 +326,9 @@ export const projects: Project[] = projectsSchema.parse([
   {
     slug: "ajsp-manager",
     title: "AJSP Manager",
-    tagline: "Automotive retail business management system",
+    tagline: "Business management PWA for a family-run spare parts shop",
     description:
-      "Client-commissioned full-stack business management system running daily at an automotive spare parts retailer in Karnataka. Handles inventory tracking, billing, supplier management, and daily operations — replacing a manual paper-based workflow.",
+      "Full-stack PWA running daily at my family's automotive spare parts retailer in Karnataka. Tracks purchases, payments, sales, funds, and loans — replacing a 15-year Excel workflow. An inventory counting system is built and ready for the next six-monthly count; everything else is already in daily production use.",
     status: "Live",
     kind: "web-app",
     tech: ["Next.js", "Supabase", "PostgreSQL", "TypeScript", "PWA"],
@@ -336,28 +336,33 @@ export const projects: Project[] = projectsSchema.parse([
     image: "/images/AJSP-Manager.png",
     caseStudy: {
       tagline:
-        "A full-stack PWA that replaced a 15-year paper workflow for an automotive parts retailer.",
+        "A full-stack PWA that replaced a 15-year Excel workflow for my family's automotive spare parts shop.",
       challenge:
-        "Amar Jyothi Spare Parts is an automotive parts retail business in Napoklu, Karnataka. For about 15 years, the business tracked inventory on paper notebooks and kept supplier records in physical files. Purchases, payments, and sales were all managed manually — purchases recorded as they happened, but sales tallied only once at the end of each month. Every six months, the entire stock had to be counted by hand: writing down every item name, counting quantities, then calculating the total stock value.",
+        "Amar Jyothi Spare Parts is my family's automotive spare parts retail shop in Karnataka. For about 15 years, the business tracked purchases, payments, and sales in Excel spreadsheets. Month-end was a slow manual tally, the spreadsheets grew brittle as formulas broke with every new row, and there was no single place to see where the business actually stood. Every six months, the entire stock also had to be counted by hand — writing down every item, counting quantities, then calculating the total stock value on paper.",
       approach:
-        "I built a full-stack PWA using Next.js and Supabase. The app tracks purchases, payments, and sales — purchases are entered as they happen, payments are recorded and marked when paid, and monthly summaries show total purchases, sales, and payments so the business knows exactly where it stands. For the bi-annual stock count, every item and its name is stored in the system. During a count, you enter only the quantity for each item, and the app calculates the total stock value automatically — eliminating the manual process of writing lists, counting, and calculating by hand. As a PWA, it is installable on mobile devices and accessible directly in the shop.",
+        "I built a full-stack PWA using Next.js, Supabase, and TypeScript. The app tracks purchases, payments, and sales in real time — purchases entered as they happen, payments marked when cleared, and monthly summaries that show exactly where the business stands without a manual tally. Fund management and loan tracking were added later and are also in daily use. The inventory-count module is fully implemented and waiting for the next six-monthly count: every item is already in the system, so the count becomes 'enter the quantity, let the app do the math.' As a PWA, it is installable on the owner's and my mother's phones and works without any app-store distribution.",
       impact:
-        "The app is used daily by the family business and has fully replaced the 15-year paper-based workflow. The bi-annual stock count — previously a manual process of listing every item, counting quantities, and calculating values — is now a matter of entering quantities while the system handles the rest. Monthly purchase, sale, and payment tracking gives clear visibility into business performance that didn't exist before.",
+        "The app is used daily by the family business and has replaced the 15-year Excel workflow for purchases, payments, sales, funds, and loans. Monthly visibility into performance is now a single screen instead of hand-reconciled spreadsheets. The inventory counting module is built and ready for the next six-monthly count — switching that process over is the last remaining step before AJSP Manager replaces Excel end-to-end.",
       techDetails: [
         {
           name: "Next.js",
           reason:
-            "Full-stack framework — handles both the frontend UI and API routes in one codebase",
+            "Full-stack framework — handles UI, Server Actions, and API routes in one codebase, with App Router + Server Components for fast navigation.",
         },
         {
           name: "Supabase",
           reason:
-            "PostgreSQL database with built-in auth and real-time capabilities",
+            "PostgreSQL + Auth + Storage in one platform. Google OAuth with a 2-email whitelist means no sign-up flow to build, and invoice photos live in Supabase Storage right next to their rows.",
+        },
+        {
+          name: "TypeScript + Zod",
+          reason:
+            "Strict types end to end, with Zod validating every form input both client- and server-side so bad data never reaches the database.",
         },
         {
           name: "PWA",
           reason:
-            "Installable on mobile, accessible in the shop without needing an app store",
+            "Installable on the owner's and my mother's phones straight from the URL — no app store, no review process, and offline-tolerant for when the shop's connection drops.",
         },
       ],
     },

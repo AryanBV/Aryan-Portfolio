@@ -36,10 +36,10 @@ const INITIAL_FORM: FormState = {
 };
 
 const INQUIRY_OPTIONS: Array<{ value: string; label: string }> = [
-  { value: "fulltime", label: "Full-time opportunity" },
-  { value: "freelance", label: "Freelance / contract project" },
+  { value: "freelance", label: "Freelance project" },
+  { value: "contract", label: "Contract / retainer" },
   { value: "collaboration", label: "Collaboration / open source" },
-  { value: "hello", label: "Just saying hello" },
+  { value: "hello", label: "Something else" },
 ];
 
 const SOCIAL_ROWS: Array<{
@@ -189,8 +189,9 @@ export default function Contact() {
                   lineHeight: 1.6,
                 }}
               >
-                Available for full-time SWE roles, freelance contracts, and
-                open-source collaboration. Usually reply within 24 hours.
+                Available for freelance projects and contract engineering — from
+                one-off integrations to end-to-end product builds. Usually reply
+                within 24 hours.
               </p>
 
               <div
@@ -291,25 +292,13 @@ export default function Contact() {
                 <span
                   style={{
                     fontSize: 10,
-                    color: "var(--status-live)",
+                    color: "var(--text-muted)",
                     letterSpacing: "0.2em",
                     textTransform: "uppercase",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 8,
                     fontFamily: "var(--font-mono)",
                   }}
                 >
-                  <span
-                    style={{
-                      width: 6,
-                      height: 6,
-                      borderRadius: "50%",
-                      background: "var(--status-live)",
-                      boxShadow: "0 0 8px var(--status-live)",
-                    }}
-                  />
-                  Encrypted
+                  Replies in ~24h
                 </span>
               </div>
 

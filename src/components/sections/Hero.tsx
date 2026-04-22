@@ -119,7 +119,7 @@ export default function Hero() {
             >
               Full-stack engineer who built the system that replaced a{" "}
               <em style={{ color: "var(--text-primary)", fontStyle: "italic" }}>
-                15-year paper workflow
+                15-year Excel workflow
               </em>
               . Now shipping a PDF editing trilogy with{" "}
               <strong style={{ color: "var(--text-primary)", fontWeight: 500 }}>

@@ -47,5 +47,6 @@ lighthouse-*.json
 # Claude Code local config
 .claude/
 
-# Audit reports
+# Audit reports + throwaway screenshots
 portfolio-audit-report.md
+audit-*.png
