@@ -40,7 +40,7 @@ src/
 │       ├── About.tsx           # Bio, strengths, education card
 │       ├── Projects.tsx        # Featured + regular project cards
 │       ├── Skills.tsx          # Categorized tech stack chips
-│       ├── CodeStats.tsx       # GitHub activity — animated counters, language bars
+│       ├── Stats.tsx           # GitHub activity — animated counters, language bars
 │       ├── Certificates.tsx    # Certification cards with verify links
 │       └── Contact.tsx         # EmailJS contact form + social links
 └── lib/                        # (empty — reserved for utilities)
@@ -54,7 +54,7 @@ tests/
 ## Key Patterns
 
 - **Single-page scroll:** All navigation is hash-based (`#about`, `#projects`, etc.). No multi-page routing.
-- **Section order:** Hero → About → Projects → Skills/CodeStats/Certificates → Contact
+- **Section order:** Hero → About → Projects → Skills/Stats/Certificates → Contact
 - **Dark theme only:** Custom properties in globals.css. Accent: `--accent`.
 - **Animations:** Framer Motion `useInView` triggers, consistent `[0.22, 1, 0.36, 1]` easing.
 - **GitHub data:** Client fetches `/api/github` (same-origin). Server calls GitHub API + contributions API.

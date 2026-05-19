@@ -108,7 +108,7 @@ export const projects: Project[] = projectsSchema.parse([
     title: "pdf-edit-engine",
     tagline: "Format-preserving PDF text editing at the content-stream level",
     description:
-      "A Python library that edits text in existing PDFs by modifying content-stream operators in place — preserving the original font, kerning, and exact pixel positioning instead of redact-and-replace. Every edit returns a structured FidelityReport so automated pipelines and AI agents can verify quality programmatically, and the engine powers a companion MCP server that exposes 38 tools to agents. v0.1.2 adds an 81-probe invariant audit suite across 14 layers as a permanent regression guard against future drift.",
+      "A Python library that edits text in existing PDFs by modifying content-stream operators in place — preserving the original font, kerning, and exact pixel positioning instead of redact-and-replace. Every edit returns a structured FidelityReport so automated pipelines and AI agents can verify quality programmatically, and the engine powers a companion MCP server that exposes 38 tools to agents. v0.1.3 introduces a typed Degradation system on top of the 144-probe invariant audit suite, so agents can gate on specific visual-fidelity events instead of a single boolean.",
     status: "Live",
     kind: "library",
     tech: [
@@ -127,11 +127,11 @@ export const projects: Project[] = projectsSchema.parse([
     metrics: [
       { label: "tests", value: "660+" },
       { label: "coverage", value: "88%" },
-      { label: "audit probes", value: "81" },
+      { label: "audit probes", value: "144" },
     ],
     terminalPreview: [
       "$ pip install pdf-edit-engine",
-      "Installed pdf-edit-engine 0.1.2",
+      "Installed pdf-edit-engine 0.1.3",
       "",
       ">>> from pdf_edit_engine import replace",
       '>>> r = replace("invoice.pdf",',
@@ -148,7 +148,7 @@ export const projects: Project[] = projectsSchema.parse([
       approach:
         "Instead of treating a PDF as a document, pdf-edit-engine treats it as an instruction stream. It interprets the content-stream operators inside BT/ET blocks, tracks graphics state — transformation matrix, active font, colour — and modifies the operators themselves. Where PyMuPDF — the mainstream Python tool — covers the original text with a white rectangle and stamps replacement text with a substitute font, pdf-edit-engine keeps the original glyphs and just changes the operators that position them. A two-tier font system extends embedded subsets on demand: a CMap-only fast path when the needed glyphs already exist in the font binary, and a full re-embed with --retain-gids when they don't. Replacement text has its kerning redistributed across glyphs so the output preserves the original string width exactly — no visible spacing gaps. Every edit returns a structured FidelityReport (font_preserved, overflow_detected, reflow_applied, glyphs_missing) so automated pipelines and AI agents can verify quality programmatically without visual review. Every function also supports dry_run=True to preview the report before touching disk.",
       impact:
-        "Shipped to PyPI as pdf-edit-engine v0.1.0 with 660+ tests at 88% coverage under mypy strict. An 81-probe invariant audit suite across 14 layers runs as a permanent regression guard on every change. The CI matrix validates the engine against seven PDF generators (Chrome, Google Docs, four reportlab variants, pikepdf synthetic) with 100% character agreement across all of them. Benchmarks on a 100-page PDF: 0.3 s to index 900 matches, 0.03 s to replace on a single page, 0.1 s for a 50-edit batch, under 500 MB of memory. The engine powers pdf-edit-mcp — a 38-tool MCP server that brings format-preserving editing to AI agents.",
+        "Shipped to PyPI as pdf-edit-engine v0.1.3 with 660+ tests at 88% coverage under mypy strict. A 144-probe invariant audit suite across 14 layers runs as a permanent regression guard on every change. The CI matrix validates the engine against seven PDF generators (Chrome, Google Docs, four reportlab variants, pikepdf synthetic) with 100% character agreement across all of them. Benchmarks on a 100-page PDF: 0.3 s to index 900 matches, 0.03 s to replace on a single page, 0.1 s for a 50-edit batch, under 500 MB of memory. The engine powers pdf-edit-mcp — a 38-tool MCP server that brings format-preserving editing to AI agents.",
       techDetails: [
         {
           name: "Python 3.12 + pikepdf",
@@ -168,7 +168,7 @@ export const projects: Project[] = projectsSchema.parse([
         {
           name: "pytest + mypy strict",
           reason:
-            "628 tests across seven PDF generators catch encoding and font edge cases; mypy strict keeps the public API type-safe so downstream tools like pdf-edit-mcp get reliable typings.",
+            "660+ tests across seven PDF generators catch encoding and font edge cases; mypy strict keeps the public API type-safe so downstream tools like pdf-edit-mcp get reliable typings.",
         },
       ],
     },
@@ -453,9 +453,9 @@ export const projects: Project[] = projectsSchema.parse([
             "Reasoning layer for the cases the keyword and rule passes can't disambiguate — chosen for the cost/latency profile that keeps classifications under thirty seconds.",
         },
         {
-          name: "Shadcn/ui + Tailwind",
+          name: "Radix UI + Tailwind",
           reason:
-            "Accessible component primitives over Tailwind utilities — fast iteration on the classifier UI without building a bespoke design system.",
+            "Radix UI primitives (Dialog, Tooltip, Collapsible, Slot) over Tailwind utilities — accessible behavior without imposing visual opinions, fast iteration on the classifier UI.",
         },
       ],
     },
@@ -468,7 +468,7 @@ export const projects: Project[] = projectsSchema.parse([
       "AI-powered diabetes management system with interactive family tree visualization and medical document OCR. Upload prescriptions, extract medicine names automatically, and manage family health profiles with hierarchical access control.",
     status: "Prototype",
     kind: "web-app",
-    tech: ["React", "TypeScript", "Express", "MySQL", "Tesseract.js"],
+    tech: ["React", "TypeScript", "Express", "Supabase", "Tesseract.js"],
     links: {
       github: "https://github.com/AryanBV/SMART_MED_2.0",
     },
