@@ -121,13 +121,13 @@ export default function Hero() {
               <em style={{ color: "var(--text-primary)", fontStyle: "italic" }}>
                 15-year Excel workflow
               </em>
-              . Now shipping a PDF editing trilogy with{" "}
+              . Now shipping a PDF editing trilogy with an audit suite of{" "}
               <strong style={{ color: "var(--text-primary)", fontWeight: 500 }}>
-                628 tests
+                81 invariant probes
               </strong>{" "}
               and{" "}
               <strong style={{ color: "var(--text-primary)", fontWeight: 500 }}>
-                85% coverage
+                88% coverage
               </strong>
               .
             </p>

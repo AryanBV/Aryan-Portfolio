@@ -50,3 +50,29 @@ describe("projects data", () => {
     }
   });
 });
+
+describe("trade-code entry", () => {
+  it("is at index 5, between lumina-crafts and smart-med", () => {
+    expect(projects[4]?.slug).toBe("lumina-crafts");
+    expect(projects[5]?.slug).toBe("trade-code");
+    expect(projects[6]?.slug).toBe("smart-med");
+  });
+
+  it("is returned by getProjectBySlug with the expected title", () => {
+    const tc = getProjectBySlug("trade-code");
+    expect(tc).toBeDefined();
+    expect(tc?.title).toBe("TradeCode");
+  });
+
+  it("appears in getProjectSlugs (case study route resolves)", () => {
+    expect(getProjectSlugs()).toContain("trade-code");
+  });
+
+  it("exposes the three required metric tiles in order", () => {
+    expect(getProjectBySlug("trade-code")?.metrics).toEqual([
+      { label: "HS codes", value: "10,468" },
+      { label: "classification", value: "<30s" },
+      { label: "model", value: "GPT-4o-mini" },
+    ]);
+  });
+});

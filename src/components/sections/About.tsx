@@ -11,7 +11,7 @@ const FACTS: Array<[label: string, value: string]> = [
   ["Duration", "2021–25"],
   ["Location", "Bangalore"],
   ["Cert", "Azure AI-900"],
-  ["Grad", "2025"],
+  ["Graduated", "2025"],
 ];
 
 export default function About() {

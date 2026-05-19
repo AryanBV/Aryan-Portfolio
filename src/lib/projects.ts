@@ -108,7 +108,7 @@ export const projects: Project[] = projectsSchema.parse([
     title: "pdf-edit-engine",
     tagline: "Format-preserving PDF text editing at the content-stream level",
     description:
-      "A Python library that edits text in existing PDFs by modifying content-stream operators in place — preserving the original font, kerning, and exact pixel positioning instead of redact-and-replace. Every edit returns a structured FidelityReport so automated pipelines and AI agents can verify quality programmatically, and the engine powers a companion MCP server that exposes 38 tools to agents.",
+      "A Python library that edits text in existing PDFs by modifying content-stream operators in place — preserving the original font, kerning, and exact pixel positioning instead of redact-and-replace. Every edit returns a structured FidelityReport so automated pipelines and AI agents can verify quality programmatically, and the engine powers a companion MCP server that exposes 38 tools to agents. v0.1.2 adds an 81-probe invariant audit suite across 14 layers as a permanent regression guard against future drift.",
     status: "Live",
     kind: "library",
     tech: [
@@ -125,13 +125,13 @@ export const projects: Project[] = projectsSchema.parse([
     },
     install: [{ label: "pip", command: "pip install pdf-edit-engine" }],
     metrics: [
-      { label: "tests", value: "628" },
-      { label: "coverage", value: "85%" },
-      { label: "PDF generators", value: "7" },
+      { label: "tests", value: "660+" },
+      { label: "coverage", value: "88%" },
+      { label: "audit probes", value: "81" },
     ],
     terminalPreview: [
       "$ pip install pdf-edit-engine",
-      "Installed pdf-edit-engine 0.1.0",
+      "Installed pdf-edit-engine 0.1.2",
       "",
       ">>> from pdf_edit_engine import replace",
       '>>> r = replace("invoice.pdf",',
@@ -148,7 +148,7 @@ export const projects: Project[] = projectsSchema.parse([
       approach:
         "Instead of treating a PDF as a document, pdf-edit-engine treats it as an instruction stream. It interprets the content-stream operators inside BT/ET blocks, tracks graphics state — transformation matrix, active font, colour — and modifies the operators themselves. Where PyMuPDF — the mainstream Python tool — covers the original text with a white rectangle and stamps replacement text with a substitute font, pdf-edit-engine keeps the original glyphs and just changes the operators that position them. A two-tier font system extends embedded subsets on demand: a CMap-only fast path when the needed glyphs already exist in the font binary, and a full re-embed with --retain-gids when they don't. Replacement text has its kerning redistributed across glyphs so the output preserves the original string width exactly — no visible spacing gaps. Every edit returns a structured FidelityReport (font_preserved, overflow_detected, reflow_applied, glyphs_missing) so automated pipelines and AI agents can verify quality programmatically without visual review. Every function also supports dry_run=True to preview the report before touching disk.",
       impact:
-        "Shipped to PyPI as pdf-edit-engine v0.1.0 with 628 tests at 85% coverage under mypy strict. The CI matrix validates the engine against seven PDF generators (Chrome, Google Docs, four reportlab variants, pikepdf synthetic) with 100% character agreement across all of them. Benchmarks on a 100-page PDF: 0.3 s to index 900 matches, 0.03 s to replace on a single page, 0.1 s for a 50-edit batch, under 500 MB of memory. The engine powers pdf-edit-mcp — a 38-tool MCP server that brings format-preserving editing to AI agents.",
+        "Shipped to PyPI as pdf-edit-engine v0.1.0 with 660+ tests at 88% coverage under mypy strict. An 81-probe invariant audit suite across 14 layers runs as a permanent regression guard on every change. The CI matrix validates the engine against seven PDF generators (Chrome, Google Docs, four reportlab variants, pikepdf synthetic) with 100% character agreement across all of them. Benchmarks on a 100-page PDF: 0.3 s to index 900 matches, 0.03 s to replace on a single page, 0.1 s for a 50-edit batch, under 500 MB of memory. The engine powers pdf-edit-mcp — a 38-tool MCP server that brings format-preserving editing to AI agents.",
       techDetails: [
         {
           name: "Python 3.12 + pikepdf",
@@ -406,6 +406,57 @@ export const projects: Project[] = projectsSchema.parse([
             "Payment gateway for the Indian market — integrated in test mode",
         },
         { name: "Vercel", reason: "Deployment and hosting" },
+      ],
+    },
+  },
+  {
+    slug: "trade-code",
+    title: "TradeCode",
+    tagline: "AI-powered HS code classification for Indian exporters",
+    description:
+      "A web app that classifies products against the 10,468-code Indian HS taxonomy using a hybrid pipeline — keyword matching, decision-tree rules, and GPT-4o-mini reasoning combined through a confidence aggregator. Returns a classification in under thirty seconds with a confidence score and per-result reasoning, so exporters can audit the answer before they file. Built to address a real cost: misclassification carries ₹50K–5L customs penalties and customs consultants charge ₹2K–10K per lookup, while doing it manually takes 30+ minutes per product.",
+    status: "Live",
+    kind: "web-app",
+    tech: ["Next.js", "TypeScript", "Supabase", "Prisma", "OpenAI", "Tailwind"],
+    links: {
+      live: "https://hs-code-classifier.vercel.app",
+      github: "https://github.com/AryanBV/hs-code-classifier",
+    },
+    metrics: [
+      { label: "HS codes", value: "10,468" },
+      { label: "classification", value: "<30s" },
+      { label: "model", value: "GPT-4o-mini" },
+    ],
+    caseStudy: {
+      tagline:
+        "Replacing 30-minute manual HS code lookups — and the ₹2K–10K consultant fees that go with them — with a sub-30-second AI classifier that shows its reasoning.",
+      challenge:
+        "Every Indian exporter has to assign an HS code to every product they ship, and getting it wrong is costly: customs authorities can levy penalties of ₹50K–5L per misclassified shipment. Manually mapping a product to the right code takes 30+ minutes per item against a catalogue of thousands, and most small exporters end up paying customs consultants ₹2K–10K per classification because the cost of being wrong dwarfs the consultant fee.",
+      approach:
+        "TradeCode combines three classification signals over an indexed catalogue of 10,468 HS codes: keyword matching for fast exact hits, decision-tree rules that encode the structural hierarchy of the HS taxonomy, and GPT-4o-mini reasoning for ambiguous cases the rule-based layer can't resolve. The three signals feed into a confidence aggregator that returns a single classification along with a confidence score and a human-readable explanation. A query that previously took thirty minutes returns in under thirty seconds, and because the model's reasoning is surfaced inline, exporters can audit the answer before they file rather than trusting a black-box decision.",
+      impact:
+        "The tool classifies any product against the 10,468-code Indian HS taxonomy in under thirty seconds — collapsing a 30+ minute manual workflow and removing the need to pay ₹2K–10K to a customs consultant for each lookup. Live at hs-code-classifier.vercel.app, the full hybrid pipeline (keyword + rules + GPT-4o-mini) runs end-to-end with confidence scores and per-classification reasoning surfaced inline.",
+      techDetails: [
+        {
+          name: "Next.js",
+          reason:
+            "App Router for the classifier UI plus server-side routes for the keyword and rule passes — one codebase across frontend and backend.",
+        },
+        {
+          name: "Supabase + Prisma",
+          reason:
+            "Postgres on Supabase holds the 10,468-row HS code catalogue; Prisma is the typed access layer so the schema and TypeScript stay in lockstep.",
+        },
+        {
+          name: "OpenAI GPT-4o-mini",
+          reason:
+            "Reasoning layer for the cases the keyword and rule passes can't disambiguate — chosen for the cost/latency profile that keeps classifications under thirty seconds.",
+        },
+        {
+          name: "Shadcn/ui + Tailwind",
+          reason:
+            "Accessible component primitives over Tailwind utilities — fast iteration on the classifier UI without building a bespoke design system.",
+        },
       ],
     },
   },
