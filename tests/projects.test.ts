@@ -61,7 +61,7 @@ describe("trade-code entry", () => {
   it("is returned by getProjectBySlug with the expected title", () => {
     const tc = getProjectBySlug("trade-code");
     expect(tc).toBeDefined();
-    expect(tc?.title).toBe("TradeCode");
+    expect(tc?.title).toBe("HS Code Classifier");
   });
 
   it("appears in getProjectSlugs (case study route resolves)", () => {

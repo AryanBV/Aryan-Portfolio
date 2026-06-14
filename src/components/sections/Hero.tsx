@@ -123,7 +123,7 @@ export default function Hero() {
               </em>
               . Now shipping a PDF editing trilogy with an audit suite of{" "}
               <strong style={{ color: "var(--text-primary)", fontWeight: 500 }}>
-                144 invariant probes
+                414 invariant probes
               </strong>{" "}
               and{" "}
               <strong style={{ color: "var(--text-primary)", fontWeight: 500 }}>
