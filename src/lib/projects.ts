@@ -405,51 +405,58 @@ export const projects: Project[] = projectsSchema.parse([
   {
     slug: "trade-code",
     title: "HS Code Classifier",
-    tagline: "AI-powered HS code classification for Indian exporters",
+    tagline: "ITC-HS export classification, with its legal basis cited",
     description:
-      "A web app that classifies products against the 10,468-code Indian HS taxonomy using a hybrid pipeline — keyword matching, decision-tree rules, and GPT-4o-mini reasoning combined through a confidence aggregator. Returns a classification in under thirty seconds with a confidence score and per-result reasoning, so exporters can audit the answer before they file. Built to address a real cost: misclassification carries ₹50K–5L customs penalties and customs consultants charge ₹2K–10K per lookup, while doing it manually takes 30+ minutes per product.",
+      "Prevyl is a free ITC-HS classifier for Indian exporters: describe a product and get its 8-digit export code with the legal basis cited — the chapter, heading, and tariff note it rests on, plus the General Interpretive Rule applied — so the answer is auditable before filing. A six-stage pipeline (L0–L5) runs Google Gemini 3.5 Flash for triage and final selection over hybrid retrieval (pgvector semantic search + Postgres full-text + a Gemini reranker) across the full 12,460-code Indian taxonomy, then a pure-SQL verifier checks every cited note against the source text and repairs codes that don't hold up. Confidence is shown as a calibrated band, never a fake number, and the whole brain is graded by a 385-case evaluation harness — 75% outright on the exact code, 84% in the top three.",
     status: "Live",
     kind: "web-app",
-    tech: ["Next.js", "TypeScript", "Supabase", "Prisma", "OpenAI", "Tailwind"],
+    tech: [
+      "Next.js",
+      "Express",
+      "TypeScript",
+      "Google Gemini",
+      "Supabase + pgvector",
+      "Prisma",
+    ],
     links: {
       live: "https://hscode.prevyl.com",
       github: "https://github.com/AryanBV/hs-code-classifier",
     },
     image: "/images/hs-code-classifier.png",
     metrics: [
-      { label: "HS codes", value: "10,468" },
-      { label: "classification", value: "<30s" },
-      { label: "model", value: "GPT-4o-mini" },
+      { label: "ITC-HS codes", value: "12,460" },
+      { label: "top-3 accuracy", value: "84%" },
+      { label: "model", value: "Gemini 3.5 Flash" },
     ],
     caseStudy: {
       tagline:
-        "Replacing 30-minute manual HS code lookups — and the ₹2K–10K consultant fees that go with them — with a sub-30-second AI classifier that shows its reasoning.",
+        "A free ITC-HS classifier that returns an 8-digit export code with its legal basis cited and a calibrated confidence band — a six-stage Gemini pipeline backstopped by a mechanical SQL verifier, graded by an honest eval harness instead of a demo.",
       challenge:
-        "Every Indian exporter has to assign an HS code to every product they ship, and getting it wrong is costly: customs authorities can levy penalties of ₹50K–5L per misclassified shipment. Manually mapping a product to the right code takes 30+ minutes per item against a catalogue of thousands, and most small exporters end up paying customs consultants ₹2K–10K per classification because the cost of being wrong dwarfs the consultant fee.",
+        "Every Indian exporter must put an 8-digit ITC-HS code on every shipment, and the taxonomy is unforgiving: 21 sections, 97 chapters, and 12,460 tariff lines whose distinctions turn on legal notes and General Interpretive Rules rather than common sense. Getting it wrong risks ₹50K–5L in customs penalties, so small exporters either burn 30+ minutes per product hunting the catalogue or pay a consultant ₹2K–10K per lookup. A language model can guess a code in seconds — but a confidently wrong code is worse than none, and a black-box guess nobody can check is unfileable. The real problem isn't speed; it's producing a code an exporter can audit against the actual tariff text before staking a shipment on it.",
       approach:
-        "HS Code Classifier combines three classification signals over an indexed catalogue of 10,468 HS codes: keyword matching for fast exact hits, decision-tree rules that encode the structural hierarchy of the HS taxonomy, and GPT-4o-mini reasoning for ambiguous cases the rule-based layer can't resolve. The three signals feed into a confidence aggregator that returns a single classification along with a confidence score and a human-readable explanation. A query that previously took thirty minutes returns in under thirty seconds, and because the model's reasoning is surfaced inline, exporters can audit the answer before they file rather than trusting a black-box decision.",
+        "Prevyl runs a six-stage pipeline (L0–L5) rather than a single prompt. L0 normalizes the query and flags multi-material goods; L1 (Google Gemini 3.5 Flash) triages each request into classify, ask, or refuse and extracts attributes; L2 does hybrid retrieval over the whole catalogue — pgvector HNSW search on 1536-dimension Gemini embeddings alongside Postgres full-text, reranked by Gemini Flash; L3 applies 1,505 deterministic chapter-exclusion rules and narrows the field to a handful of candidates; L4 (Gemini again) selects one code and must cite the heading or note and the General Interpretive Rule it relied on; and L5 — pure SQL and TypeScript, no model — mechanically verifies that citation against the real database text and the query embedding, feeding structured failures back to L4 to repair, up to two rounds. When a description is too thin to separate two siblings, the system asks one targeted question instead of guessing. Confidence is surfaced as a High/Medium/Low band whose underlying number is stripped at the type, client, and server layers, so the interface can't imply precision it doesn't have — and every result exports as a cited 'Classification Record' PDF.",
       impact:
-        "The tool classifies any product against the 10,468-code Indian HS taxonomy in under thirty seconds — collapsing a 30+ minute manual workflow and removing the need to pay ₹2K–10K to a customs consultant for each lookup. Live at hscode.prevyl.com, the full hybrid pipeline (keyword + rules + GPT-4o-mini) runs end-to-end with confidence scores and per-classification reasoning surfaced inline.",
+        "Prevyl is live and free at hscode.prevyl.com — an Express backend on Railway, a Next.js 16 frontend on Vercel, and Supabase Postgres with pgvector. What makes the accuracy claims trustworthy is the eval harness: a 385-case master suite over a frozen gold denominator, scored with real calibration (Brier, ECE, Wilson intervals) and McNemar significance gating so one principled change is judged per round. The validated numbers are measured, not marketed — 75.2% outright on the exact 8-digit code, 77.9% effective once clarifying-question recovery is counted, 84.4% in the top three, 87.3% at chapter and 84.1% at heading level — with a separate 60-case messy-real-world-input suite holding the honest figure at 67.8%. Median latency is about 26 seconds, and because every change is gated against the suite, a regression can't ship hidden behind a cherry-picked example.",
       techDetails: [
         {
-          name: "Next.js",
+          name: "Google Gemini 3.5 Flash",
           reason:
-            "App Router for the classifier UI plus server-side routes for the keyword and rule passes — one codebase across frontend and backend.",
+            "Drives L1 triage, L4 selection, and the L2 reranker (thinking level low), served through Google Vertex AI in production with the Gemini Developer API as a drop-in fallback. It replaced an earlier OpenAI GPT-4o-mini pipeline — and the eval surfaced a finding that shaped the design: the selection bottleneck is information, not model size (a larger model picked the same wrong sibling), so effort went into retrieval and verification rather than a bigger brain.",
         },
         {
-          name: "Supabase + Prisma",
+          name: "Postgres + pgvector on Supabase",
           reason:
-            "Postgres on Supabase holds the 10,468-row HS code catalogue; Prisma is the typed access layer so the schema and TypeScript stay in lockstep.",
+            "The 12,460-line ITC-HS taxonomy lives in a normalized schema (sections → chapters → headings → subheadings → tariff lines) with FK and regex CHECK constraints, chapter notes, and 1,505 exclusion rules as first-class data. Every tariff line carries a 1536-dim embedding for HNSW cosine retrieval, run beside Postgres full-text search so semantic and lexical recall back each other up.",
         },
         {
-          name: "OpenAI GPT-4o-mini",
+          name: "L5 mechanical verifier",
           reason:
-            "Reasoning layer for the cases the keyword and rule passes can't disambiguate — chosen for the cost/latency profile that keeps classifications under thirty seconds.",
+            "A pure SQL/TypeScript layer — no LLM — that runs ten checks on every selected code. The load-bearing one is verbatim-citation containment: the note or heading the model quoted must actually match the database text above a strict threshold, and the code's embedding must clear a cosine floor against the query. It's what lets the product promise 'a code you can check' instead of 'trust the AI', and it powers the repair loop that catches and re-selects bad codes.",
         },
         {
-          name: "Radix UI + Tailwind",
+          name: "Evaluation harness",
           reason:
-            "Radix UI primitives (Dialog, Tooltip, Collapsible, Slot) over Tailwind utilities — accessible behavior without imposing visual opinions, fast iteration on the classifier UI.",
+            "A 385-case suite over a frozen gold denominator measures outright vs ask-recovered accuracy, top-3, per-level routing, confident-wrong rate, and calibration (Brier + ECE with bootstrap CIs), with McNemar significance testing. It's why the accuracy figures are specific and defensible — and why regressions are caught before they ship rather than after.",
         },
       ],
     },

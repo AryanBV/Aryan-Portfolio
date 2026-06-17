@@ -70,9 +70,9 @@ describe("trade-code entry", () => {
 
   it("exposes the three required metric tiles in order", () => {
     expect(getProjectBySlug("trade-code")?.metrics).toEqual([
-      { label: "HS codes", value: "10,468" },
-      { label: "classification", value: "<30s" },
-      { label: "model", value: "GPT-4o-mini" },
+      { label: "ITC-HS codes", value: "12,460" },
+      { label: "top-3 accuracy", value: "84%" },
+      { label: "model", value: "Gemini 3.5 Flash" },
     ]);
   });
 });
