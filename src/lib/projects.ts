@@ -181,13 +181,7 @@ export const projects: Project[] = projectsSchema.parse([
       "Python (FastMCP) MCP server that exposes pdf-edit-engine's capabilities to AI agents over the Model Context Protocol — 38 tools across 7 categories and 3 built-in workflow prompts. v0.2.0 imports the engine in-process, so there's no subprocess, no JSON-RPC bridge, and no Node.js — one runtime, installable with pip or uvx. Every edit returns a FidelityReport agents can inspect to verify quality.",
     status: "Live",
     kind: "mcp-server",
-    tech: [
-      "Python 3.12",
-      "FastMCP",
-      "MCP SDK",
-      "pdf-edit-engine",
-      "pikepdf",
-    ],
+    tech: ["Python 3.12", "FastMCP", "MCP SDK", "pdf-edit-engine", "pikepdf"],
     links: {
       live: "https://pypi.org/project/pdf-edit-mcp/",
       github: "https://github.com/AryanBV/pdf-edit-mcp",
@@ -418,9 +412,10 @@ export const projects: Project[] = projectsSchema.parse([
     kind: "web-app",
     tech: ["Next.js", "TypeScript", "Supabase", "Prisma", "OpenAI", "Tailwind"],
     links: {
-      live: "https://hs-code-classifier.vercel.app",
+      live: "https://hscode.prevyl.com",
       github: "https://github.com/AryanBV/hs-code-classifier",
     },
+    image: "/images/hs-code-classifier.png",
     metrics: [
       { label: "HS codes", value: "10,468" },
       { label: "classification", value: "<30s" },
@@ -434,7 +429,7 @@ export const projects: Project[] = projectsSchema.parse([
       approach:
         "HS Code Classifier combines three classification signals over an indexed catalogue of 10,468 HS codes: keyword matching for fast exact hits, decision-tree rules that encode the structural hierarchy of the HS taxonomy, and GPT-4o-mini reasoning for ambiguous cases the rule-based layer can't resolve. The three signals feed into a confidence aggregator that returns a single classification along with a confidence score and a human-readable explanation. A query that previously took thirty minutes returns in under thirty seconds, and because the model's reasoning is surfaced inline, exporters can audit the answer before they file rather than trusting a black-box decision.",
       impact:
-        "The tool classifies any product against the 10,468-code Indian HS taxonomy in under thirty seconds — collapsing a 30+ minute manual workflow and removing the need to pay ₹2K–10K to a customs consultant for each lookup. Live at hs-code-classifier.vercel.app, the full hybrid pipeline (keyword + rules + GPT-4o-mini) runs end-to-end with confidence scores and per-classification reasoning surfaced inline.",
+        "The tool classifies any product against the 10,468-code Indian HS taxonomy in under thirty seconds — collapsing a 30+ minute manual workflow and removing the need to pay ₹2K–10K to a customs consultant for each lookup. Live at hscode.prevyl.com, the full hybrid pipeline (keyword + rules + GPT-4o-mini) runs end-to-end with confidence scores and per-classification reasoning surfaced inline.",
       techDetails: [
         {
           name: "Next.js",
