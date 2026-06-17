@@ -107,12 +107,72 @@ const projectsSchema = z.array(projectSchema).min(1);
 // Adding a new "on top" project means inserting at index 0 — no flag to flip.
 export const projects: Project[] = projectsSchema.parse([
   {
+    slug: "trade-code",
+    year: 2026,
+    title: "HS Code Classifier",
+    tagline: "ITC-HS export classification, with its legal basis cited",
+    description:
+      "A free tool that gives Indian exporters the correct 8-digit export (ITC-HS) code for any product — along with the official tariff rule it's based on, so the answer is easy to verify before filing. It turns a slow, error-prone lookup (30+ minutes, or a paid consultant) into a few seconds.",
+    status: "Live",
+    kind: "web-app",
+    tech: [
+      "Next.js",
+      "Express",
+      "TypeScript",
+      "Google Gemini",
+      "Supabase + pgvector",
+      "Prisma",
+    ],
+    links: {
+      live: "https://hscode.prevyl.com",
+      github: "https://github.com/AryanBV/hs-code-classifier",
+    },
+    image: "/images/hs-code-classifier.png",
+    metrics: [
+      { label: "ITC-HS codes", value: "12,460" },
+      { label: "top-3 accuracy", value: "84%" },
+      { label: "model", value: "Gemini 3.5 Flash" },
+    ],
+    caseStudy: {
+      tagline:
+        "A free ITC-HS classifier that returns an 8-digit export code with its legal basis cited and a calibrated confidence band — a six-stage Gemini pipeline backstopped by a mechanical SQL verifier, graded by an honest eval harness instead of a demo.",
+      challenge:
+        "Every Indian exporter must put an 8-digit ITC-HS code on every shipment, and the taxonomy is unforgiving: 21 sections, 97 chapters, and 12,460 tariff lines whose distinctions turn on legal notes and General Interpretive Rules rather than common sense. Getting it wrong risks ₹50K–5L in customs penalties, so small exporters either burn 30+ minutes per product hunting the catalogue or pay a consultant ₹2K–10K per lookup. A language model can guess a code in seconds — but a confidently wrong code is worse than none, and a black-box guess nobody can check is unfileable. The real problem isn't speed; it's producing a code an exporter can audit against the actual tariff text before staking a shipment on it.",
+      approach:
+        "Prevyl runs a six-stage pipeline (L0–L5) rather than a single prompt. L0 normalizes the query and flags multi-material goods; L1 (Google Gemini 3.5 Flash) triages each request into classify, ask, or refuse and extracts attributes; L2 does hybrid retrieval over the whole catalogue — pgvector HNSW search on 1536-dimension Gemini embeddings alongside Postgres full-text, reranked by Gemini Flash; L3 applies 1,505 deterministic chapter-exclusion rules and narrows the field to a handful of candidates; L4 (Gemini again) selects one code and must cite the heading or note and the General Interpretive Rule it relied on; and L5 — pure SQL and TypeScript, no model — mechanically verifies that citation against the real database text and the query embedding, feeding structured failures back to L4 to repair, up to two rounds. When a description is too thin to separate two siblings, the system asks one targeted question instead of guessing. Confidence is surfaced as a High/Medium/Low band whose underlying number is stripped at the type, client, and server layers, so the interface can't imply precision it doesn't have — and every result exports as a cited 'Classification Record' PDF.",
+      impact:
+        "Prevyl is live and free at hscode.prevyl.com — an Express backend on Railway, a Next.js 16 frontend on Vercel, and Supabase Postgres with pgvector. What makes the accuracy claims trustworthy is the eval harness: a 385-case master suite over a frozen gold denominator, scored with real calibration (Brier, ECE, Wilson intervals) and McNemar significance gating so one principled change is judged per round. The validated numbers are measured, not marketed — 75.2% outright on the exact 8-digit code, 77.9% effective once clarifying-question recovery is counted, 84.4% in the top three, 87.3% at chapter and 84.1% at heading level — with a separate 60-case messy-real-world-input suite holding the honest figure at 67.8%. Median latency is about 26 seconds, and because every change is gated against the suite, a regression can't ship hidden behind a cherry-picked example.",
+      techDetails: [
+        {
+          name: "Google Gemini 3.5 Flash",
+          reason:
+            "Drives L1 triage, L4 selection, and the L2 reranker (thinking level low), served through Google Vertex AI in production with the Gemini Developer API as a drop-in fallback. It replaced an earlier OpenAI GPT-4o-mini pipeline — and the eval surfaced a finding that shaped the design: the selection bottleneck is information, not model size (a larger model picked the same wrong sibling), so effort went into retrieval and verification rather than a bigger brain.",
+        },
+        {
+          name: "Postgres + pgvector on Supabase",
+          reason:
+            "The 12,460-line ITC-HS taxonomy lives in a normalized schema (sections → chapters → headings → subheadings → tariff lines) with FK and regex CHECK constraints, chapter notes, and 1,505 exclusion rules as first-class data. Every tariff line carries a 1536-dim embedding for HNSW cosine retrieval, run beside Postgres full-text search so semantic and lexical recall back each other up.",
+        },
+        {
+          name: "L5 mechanical verifier",
+          reason:
+            "A pure SQL/TypeScript layer — no LLM — that runs ten checks on every selected code. The load-bearing one is verbatim-citation containment: the note or heading the model quoted must actually match the database text above a strict threshold, and the code's embedding must clear a cosine floor against the query. It's what lets the product promise 'a code you can check' instead of 'trust the AI', and it powers the repair loop that catches and re-selects bad codes.",
+        },
+        {
+          name: "Evaluation harness",
+          reason:
+            "A 385-case suite over a frozen gold denominator measures outright vs ask-recovered accuracy, top-3, per-level routing, confident-wrong rate, and calibration (Brier + ECE with bootstrap CIs), with McNemar significance testing. It's why the accuracy figures are specific and defensible — and why regressions are caught before they ship rather than after.",
+        },
+      ],
+    },
+  },
+  {
     slug: "pdf-edit-engine",
     year: 2026,
     title: "pdf-edit-engine",
     tagline: "Format-preserving PDF text editing at the content-stream level",
     description:
-      "A Python library that edits text in existing PDFs by modifying content-stream operators in place — preserving the original font, kerning, and exact pixel positioning instead of redact-and-replace. Every edit returns a structured FidelityReport so automated pipelines and AI agents can verify quality programmatically, and the engine powers a companion MCP server that exposes 38 tools to agents. v0.2.0 adds encrypted-PDF editing, CFF font injection, and CJK line-breaking on top of a typed Degradation system and a 414-probe invariant audit suite, so agents can gate on specific visual-fidelity events instead of a single boolean.",
+      "A Python library that edits the text inside an existing PDF while keeping its fonts, spacing, and layout perfectly intact — unlike most tools, which just paint over the old text and retype it. Every edit reports how faithfully it preserved the original, so automated pipelines and AI agents can trust the output.",
     status: "Live",
     kind: "library",
     tech: [
@@ -183,7 +243,7 @@ export const projects: Project[] = projectsSchema.parse([
     title: "pdf-edit-mcp",
     tagline: "38-tool MCP server for format-preserving PDF editing",
     description:
-      "Python (FastMCP) MCP server that exposes pdf-edit-engine's capabilities to AI agents over the Model Context Protocol — 38 tools across 7 categories and 3 built-in workflow prompts. v0.2.0 imports the engine in-process, so there's no subprocess, no JSON-RPC bridge, and no Node.js — one runtime, installable with pip or uvx. Every edit returns a FidelityReport agents can inspect to verify quality.",
+      "Connects the pdf-edit-engine to AI assistants like Claude and Cursor, giving them 38 tools to read and edit PDFs right inside a conversation. One-command install, runs as a single Python process — no extra setup.",
     status: "Live",
     kind: "mcp-server",
     tech: ["Python 3.12", "FastMCP", "MCP SDK", "pdf-edit-engine", "pikepdf"],
@@ -252,7 +312,7 @@ export const projects: Project[] = projectsSchema.parse([
     title: "pdf-toolkit-mcp",
     tagline: "Zero-config MCP server for creating and manipulating PDFs",
     description:
-      "TypeScript MCP server that exposes 22 tools for the PDF workflows people actually use — render pages to images so vision models can read scanned documents, create rich PDFs from Markdown with tables and page numbers, generate invoices from structured data, merge/split/rotate, fill forms, embed QR codes and barcodes, and password-encrypt. Installable with a single npx command — no config, no API keys, no Docker — and listed on the official MCP Registry.",
+      "Gives AI assistants 22 ready-to-use PDF tools — turn Markdown into a polished PDF, generate invoices, merge or split files, fill forms, add QR codes, and more. Installs with one command (no config or API keys) and is listed on the official MCP Registry.",
     status: "Live",
     kind: "mcp-server",
     tech: [
@@ -327,7 +387,7 @@ export const projects: Project[] = projectsSchema.parse([
     title: "AJSP Manager",
     tagline: "Business management PWA for a family-run spare parts shop",
     description:
-      "Full-stack PWA running daily at my family's automotive spare parts retailer in Karnataka. Tracks purchases, payments, sales, funds, and loans — replacing a 15-year Excel workflow. An inventory counting system is built and ready for the next six-monthly count; everything else is already in daily production use.",
+      "A web app my family's automotive spare-parts shop in Karnataka runs every day — tracking purchases, payments, sales, funds, and loans in place of a 15-year Excel workflow. A stock-count feature is built and ready for the next six-monthly count; everything else is already in daily use.",
     status: "Live",
     kind: "web-app",
     tech: ["Next.js", "Supabase", "PostgreSQL", "TypeScript", "PWA"],
@@ -372,7 +432,7 @@ export const projects: Project[] = projectsSchema.parse([
     title: "Lumina Crafts",
     tagline: "E-commerce platform for handmade goods",
     description:
-      "Full-stack e-commerce platform with product catalogue, cart, checkout with payment integration, and a complete admin dashboard for inventory and order management.",
+      "A complete online store for a handmade-candle brand — product catalogue, cart, and Razorpay checkout for shoppers, plus an admin dashboard to manage inventory and orders.",
     status: "Live",
     kind: "web-app",
     tech: ["Next.js", "Supabase", "TypeScript", "Razorpay", "Zustand"],
@@ -410,72 +470,12 @@ export const projects: Project[] = projectsSchema.parse([
     },
   },
   {
-    slug: "trade-code",
-    year: 2026,
-    title: "HS Code Classifier",
-    tagline: "ITC-HS export classification, with its legal basis cited",
-    description:
-      "Prevyl is a free ITC-HS classifier for Indian exporters: describe a product and get its 8-digit export code with the legal basis cited — the chapter, heading, and tariff note it rests on, plus the General Interpretive Rule applied — so the answer is auditable before filing. A six-stage pipeline (L0–L5) runs Google Gemini 3.5 Flash for triage and final selection over hybrid retrieval (pgvector semantic search + Postgres full-text + a Gemini reranker) across the full 12,460-code Indian taxonomy, then a pure-SQL verifier checks every cited note against the source text and repairs codes that don't hold up. Confidence is shown as a calibrated band, never a fake number, and the whole brain is graded by a 385-case evaluation harness — 75% outright on the exact code, 84% in the top three.",
-    status: "Live",
-    kind: "web-app",
-    tech: [
-      "Next.js",
-      "Express",
-      "TypeScript",
-      "Google Gemini",
-      "Supabase + pgvector",
-      "Prisma",
-    ],
-    links: {
-      live: "https://hscode.prevyl.com",
-      github: "https://github.com/AryanBV/hs-code-classifier",
-    },
-    image: "/images/hs-code-classifier.png",
-    metrics: [
-      { label: "ITC-HS codes", value: "12,460" },
-      { label: "top-3 accuracy", value: "84%" },
-      { label: "model", value: "Gemini 3.5 Flash" },
-    ],
-    caseStudy: {
-      tagline:
-        "A free ITC-HS classifier that returns an 8-digit export code with its legal basis cited and a calibrated confidence band — a six-stage Gemini pipeline backstopped by a mechanical SQL verifier, graded by an honest eval harness instead of a demo.",
-      challenge:
-        "Every Indian exporter must put an 8-digit ITC-HS code on every shipment, and the taxonomy is unforgiving: 21 sections, 97 chapters, and 12,460 tariff lines whose distinctions turn on legal notes and General Interpretive Rules rather than common sense. Getting it wrong risks ₹50K–5L in customs penalties, so small exporters either burn 30+ minutes per product hunting the catalogue or pay a consultant ₹2K–10K per lookup. A language model can guess a code in seconds — but a confidently wrong code is worse than none, and a black-box guess nobody can check is unfileable. The real problem isn't speed; it's producing a code an exporter can audit against the actual tariff text before staking a shipment on it.",
-      approach:
-        "Prevyl runs a six-stage pipeline (L0–L5) rather than a single prompt. L0 normalizes the query and flags multi-material goods; L1 (Google Gemini 3.5 Flash) triages each request into classify, ask, or refuse and extracts attributes; L2 does hybrid retrieval over the whole catalogue — pgvector HNSW search on 1536-dimension Gemini embeddings alongside Postgres full-text, reranked by Gemini Flash; L3 applies 1,505 deterministic chapter-exclusion rules and narrows the field to a handful of candidates; L4 (Gemini again) selects one code and must cite the heading or note and the General Interpretive Rule it relied on; and L5 — pure SQL and TypeScript, no model — mechanically verifies that citation against the real database text and the query embedding, feeding structured failures back to L4 to repair, up to two rounds. When a description is too thin to separate two siblings, the system asks one targeted question instead of guessing. Confidence is surfaced as a High/Medium/Low band whose underlying number is stripped at the type, client, and server layers, so the interface can't imply precision it doesn't have — and every result exports as a cited 'Classification Record' PDF.",
-      impact:
-        "Prevyl is live and free at hscode.prevyl.com — an Express backend on Railway, a Next.js 16 frontend on Vercel, and Supabase Postgres with pgvector. What makes the accuracy claims trustworthy is the eval harness: a 385-case master suite over a frozen gold denominator, scored with real calibration (Brier, ECE, Wilson intervals) and McNemar significance gating so one principled change is judged per round. The validated numbers are measured, not marketed — 75.2% outright on the exact 8-digit code, 77.9% effective once clarifying-question recovery is counted, 84.4% in the top three, 87.3% at chapter and 84.1% at heading level — with a separate 60-case messy-real-world-input suite holding the honest figure at 67.8%. Median latency is about 26 seconds, and because every change is gated against the suite, a regression can't ship hidden behind a cherry-picked example.",
-      techDetails: [
-        {
-          name: "Google Gemini 3.5 Flash",
-          reason:
-            "Drives L1 triage, L4 selection, and the L2 reranker (thinking level low), served through Google Vertex AI in production with the Gemini Developer API as a drop-in fallback. It replaced an earlier OpenAI GPT-4o-mini pipeline — and the eval surfaced a finding that shaped the design: the selection bottleneck is information, not model size (a larger model picked the same wrong sibling), so effort went into retrieval and verification rather than a bigger brain.",
-        },
-        {
-          name: "Postgres + pgvector on Supabase",
-          reason:
-            "The 12,460-line ITC-HS taxonomy lives in a normalized schema (sections → chapters → headings → subheadings → tariff lines) with FK and regex CHECK constraints, chapter notes, and 1,505 exclusion rules as first-class data. Every tariff line carries a 1536-dim embedding for HNSW cosine retrieval, run beside Postgres full-text search so semantic and lexical recall back each other up.",
-        },
-        {
-          name: "L5 mechanical verifier",
-          reason:
-            "A pure SQL/TypeScript layer — no LLM — that runs ten checks on every selected code. The load-bearing one is verbatim-citation containment: the note or heading the model quoted must actually match the database text above a strict threshold, and the code's embedding must clear a cosine floor against the query. It's what lets the product promise 'a code you can check' instead of 'trust the AI', and it powers the repair loop that catches and re-selects bad codes.",
-        },
-        {
-          name: "Evaluation harness",
-          reason:
-            "A 385-case suite over a frozen gold denominator measures outright vs ask-recovered accuracy, top-3, per-level routing, confident-wrong rate, and calibration (Brier + ECE with bootstrap CIs), with McNemar significance testing. It's why the accuracy figures are specific and defensible — and why regressions are caught before they ship rather than after.",
-        },
-      ],
-    },
-  },
-  {
     slug: "smart-med",
     year: 2025,
     title: "SMART_MED",
     tagline: "AI-powered family health management app",
     description:
-      "AI-powered diabetes management system with interactive family tree visualization and medical document OCR. Upload prescriptions, extract medicine names automatically, and manage family health profiles with hierarchical access control.",
+      "A family health app for managing diabetes: photograph a prescription and it reads the medicine names automatically, while a visual family tree links each member's health profile with role-based access.",
     status: "Prototype",
     kind: "web-app",
     tech: ["React", "TypeScript", "Express", "Supabase", "Tesseract.js"],

@@ -38,10 +38,8 @@ describe("projects data", () => {
 });
 
 describe("trade-code entry", () => {
-  it("is at index 5, between lumina-crafts and smart-med", () => {
-    expect(projects[4]?.slug).toBe("lumina-crafts");
-    expect(projects[5]?.slug).toBe("trade-code");
-    expect(projects[6]?.slug).toBe("smart-med");
+  it("is the featured project at index 0", () => {
+    expect(projects[0]?.slug).toBe("trade-code");
   });
 
   it("is returned by getProjectBySlug with the expected title", () => {
