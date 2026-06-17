@@ -14,16 +14,14 @@ function base({ size = 16, ...rest }: IconProps) {
     strokeWidth: 1.8,
     strokeLinecap: "round" as const,
     strokeLinejoin: "round" as const,
+    // Icons are decorative by default (every usage pairs them with visible
+    // text). Pass an explicit aria-label to override where an icon stands alone.
+    "aria-hidden": true,
+    focusable: false,
     ...rest,
   };
 }
 
-export const ArrowDown = (p: IconProps) => (
-  <svg {...base(p)}>
-    <line x1="12" y1="5" x2="12" y2="19" />
-    <polyline points="19 12 12 19 5 12" />
-  </svg>
-);
 export const ArrowRight = (p: IconProps) => (
   <svg {...base(p)}>
     <line x1="5" y1="12" x2="19" y2="12" />
@@ -59,12 +57,6 @@ export const Linkedin = (p: IconProps) => (
     <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z" />
     <rect x="2" y="9" width="4" height="12" />
     <circle cx="4" cy="4" r="2" />
-  </svg>
-);
-export const Mail = (p: IconProps) => (
-  <svg {...base(p)}>
-    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-    <polyline points="22,6 12,13 2,6" />
   </svg>
 );
 export const Map = (p: IconProps) => (
@@ -121,13 +113,5 @@ export const Terminal = (p: IconProps) => (
   <svg {...base(p)}>
     <polyline points="4 17 10 11 4 5" />
     <line x1="12" y1="19" x2="20" y2="19" />
-  </svg>
-);
-export const Package = (p: IconProps) => (
-  <svg {...base(p)}>
-    <path d="M16.5 9.4 7.55 4.24" />
-    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
-    <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-    <line x1="12" y1="22.08" x2="12" y2="12" />
   </svg>
 );

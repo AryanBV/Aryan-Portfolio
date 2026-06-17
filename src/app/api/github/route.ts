@@ -21,16 +21,26 @@ type LangMap = Record<string, number>;
 export const revalidate = 3600;
 
 export async function GET() {
-  // Repos are required — if this fails, return 503 (no useful data to show)
-  const reposResult = await safeFetch(
-    `${GITHUB_API}/users/${USERNAME}/repos?per_page=100&type=public&sort=updated`,
-    reposSchema,
-    {
-      headers: { Accept: "application/vnd.github+json" },
-      next: { revalidate: 3600 },
-    },
-  );
+  // Repos (required) and contributions (optional, third-party proxy) have no
+  // data dependency, so fetch them concurrently — route latency becomes
+  // max(repos, contributions) instead of the sum.
+  const [reposResult, contribResult] = await Promise.all([
+    safeFetch(
+      `${GITHUB_API}/users/${USERNAME}/repos?per_page=100&type=public&sort=updated`,
+      reposSchema,
+      {
+        headers: { Accept: "application/vnd.github+json" },
+        next: { revalidate: 3600 },
+      },
+    ),
+    safeFetch(
+      `https://github-contributions-api.jogruber.de/v4/${USERNAME}?y=last`,
+      contributionsSchema,
+      { next: { revalidate: 3600 } },
+    ),
+  ]);
 
+  // Repos are required — if this fails, return 503 (no useful data to show).
   if (!reposResult.ok) {
     const status = reposResult.error === "schema" ? 502 : 503;
     const error =
@@ -80,11 +90,6 @@ export async function GET() {
     total: number | null;
     days: ContributionDay[];
   } | null = null;
-  const contribResult = await safeFetch(
-    `https://github-contributions-api.jogruber.de/v4/${USERNAME}?y=last`,
-    contributionsSchema,
-    { next: { revalidate: 3600 } },
-  );
   if (contribResult.ok) {
     contributions = {
       total: contribResult.data.total?.lastYear ?? null,

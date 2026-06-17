@@ -597,7 +597,7 @@ export default function Stats() {
           @media (prefers-reduced-motion: reduce) {
             [style*="statShimmer"] { animation: none !important; }
           }
-          @media (max-width: 900px) {
+          @media (max-width: 1023px) {
             .stats-tile-grid > :nth-child(-n+2) { border-bottom: 1px solid var(--divider); }
             .stats-tile-grid > :nth-child(even) { border-right: none !important; }
           }

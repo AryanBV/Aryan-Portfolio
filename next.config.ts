@@ -35,15 +35,21 @@ const nextConfig: NextConfig = {
             key: "Cross-Origin-Opener-Policy",
             value: "same-origin",
           },
-          // script-src / style-src retain 'unsafe-inline' deliberately:
+          // style-src keeps 'unsafe-inline' for the app's inline style props;
+          // script-src keeps it for the Next.js framework bootstrap. NOTE: the
+          // guards below harden MARKUP / DATA / STYLE injection sinks — they do
+          // NOT cover script-src itself (there are no first-party inline
+          // <script> tags; <JsonLd> emits non-executable application/ld+json):
           // * External URLs are rendered via <SafeExternalLink>, which rejects non-http(s) schemes.
           // * JSON-LD is rendered via <JsonLd>, which HTML-escapes </script>, <!--, <![CDATA[, and U+2028/9.
           // * GitHub API responses are Zod-validated by githubResponseSchema at the boundary.
           // * Long-text project/certificate fields go through safeLongText, which rejects breakout sequences.
           // * tests/security.test.ts asserts every primitive + source-scans render sites for bypasses.
           // * react/no-danger ESLint rule flags any new dangerouslySetInnerHTML at lint time.
-          // Removing 'unsafe-inline' entirely via nonce middleware remains possible but the
-          // +150ms SSR cost is not justified now that the XSS surface is structurally zero.
+          // script-src 'unsafe-inline' is thus a consciously-accepted
+          // defense-in-depth gap (a future inline-script sink would not be
+          // blocked by CSP). It is removable via a per-request nonce +
+          // 'strict-dynamic' in middleware; the +SSR cost is deferred for now.
           //
           // 'unsafe-eval' is dev-only — see `scriptSrc` above for rationale.
           {

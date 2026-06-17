@@ -4,9 +4,11 @@ import {
   getProjectBySlug,
   getProjectSlugs,
   projects,
+  liveLinkLabel,
   type Project,
 } from "@/lib/projects";
 import BrowserPreview from "@/components/ui/BrowserPreview";
+import StatusBadge from "@/components/ui/StatusBadge";
 import TerminalPreview from "@/components/ui/TerminalPreview";
 import SpotCard from "@/components/ui/SpotCard";
 import Reveal from "@/components/ui/Reveal";
@@ -58,57 +60,31 @@ export async function generateMetadata({
   };
 }
 
-// ─── Live-link label + JSON-LD (unchanged from v2) ──────────────────────────
-
-function getLiveLinkLabel(kind: Project["kind"]): string {
-  switch (kind) {
-    case "library":
-      return "View on PyPI";
-    case "mcp-server":
-    case "cli":
-      return "View on npm";
-    case "web-app":
-    default:
-      return "View live";
-  }
-}
+// ─── JSON-LD ────────────────────────────────────────────────────────────────
 
 function getProjectJsonLd(project: Project): Record<string, unknown> {
-  const operatingSystem = project.kind === "web-app" ? "Web" : "Cross-platform";
+  const isWebApp = project.kind === "web-app";
   const ld: Record<string, unknown> = {
     "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
+    "@type": isWebApp ? "WebApplication" : "SoftwareApplication",
     name: project.title,
     description: project.description,
-    applicationCategory: "DeveloperApplication",
-    operatingSystem,
+    applicationCategory: isWebApp
+      ? "BusinessApplication"
+      : "DeveloperApplication",
+    operatingSystem: isWebApp ? "Web" : "Cross-platform",
     author: { "@type": "Person", name: "Aryan B V", url: SITE_ORIGIN },
-    offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
     url: project.links.live ?? `${SITE_ORIGIN}/projects/${project.slug}`,
   };
+  // Only the genuinely free, installable open-source packages get a price-0
+  // Offer — asserting "free" on client/commercial web-apps is inaccurate
+  // structured data Google may flag.
+  if (!isWebApp) {
+    ld.offers = { "@type": "Offer", price: "0", priceCurrency: "USD" };
+  }
   if (project.links.github) ld.codeRepository = project.links.github;
   if (project.image) ld.image = `${SITE_ORIGIN}${project.image}`;
   return ld;
-}
-
-// ─── Inline primitives ──────────────────────────────────────────────────────
-
-function StatusBadge({ status }: { status: Project["status"] }) {
-  const isLive = status === "Live";
-  return (
-    <span className={`status-chip-v2 ${isLive ? "live" : "other"}`}>
-      <span
-        style={{
-          width: 6,
-          height: 6,
-          borderRadius: "50%",
-          background: isLive ? "var(--status-live)" : "var(--text-muted)",
-          boxShadow: isLive ? "0 0 8px var(--status-live)" : "none",
-        }}
-      />
-      {status}
-    </span>
-  );
 }
 
 // ─── Page ───────────────────────────────────────────────────────────────────
@@ -124,7 +100,7 @@ export default async function CaseStudyPage({
 
   const cs = project.caseStudy;
   const isCode = project.kind !== "web-app";
-  const liveLabel = getLiveLinkLabel(project.kind);
+  const liveLabel = liveLinkLabel(project.kind, { verbose: true });
 
   // Next-project nav at the bottom
   const caseStudySlugs = getProjectSlugs();
@@ -284,9 +260,8 @@ export default async function CaseStudyPage({
         {project.metrics && project.metrics.length > 0 && (
           <Reveal stagger>
             <div
-              className="grid gap-3 sm:gap-4"
+              className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4"
               style={{
-                gridTemplateColumns: `repeat(${Math.min(project.metrics.length, 3)}, minmax(0, 1fr))`,
                 marginTop: 24,
               }}
             >

@@ -145,7 +145,7 @@ export default function About() {
                 >
                   AJSP Manager
                 </strong>{" "}
-                — a full-stack PWA that replaced that 15-year paper workflow.
+                — a full-stack PWA that replaced that 15-year Excel workflow.
                 It&apos;s been in daily production use since launch. That
                 experience shaped how I approach every project:{" "}
                 <em

@@ -434,6 +434,19 @@ export default function Contact() {
                     .
                   </p>
                 )}
+
+                {/* Screen-reader-only live region — the submit status is
+                    otherwise conveyed only by the (disabled) button's text,
+                    which assistive tech announces unreliably. */}
+                <p role="status" aria-live="polite" className="sr-only">
+                  {status === "sending"
+                    ? "Sending your message…"
+                    : status === "success"
+                      ? "Message sent — I'll reply soon."
+                      : status === "error"
+                        ? "Something went wrong. Email aryansalian5678@gmail.com."
+                        : ""}
+                </p>
               </form>
               <style>{`@keyframes contactSpin { to { transform: rotate(360deg); } }`}</style>
             </SpotCard>

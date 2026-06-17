@@ -50,3 +50,9 @@ lighthouse-*.json
 # Audit reports + throwaway screenshots
 portfolio-audit-report.md
 audit-*.png
+
+# Local-only personal files (resume, drafts, anti-AI checklist, context docs)
+_personal/
+
+# Generated thumbnail tooling + screenshots (local scratch artifact)
+generated-thumbnails/

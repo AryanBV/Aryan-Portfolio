@@ -27,6 +27,8 @@ export interface Project {
   tagline: string;
   description: string;
   status: ProjectStatus;
+  /** Real ship/publish year; rendered on the card only when present. */
+  year?: number;
   kind: ProjectKind;
   tech: string[];
   links: ProjectLinks;
@@ -56,6 +58,7 @@ const projectSchema = z.object({
   tagline: safeLongText,
   description: safeLongText,
   status: projectStatusSchema,
+  year: z.number().int().min(2000).max(2100).optional(),
   kind: projectKindSchema,
   tech: z.array(z.string().min(1)).min(1),
   links: z.object({
@@ -105,6 +108,7 @@ const projectsSchema = z.array(projectSchema).min(1);
 export const projects: Project[] = projectsSchema.parse([
   {
     slug: "pdf-edit-engine",
+    year: 2026,
     title: "pdf-edit-engine",
     tagline: "Format-preserving PDF text editing at the content-stream level",
     description:
@@ -175,6 +179,7 @@ export const projects: Project[] = projectsSchema.parse([
   },
   {
     slug: "pdf-edit-mcp",
+    year: 2026,
     title: "pdf-edit-mcp",
     tagline: "38-tool MCP server for format-preserving PDF editing",
     description:
@@ -243,6 +248,7 @@ export const projects: Project[] = projectsSchema.parse([
   },
   {
     slug: "pdf-toolkit-mcp",
+    year: 2026,
     title: "pdf-toolkit-mcp",
     tagline: "Zero-config MCP server for creating and manipulating PDFs",
     description:
@@ -362,6 +368,7 @@ export const projects: Project[] = projectsSchema.parse([
   },
   {
     slug: "lumina-crafts",
+    year: 2025,
     title: "Lumina Crafts",
     tagline: "E-commerce platform for handmade goods",
     description:
@@ -404,6 +411,7 @@ export const projects: Project[] = projectsSchema.parse([
   },
   {
     slug: "trade-code",
+    year: 2026,
     title: "HS Code Classifier",
     tagline: "ITC-HS export classification, with its legal basis cited",
     description:
@@ -463,6 +471,7 @@ export const projects: Project[] = projectsSchema.parse([
   },
   {
     slug: "smart-med",
+    year: 2025,
     title: "SMART_MED",
     tagline: "AI-powered family health management app",
     description:
@@ -479,14 +488,6 @@ export const projects: Project[] = projectsSchema.parse([
 
 // ─── Derived accessors ───────────────────────────────────────────────────────
 
-export function getFeaturedProject(): Project {
-  return projects[0];
-}
-
-export function getRestProjects(): Project[] {
-  return projects.slice(1);
-}
-
 export function getProjectBySlug(slug: string): Project | undefined {
   return projects.find((p) => p.slug === slug);
 }
@@ -497,4 +498,23 @@ export function getProjectCaseStudyRoute(project: Project): string | null {
 
 export function getProjectSlugs(): string[] {
   return projects.filter((p) => p.caseStudy).map((p) => p.slug);
+}
+
+// Live-link label by project kind. `verbose` gives the case-study-page phrasing
+// ("View on npm"); the compact form ("npm") is used on the homepage cards.
+export function liveLinkLabel(
+  kind: ProjectKind,
+  opts?: { verbose?: boolean },
+): string {
+  const verbose = opts?.verbose ?? false;
+  switch (kind) {
+    case "library":
+      return verbose ? "View on PyPI" : "PyPI";
+    case "mcp-server":
+    case "cli":
+      return verbose ? "View on npm" : "npm";
+    case "web-app":
+    default:
+      return verbose ? "View live" : "Live";
+  }
 }

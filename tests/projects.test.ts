@@ -1,11 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  projects,
-  getFeaturedProject,
-  getRestProjects,
-  getProjectBySlug,
-  getProjectSlugs,
-} from "@/lib/projects";
+import { projects, getProjectBySlug, getProjectSlugs } from "@/lib/projects";
 
 describe("projects data", () => {
   it("is non-empty", () => {
@@ -23,14 +17,6 @@ describe("projects data", () => {
 
   it("every project has non-empty tech array", () => {
     for (const p of projects) expect(p.tech.length).toBeGreaterThan(0);
-  });
-
-  it("featured project is index 0", () => {
-    expect(getFeaturedProject()).toBe(projects[0]);
-  });
-
-  it("getRestProjects returns all non-featured", () => {
-    expect(getRestProjects().length).toBe(projects.length - 1);
   });
 
   it("getProjectBySlug finds existing projects", () => {

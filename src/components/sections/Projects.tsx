@@ -11,17 +11,13 @@ import {
   Github,
   External,
 } from "@/components/ui/Icons";
+import StatusBadge from "@/components/ui/StatusBadge";
 import {
   projects,
   type Project,
   getProjectCaseStudyRoute,
+  liveLinkLabel,
 } from "@/lib/projects";
-
-function liveLinkLabel(p: Project): string {
-  if (p.kind === "library") return "PyPI";
-  if (p.kind === "mcp-server" || p.kind === "cli") return "npm";
-  return "Live";
-}
 
 interface ProjectCardProps {
   project: Project;
@@ -29,29 +25,10 @@ interface ProjectCardProps {
   idx: string;
 }
 
-function StatusBadge({ status }: { status: Project["status"] }) {
-  const isLive = status === "Live";
-  return (
-    <span className={`status-chip-v2 ${isLive ? "live" : "other"}`}>
-      <span
-        style={{
-          width: 6,
-          height: 6,
-          borderRadius: "50%",
-          background: isLive ? "var(--status-live)" : "var(--text-muted)",
-          boxShadow: isLive ? "0 0 8px var(--status-live)" : "none",
-        }}
-      />
-      {status}
-    </span>
-  );
-}
-
 function ProjectCard({ project: p, index, idx }: ProjectCardProps) {
   const isCode = p.kind !== "web-app";
   const layout: "left" | "right" = index % 2 === 0 ? "left" : "right";
   const caseStudy = getProjectCaseStudyRoute(p);
-  const year = p.status === "Live" ? 2025 : 2024;
 
   const preview = isCode ? (
     <TerminalPreview
@@ -81,7 +58,7 @@ function ProjectCard({ project: p, index, idx }: ProjectCardProps) {
             <>
               <div className="md:order-2">{preview}</div>
               <div className="flex flex-col gap-4 md:order-1">
-                <CardMeta idx={idx} status={p.status} year={year} />
+                <CardMeta idx={idx} status={p.status} year={p.year} />
                 <CardBody p={p} caseStudy={caseStudy} />
               </div>
             </>
@@ -89,7 +66,7 @@ function ProjectCard({ project: p, index, idx }: ProjectCardProps) {
             <>
               <div>{preview}</div>
               <div className="flex flex-col gap-4">
-                <CardMeta idx={idx} status={p.status} year={year} />
+                <CardMeta idx={idx} status={p.status} year={p.year} />
                 <CardBody p={p} caseStudy={caseStudy} />
               </div>
             </>
@@ -107,7 +84,7 @@ function CardMeta({
 }: {
   idx: string;
   status: Project["status"];
-  year: number;
+  year?: number;
 }) {
   return (
     <div className="flex items-center justify-between flex-wrap gap-3">
@@ -123,16 +100,18 @@ function CardMeta({
       </span>
       <div className="flex gap-2 items-center flex-wrap">
         <StatusBadge status={status} />
-        <span
-          style={{
-            fontSize: 11,
-            color: "var(--text-muted)",
-            letterSpacing: "0.15em",
-            fontFamily: "var(--font-mono)",
-          }}
-        >
-          {year}
-        </span>
+        {year !== undefined && (
+          <span
+            style={{
+              fontSize: 11,
+              color: "var(--text-muted)",
+              letterSpacing: "0.15em",
+              fontFamily: "var(--font-mono)",
+            }}
+          >
+            {year}
+          </span>
+        )}
       </div>
     </div>
   );
@@ -243,7 +222,7 @@ function CardBody({ p, caseStudy }: { p: Project; caseStudy: string | null }) {
         )}
         {p.links.live && (
           <MagneticLink external href={p.links.live} style={{ fontSize: 13 }}>
-            <External size={13} /> {liveLinkLabel(p)}{" "}
+            <External size={13} /> {liveLinkLabel(p.kind)}{" "}
             <span className="arrow">
               <ArrowUpRight size={11} />
             </span>

@@ -125,7 +125,6 @@ function MobileCircle() {
               objectPosition: "50% 18%",
               filter: "contrast(1.05) saturate(0.95)",
             }}
-            priority
           />
           {/* Bottom vignette — adds depth, makes the pill beneath feel connected */}
           <div

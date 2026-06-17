@@ -200,6 +200,7 @@ export default function Navbar() {
               <a
                 key={l.id}
                 href={l.href}
+                aria-current={isActive ? "location" : undefined}
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
@@ -315,6 +316,7 @@ export default function Navbar() {
               key={l.id}
               href={l.href}
               onClick={() => setMenuOpen(false)}
+              aria-current={active === l.id ? "location" : undefined}
               style={{
                 display: "flex",
                 alignItems: "center",
